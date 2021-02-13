@@ -90,7 +90,7 @@
           </p>
         </v-row>
         <v-row class="px-4" no-gutters>
-          <v-btn v-if="true" text>
+          <v-btn v-if="true" text @click="openDialog">
             <p class="text-body-2 text--secondary mb-0">
               コメント２０件をすべて見る
             </p>
