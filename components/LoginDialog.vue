@@ -1,6 +1,6 @@
 <template>
   <v-dialog :value="isOpened" persistent class="pa-4 login-dialog" width="400">
-    <v-card class="py-4 px-8">
+    <v-card class="pa-8">
       <p class="text-center text-h3 font-weight-bold">Login</p>
       <div class="input-wrapper">
         <v-text-field label="mail" prepend-inner-icon="mdi-account-circle" />

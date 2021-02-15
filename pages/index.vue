@@ -1,6 +1,7 @@
 <template>
   <div>
-    <LoginDialog :is-opened="isOpenedLoginDialog" @close="closeDialog" />
+    <LoginDialog :is-opened="isOpenedLoginDialog" @close="closeLoginDialog" />
+    <PostDetailDialog :is-opened="isOpenedPostDetailDialog" />
     <h1 class="text-h1 font-weight-bold text-center">O-gram</h1>
     <div class="posts-wrapper">
       <!--投稿 -------------------------------------------------------->
@@ -26,11 +27,7 @@
         </v-row>
         <!-- 画像 -->
         <v-carousel delimiter-icon="mdi-circle-small" :continuous="false">
-          <v-carousel-item
-            v-for="picture in pictures"
-            :key="picture"
-            style="height: 450px"
-          >
+          <v-carousel-item v-for="picture in pictures" :key="picture">
             <v-sheet height="100%" tile>
               <v-row class="fill-height" align="center" justify="center">
                 <!-- TODO:写真の表示方法 -->
@@ -81,7 +78,7 @@
             </span>
           </p>
           <p class="mb-0">
-            <v-btn class="tag pa-1" text>#tag</v-btn>
+            <v-btn class="tag pa-1" text @click="openLoginDialog">#tag</v-btn>
             <v-btn class="tag pa-1" text>#tag</v-btn>
             <v-btn class="tag pa-1" text>#tag</v-btn>
             <v-btn class="tag pa-1" text>#tag</v-btn>
@@ -90,7 +87,7 @@
           </p>
         </v-row>
         <v-row class="px-4" no-gutters>
-          <v-btn v-if="true" text @click="openDialog">
+          <v-btn v-if="true" text @click="openPostDetailDialog">
             <p class="text-body-2 text--secondary mb-0">
               コメント２０件をすべて見る
             </p>
@@ -108,6 +105,7 @@ export default defineComponent({
   setup() {
     /** data ***********************************************************/
     const isOpenedLoginDialog = ref(false)
+    const isOpenedPostDetailDialog = ref(true)
     const isLikePost = ref(false)
     const isMarkedPost = ref(false)
     const pictures = [
@@ -118,11 +116,17 @@ export default defineComponent({
     ]
     /** computed ***********************************************************/
     /** method ***********************************************************/
-    const openDialog = () => {
+    const openLoginDialog = () => {
       isOpenedLoginDialog.value = true
     }
-    const closeDialog = () => {
+    const closeLoginDialog = () => {
       isOpenedLoginDialog.value = false
+    }
+    const openPostDetailDialog = () => {
+      isOpenedPostDetailDialog.value = true
+    }
+    const closePostDetailDialog = () => {
+      isOpenedPostDetailDialog.value = false
     }
     const likePost = () => {
       isLikePost.value = true
@@ -139,13 +143,16 @@ export default defineComponent({
     return {
       /** data */
       isOpenedLoginDialog,
+      isOpenedPostDetailDialog,
       isLikePost,
       isMarkedPost,
       pictures,
       /** computed */
       /** method */
-      openDialog,
-      closeDialog,
+      openLoginDialog,
+      closeLoginDialog,
+      openPostDetailDialog,
+      closePostDetailDialog,
       likePost,
       dislikePost,
       addMark,
@@ -181,7 +188,7 @@ export default defineComponent({
   color: #0095f6;
 }
 .post-icon-row >>> .v-btn--icon {
-  z-index: 999;
+  z-index: 2;
 }
 .tag {
   text-transform: none;
