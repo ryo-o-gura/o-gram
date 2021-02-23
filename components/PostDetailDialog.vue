@@ -1,12 +1,11 @@
 <template>
   <v-dialog
     :value="isOpened"
-    activator="#activator"
     class="pa-4 login-dialog"
     width="800"
+    @input="$emit('toggle', $event)"
   >
     <v-card flat tile class="mx-auto" height="600">
-      <!-- プロフィール -->
       <v-row no-gutters>
         <!-- 画像 -->
         <v-col cols="7">
@@ -15,7 +14,7 @@
             :continuous="false"
             height="600"
           >
-            <v-carousel-item v-for="picture in pictures" :key="picture">
+            <v-carousel-item v-for="picture in post.pictures" :key="picture">
               <v-sheet height="100%" tile>
                 <v-row
                   class="fill-height"
@@ -23,7 +22,6 @@
                   justify="center"
                   no-gutters
                 >
-                  <!-- TODO:写真の表示方法 -->
                   <img :src="picture" />
                 </v-row>
               </v-sheet>
@@ -31,12 +29,13 @@
           </v-carousel>
         </v-col>
         <v-col cols="5">
+          <!-- プロフィール -->
           <v-row class="post-nav py-4 px-3 justify-space-between" no-gutters>
             <v-col>
               <v-btn text icon>
                 <v-icon class="text-h4">mdi-account-circle</v-icon>
               </v-btn>
-              <span>Unknown</span>
+              <span>{{ post.userName }}</span>
             </v-col>
             <v-col align-self="center" class="text-right">
               <v-btn text icon><v-icon>mdi-dots-horizontal</v-icon></v-btn>
@@ -46,26 +45,25 @@
           <v-row no-gutters class="post-row px-4 flex-column flex-nowrap">
             <v-col>
               <p class="mb-0">
-                <span class="font-weight-bold">Unknown</span>
-                <span style="white-space: pre-wrap"
-                  >テキストテキストテキストテキストテキストテキストテキストテキストテキストテキストテキストテキストテキストテキストテキストテキストテキストテキストテキストテキストテキストテキストテキスト
-                </span>
+                <span class="font-weight-bold">{{ post.userName }}</span>
+                <span style="white-space: pre-wrap">{{ post.postText }} </span>
               </p>
             </v-col>
             <v-col class="mb-4">
               <p class="mb-0">
-                <v-btn class="tag pa-1" text @click="openDialog">#tag</v-btn>
-                <v-btn class="tag pa-1" text>#tag</v-btn>
-                <v-btn class="tag pa-1" text>#tag</v-btn>
-                <v-btn class="tag pa-1" text>#tag</v-btn>
-                <v-btn class="tag pa-1" text>#tag</v-btn>
-                <v-btn class="tag pa-1" text>#tag</v-btn>
+                <v-btn
+                  v-for="(tag, index) in post.tags"
+                  :key="index"
+                  class="tag pa-1"
+                  text
+                  >#{{ tag }}</v-btn
+                >
               </p>
             </v-col>
-            <v-col v-for="n in 8" :key="n">
-              <span class="font-weight-bold">Unknown</span>
-              <span style="white-space: pre-wrap"
-                >コメントコメントコメント
+            <v-col v-for="(comment, index) in post.comments" :key="index">
+              <span class="font-weight-bold">{{ comment.userName }}</span>
+              <span style="white-space: pre-wrap">
+                {{ comment.commentText }}
               </span>
             </v-col>
           </v-row>
@@ -76,11 +74,11 @@
           >
             <v-col>
               <span>
-                <v-btn v-if="isLikePost" text icon @click="dislikePost">
-                  <v-icon color="red" large>mdi-heart</v-icon>
-                </v-btn>
-                <v-btn v-else text icon @click="likePost">
-                  <v-icon large>mdi-heart-outline</v-icon>
+                <v-btn text icon @click="toggleFavoriteFlag">
+                  <v-icon v-if="post.favoriteFlag" color="red" large>
+                    mdi-heart
+                  </v-icon>
+                  <v-icon v-else large>mdi-heart-outline</v-icon>
                 </v-btn>
               </span>
               <v-btn text icon>
@@ -88,27 +86,23 @@
               </v-btn>
             </v-col>
             <v-col class="text-right">
-              <v-btn v-if="isMarkedPost" text icon @click="removeMark">
-                <v-icon large>mdi-bookmark</v-icon>
-              </v-btn>
-              <v-btn v-else text icon @click="addMark">
-                <v-icon large>mdi-bookmark-outline</v-icon>
+              <v-btn text icon @click="toggleBookmarkFlag">
+                <v-icon v-if="post.bookmarkFlag" large>mdi-bookmark</v-icon>
+                <v-icon v-else large>mdi-bookmark-outline</v-icon>
               </v-btn>
             </v-col>
           </v-row>
           <!-- いいね -->
           <v-row no-gutters class="px-4 text-caption">
             <v-col cols="12">
-              <v-icon>mdi-account-circle</v-icon>
-              <span class="font-weight-bold">Unknown</span>
-              <span class="font-weight-bold">、他30人</span>
+              <span class="font-weight-bold">{{ post.favoriteCount }}人</span>
               <span>が「いいね！」しました</span>
             </v-col>
             <v-col cols="12" class="mt-2">
-              <p class="text-caption grey--text">2日前</p>
+              <p class="text-caption grey--text mb-0">{{ post.updateDate }}</p>
             </v-col>
           </v-row>
-          <v-row no-gutters class="comment-row px-4 py-2">
+          <v-row no-gutters class="comment-row px-4 py-1">
             <v-col cols="10">
               <v-text-field dense label="コメントを追加" />
             </v-col>
@@ -120,18 +114,26 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref } from 'nuxt-composition-api'
+import { defineComponent, ref, PropType } from 'nuxt-composition-api'
+import { Post } from '~/types/appsyncSchema'
 export default defineComponent({
   name: 'PostDetailDialog',
+  model: {
+    prop: 'isOpened',
+    event: 'toggle',
+  },
   props: {
     isOpened: {
       type: Boolean,
       default: false,
     },
+    post: {
+      type: Object as PropType<Post>,
+      required: true,
+    },
   },
   setup() {
     /** data ***********************************************************/
-    const isOpenedLoginDialog = ref(false)
     const isLikePost = ref(false)
     const isMarkedPost = ref(false)
     const pictures = [
@@ -142,12 +144,6 @@ export default defineComponent({
     ]
     /** computed ***********************************************************/
     /** method ***********************************************************/
-    const openDialog = () => {
-      isOpenedLoginDialog.value = true
-    }
-    const closeDialog = () => {
-      isOpenedLoginDialog.value = false
-    }
     const likePost = () => {
       isLikePost.value = true
     }
@@ -162,14 +158,11 @@ export default defineComponent({
     }
     return {
       /** data */
-      isOpenedLoginDialog,
       isLikePost,
       isMarkedPost,
       pictures,
       /** computed */
       /** method */
-      openDialog,
-      closeDialog,
       likePost,
       dislikePost,
       addMark,
@@ -203,7 +196,7 @@ export default defineComponent({
   color: #0095f6;
 }
 .post-row {
-  height: 333px;
+  height: 349px;
   overflow-y: scroll;
 }
 .post-nav {

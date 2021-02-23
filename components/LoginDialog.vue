@@ -1,5 +1,11 @@
 <template>
-  <v-dialog :value="isOpened" persistent class="pa-4 login-dialog" width="400">
+  <v-dialog
+    :value="isOpened"
+    persistent
+    class="pa-4 login-dialog"
+    width="400"
+    @input="$emit('toggle', $event)"
+  >
     <v-card class="pa-8">
       <p class="text-center text-h3 font-weight-bold">Login</p>
       <div class="input-wrapper">
@@ -25,6 +31,10 @@
 import { defineComponent } from 'nuxt-composition-api'
 export default defineComponent({
   name: 'LoginDialog',
+  model: {
+    prop: 'isOpened',
+    event: 'toggle',
+  },
   props: {
     isOpened: {
       type: Boolean,
