@@ -10,11 +10,11 @@ export declare interface Post {
   userId: number
   postId: number
   favoriteCount: number
-  favoriteFlag: true
-  bookmarkFlag: true
+  favoriteFlag: boolean
+  bookmarkFlag: boolean
   postText: string
   updateDate: string
   pictures: any
-  tags:string[]
+  tags: string[]
   comments: Comment[]
 }

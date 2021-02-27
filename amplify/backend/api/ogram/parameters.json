@@ -1,0 +1,11 @@
+{
+  "AppSyncApiName": "ogram",
+  "DynamoDBBillingMode": "PAY_PER_REQUEST",
+  "DynamoDBEnableServerSideEncryption": false,
+  "AuthCognitoUserPoolId": {
+    "Fn::GetAtt": [
+      "authogram1305088f",
+      "Outputs.UserPoolId"
+    ]
+  }
+}

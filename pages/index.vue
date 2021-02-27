@@ -39,7 +39,7 @@
         <v-row class="post-icon-row px-3 justify-space-between" no-gutters>
           <v-col>
             <span>
-              <v-btn text icon @click="toggleFavoriteFlag">
+              <v-btn text icon @click="toggleFavoriteFlag(post)">
                 <v-icon v-if="post.favoriteFlag" color="red" large>
                   mdi-heart
                 </v-icon>
@@ -51,7 +51,7 @@
             </v-btn>
           </v-col>
           <v-col class="text-right">
-            <v-btn text icon @click="toggleBookmarkFlag">
+            <v-btn text icon @click="toggleBookmarkFlag(post)">
               <v-icon v-if="post.bookmarkFlag" large>mdi-bookmark</v-icon>
               <v-icon v-else large>mdi-bookmark-outline</v-icon>
             </v-btn>
@@ -81,7 +81,7 @@
           </p>
         </v-row>
         <v-row class="px-4" no-gutters>
-          <v-btn v-if="true" text @click="openPostDetailDialog">
+          <v-btn v-if="true" text @click="openPostDetailDialog(post)">
             <p class="text-body-2 text--secondary mb-0">
               コメント{{ post.comments.length }}件をすべて見る
             </p>
@@ -94,7 +94,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref } from 'nuxt-composition-api'
+import { defineComponent, ref, useFetch } from 'nuxt-composition-api'
 import { Post } from 'types/appsyncSchema'
 export default defineComponent({
   setup() {
@@ -103,7 +103,26 @@ export default defineComponent({
     const isOpenedPostDetailDialog = ref(false)
     const isLikePost = ref(false)
     const isMarkedPost = ref(false)
-    const selectedPost = ref<Post>()
+    const selectedPost = ref<Post>({
+      userName: '',
+      userId: 0,
+      postId: 0,
+      favoriteCount: 0,
+      favoriteFlag: false,
+      bookmarkFlag: false,
+      postText: '',
+      updateDate: '',
+      pictures: [],
+      tags: [''],
+      comments: [
+        {
+          userName: '',
+          userId: 0,
+          commentText: '',
+          updateDate: '',
+        },
+      ],
+    })
     const allPosts = ref<Post[]>([
       {
         userName: 'user1',
@@ -238,21 +257,19 @@ export default defineComponent({
     const closeLoginDialog = () => {
       isOpenedLoginDialog.value = false
     }
-    const openPostDetailDialog = (item: Post) => {
-      console.debug(item)
-      selectedPost.value = item
+    const openPostDetailDialog = (post: Post) => {
+      selectedPost.value = post
+      console.debug(selectedPost.value)
       isOpenedPostDetailDialog.value = true
     }
-    const toggleFavoriteFlag = (item: Post) => {
-      console.debug(item)
-      isLikePost.value = true
+    const toggleFavoriteFlag = (post: Post) => {
+      post.favoriteFlag = !post.favoriteFlag
     }
-    const toggleBookmarkFlag = (item: Post) => {
-      console.debug(item)
-      isLikePost.value = false
+    const toggleBookmarkFlag = (post: Post) => {
+      post.bookmarkFlag = !post.bookmarkFlag
     }
+    const 
     /** init */
-
     return {
       /** data */
       isOpenedLoginDialog,

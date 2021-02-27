@@ -31,7 +31,7 @@
         <v-col cols="5">
           <!-- プロフィール -->
           <v-row class="post-nav py-4 px-3 justify-space-between" no-gutters>
-            <v-col>
+            <v-col cols="auto">
               <v-btn text icon>
                 <v-icon class="text-h4">mdi-account-circle</v-icon>
               </v-btn>
@@ -42,14 +42,17 @@
             </v-col>
           </v-row>
           <!-- 投稿テキスト -->
-          <v-row no-gutters class="post-row px-4 flex-column flex-nowrap">
-            <v-col>
+          <v-row
+            no-gutters
+            class="post-row px-4 flex-column flex-start flex-nowrap"
+          >
+            <v-col cols="auto">
               <p class="mb-0">
                 <span class="font-weight-bold">{{ post.userName }}</span>
                 <span style="white-space: pre-wrap">{{ post.postText }} </span>
               </p>
             </v-col>
-            <v-col class="mb-4">
+            <v-col cols="auto" class="mb-10">
               <p class="mb-0">
                 <v-btn
                   v-for="(tag, index) in post.tags"
@@ -60,11 +63,13 @@
                 >
               </p>
             </v-col>
-            <v-col v-for="(comment, index) in post.comments" :key="index">
+            <v-col
+              cols="auto"
+              v-for="(comment, index) in post.comments"
+              :key="index"
+            >
               <span class="font-weight-bold">{{ comment.userName }}</span>
-              <span style="white-space: pre-wrap">
-                {{ comment.commentText }}
-              </span>
+              <span>{{ comment.commentText }} </span>
             </v-col>
           </v-row>
           <!-- アイコン -->
@@ -129,44 +134,25 @@ export default defineComponent({
     },
     post: {
       type: Object as PropType<Post>,
-      required: true,
     },
   },
   setup() {
     /** data ***********************************************************/
     const isLikePost = ref(false)
     const isMarkedPost = ref(false)
-    const pictures = [
-      require('@/assets/image/image1.jpg'),
-      require('@/assets/image/image2.jpg'),
-      require('@/assets/image/image3.jpg'),
-      require('@/assets/image/image4.jpg'),
-    ]
     /** computed ***********************************************************/
     /** method ***********************************************************/
-    const likePost = () => {
-      isLikePost.value = true
-    }
-    const dislikePost = () => {
-      isLikePost.value = false
-    }
-    const addMark = () => {
-      isMarkedPost.value = true
-    }
-    const removeMark = () => {
-      isMarkedPost.value = false
-    }
+    // TODO:update方法
+    const toggleFavoriteFlag = () => {}
+    const toggleBookmarkFlag = () => {}
     return {
       /** data */
       isLikePost,
       isMarkedPost,
-      pictures,
       /** computed */
       /** method */
-      likePost,
-      dislikePost,
-      addMark,
-      removeMark,
+      toggleFavoriteFlag,
+      toggleBookmarkFlag,
     }
   },
 })
