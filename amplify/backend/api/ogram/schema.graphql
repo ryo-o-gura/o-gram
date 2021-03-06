@@ -1,6 +1,52 @@
-type Post @model {
+type User
+  @model(subscriptions: null)
+  @key(fields: ["userId"]) {
+  userId: ID!
+  username: String!
+  password: String!
+  icon: Int
+  posts: [Post] @connection(keyName: "postsByUserId", fields: ["userId"])
+  createdAt: String
+  updatedAt: String
+}
+
+type Post
+  @model
+  @key(name: "postsByUserId", fields: ["authorId"]) {
   id: ID!
+  authorId: ID!
+  content: String!
+  postImage: String
+  author: User @connection(fields: ["authorId"])
+  comments: [Comment] @connection(keyName: "commentsByPostId", fields: ["id"])
+  likes: [PostLike] @connection(keyName: "postLikesByPostId", fields: ["id"])
+}
+
+type Comment
+  @model
+  @key(name: "commentsByPostId", fields: ["postId"]) {
+  id: ID!
+  postId: ID!
+  authorId: ID!
+  commenterId: ID!
   text: String!
+  author: User @connection(fields: ["authorId"])
+  posts: Post @connection(fields: ["postId"])
+  commenter: User @connection(fields: ["commenterId"])
+}
+
+type PostLike
+  @model
+  @key(name: "postLikesByPostId", fields: ["postId"])
+  @key(
+    name: "postLikesByUser"
+    fields: ["userId", "createdAt"]
+    queryField: "likesByUser"
+  ) {
+  id: ID!
+  postId: ID!
+  userId: ID!
+  user: User @connection(fields: ["userId"])
+  post: Post @connection(fields: ["postId"])
   createdAt: String!
-  user: String!
 }

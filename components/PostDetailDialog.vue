@@ -119,8 +119,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, PropType } from 'nuxt-composition-api'
-import { Post } from '~/types/appsyncSchema'
+import { defineComponent, ref, PropType, useFetch } from 'nuxt-composition-api'
 export default defineComponent({
   name: 'PostDetailDialog',
   model: {
@@ -133,7 +132,7 @@ export default defineComponent({
       default: false,
     },
     post: {
-      type: Object as PropType<Post>,
+      type: Object,
     },
   },
   setup() {

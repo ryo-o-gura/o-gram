@@ -95,7 +95,11 @@
 
 <script lang="ts">
 import { defineComponent, ref, useFetch } from 'nuxt-composition-api'
-import { Post } from 'types/appsyncSchema'
+import { listUsersGql } from '~/appsync/queries'
+import Amplify, { Auth } from 'aws-amplify'
+import awsconfig from '~/src/aws-exports'
+Amplify.configure(awsconfig)
+import { Post } from '~/src/API'
 export default defineComponent({
   setup() {
     /** data ***********************************************************/
@@ -103,7 +107,7 @@ export default defineComponent({
     const isOpenedPostDetailDialog = ref(false)
     const isLikePost = ref(false)
     const isMarkedPost = ref(false)
-    const selectedPost = ref<Post>({
+    const selectedPost = ref<any>({
       userName: '',
       userId: 0,
       postId: 0,
@@ -123,7 +127,7 @@ export default defineComponent({
         },
       ],
     })
-    const allPosts = ref<Post[]>([
+    const allPosts = ref<any>([
       {
         userName: 'user1',
         userId: 1,
@@ -257,19 +261,30 @@ export default defineComponent({
     const closeLoginDialog = () => {
       isOpenedLoginDialog.value = false
     }
-    const openPostDetailDialog = (post: Post) => {
+    const openPostDetailDialog = (post: any) => {
       selectedPost.value = post
       console.debug(selectedPost.value)
       isOpenedPostDetailDialog.value = true
     }
-    const toggleFavoriteFlag = (post: Post) => {
+    const toggleFavoriteFlag = (post: any) => {
       post.favoriteFlag = !post.favoriteFlag
     }
-    const toggleBookmarkFlag = (post: Post) => {
+    const toggleBookmarkFlag = (post: any) => {
       post.bookmarkFlag = !post.bookmarkFlag
     }
-    const 
     /** init */
+    useFetch(async () => {
+      try {
+        // 自動サインイン（仮）
+        await Auth.signIn('admin0000', 'admin-pass')
+        const b = await Auth.currentAuthenticatedUser()
+        const a = await listUsersGql()
+        console.debug('aa', a)
+        console.debug('bb', b)
+      } catch (e) {
+        console.debug(e)
+      }
+    })
     return {
       /** data */
       isOpenedLoginDialog,
