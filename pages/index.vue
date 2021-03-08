@@ -2,9 +2,9 @@
   <div>
     <LoginDialog :is-opened="isOpenedLoginDialog" @close="closeLoginDialog" />
     <PostDetailDialog v-model="isOpenedPostDetailDialog" :post="selectedPost" />
+    <CreatePostDialog v-model="isOpenedCreatePostDialog" :post="selectedPost" />
     <h1 class="text-h1 font-weight-bold text-center">O-gram</h1>
     <div class="posts-wrapper">
-      <v-file-input label="テスト" @change="uploadFile" />
       <!--投稿 -------------------------------------------------------->
       <v-card
         v-for="post in allPosts"
@@ -52,7 +52,7 @@
             </v-btn>
           </v-col>
           <v-col class="text-right">
-            <v-btn text icon @click="toggleBookmarkFlag(post)">
+            <v-btn text icon @click="openPostDetailDialog">
               <v-icon v-if="post.bookmarkFlag" large>mdi-bookmark</v-icon>
               <v-icon v-else large>mdi-bookmark-outline</v-icon>
             </v-btn>
@@ -105,6 +105,7 @@ export default defineComponent({
     /** data ***********************************************************/
     const isOpenedLoginDialog = ref(false)
     const isOpenedPostDetailDialog = ref(false)
+    const isOpenedCreatePostDialog = ref(false)
     const isLikePost = ref(false)
     const isMarkedPost = ref(false)
     const selectedPost = ref<any>({
@@ -261,17 +262,13 @@ export default defineComponent({
     const closeLoginDialog = () => {
       isOpenedLoginDialog.value = false
     }
-    const uploadFile = async (file: any) => {
-      console.debug(file)
-      const filePath = `test/${file.name}`
-      await Storage.put(filePath, file)
-      const b = await Storage.get(filePath)
-      console.debug('dss', b)
-    }
-    const openPostDetailDialog = (post: any) => {
+    const openCreatePostDialog = (post: any) => {
       selectedPost.value = post
       console.debug(selectedPost.value)
       isOpenedPostDetailDialog.value = true
+    }
+    const openPostDetailDialog = (post: any) => {
+      isOpenedCreatePostDialog.value = true
     }
     const toggleFavoriteFlag = (post: any) => {
       post.favoriteFlag = !post.favoriteFlag
@@ -296,16 +293,17 @@ export default defineComponent({
       /** data */
       isOpenedLoginDialog,
       isOpenedPostDetailDialog,
+      isOpenedCreatePostDialog,
       isLikePost,
       isMarkedPost,
       selectedPost,
       allPosts,
       /** computed */
       /** method */
-      uploadFile,
       openLoginDialog,
       closeLoginDialog,
       openPostDetailDialog,
+      openCreatePostDialog,
       toggleFavoriteFlag,
       toggleBookmarkFlag,
     }
