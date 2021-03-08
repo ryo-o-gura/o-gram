@@ -3,9 +3,9 @@
 // this is an auto generated file. This will be overwritten
 
 export const getUser = /* GraphQL */ `
-  query GetUser($userId: ID!) {
-    getUser(userId: $userId) {
-      userId
+  query GetUser($username: ID!) {
+    getUser(username: $username) {
+      id
       username
       password
       icon
@@ -27,21 +27,21 @@ export const getUser = /* GraphQL */ `
 `;
 export const listUsers = /* GraphQL */ `
   query ListUsers(
-    $userId: ID
+    $username: ID
     $filter: ModelUserFilterInput
     $limit: Int
     $nextToken: String
     $sortDirection: ModelSortDirection
   ) {
     listUsers(
-      userId: $userId
+      username: $username
       filter: $filter
       limit: $limit
       nextToken: $nextToken
       sortDirection: $sortDirection
     ) {
       items {
-        userId
+        id
         username
         password
         icon
@@ -63,7 +63,7 @@ export const getPost = /* GraphQL */ `
       content
       postImage
       author {
-        userId
+        id
         username
         password
         icon
@@ -113,7 +113,7 @@ export const listPosts = /* GraphQL */ `
         content
         postImage
         author {
-          userId
+          id
           username
           password
           icon
@@ -142,7 +142,7 @@ export const getComment = /* GraphQL */ `
       commenterId
       text
       author {
-        userId
+        id
         username
         password
         icon
@@ -158,7 +158,7 @@ export const getComment = /* GraphQL */ `
         content
         postImage
         author {
-          userId
+          id
           username
           password
           icon
@@ -175,7 +175,7 @@ export const getComment = /* GraphQL */ `
         updatedAt
       }
       commenter {
-        userId
+        id
         username
         password
         icon
@@ -204,7 +204,7 @@ export const listComments = /* GraphQL */ `
         commenterId
         text
         author {
-          userId
+          id
           username
           password
           icon
@@ -220,7 +220,7 @@ export const listComments = /* GraphQL */ `
           updatedAt
         }
         commenter {
-          userId
+          id
           username
           password
           icon
@@ -241,7 +241,7 @@ export const getPostLike = /* GraphQL */ `
       postId
       userId
       user {
-        userId
+        id
         username
         password
         icon
@@ -257,7 +257,7 @@ export const getPostLike = /* GraphQL */ `
         content
         postImage
         author {
-          userId
+          id
           username
           password
           icon
@@ -290,7 +290,7 @@ export const listPostLikes = /* GraphQL */ `
         postId
         userId
         user {
-          userId
+          id
           username
           password
           icon
@@ -334,7 +334,7 @@ export const likesByUser = /* GraphQL */ `
         postId
         userId
         user {
-          userId
+          id
           username
           password
           icon

@@ -1,30 +1,24 @@
-type User
-  @model(subscriptions: null)
-  @key(fields: ["userId"]) {
-  userId: ID!
-  username: String!
+type User @model(subscriptions: null) @key(fields: ["username"]) {
+  id: ID!
+  username: ID!
   password: String!
   icon: Int
-  posts: [Post] @connection(keyName: "postsByUserId", fields: ["userId"])
+  posts: [Post] @connection(keyName: "postsByUserId", fields: ["id"])
   createdAt: String
   updatedAt: String
 }
 
-type Post
-  @model
-  @key(name: "postsByUserId", fields: ["authorId"]) {
+type Post @model @key(name: "postsByUserId", fields: ["authorId"]) {
   id: ID!
   authorId: ID!
   content: String!
-  postImage: String
+  postImage: [String]!
   author: User @connection(fields: ["authorId"])
   comments: [Comment] @connection(keyName: "commentsByPostId", fields: ["id"])
   likes: [PostLike] @connection(keyName: "postLikesByPostId", fields: ["id"])
 }
 
-type Comment
-  @model
-  @key(name: "commentsByPostId", fields: ["postId"]) {
+type Comment @model @key(name: "commentsByPostId", fields: ["postId"]) {
   id: ID!
   postId: ID!
   authorId: ID!

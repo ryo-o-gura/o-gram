@@ -8,7 +8,7 @@ export const createUser = /* GraphQL */ `
     $condition: ModelUserConditionInput
   ) {
     createUser(input: $input, condition: $condition) {
-      userId
+      id
       username
       password
       icon
@@ -34,7 +34,7 @@ export const updateUser = /* GraphQL */ `
     $condition: ModelUserConditionInput
   ) {
     updateUser(input: $input, condition: $condition) {
-      userId
+      id
       username
       password
       icon
@@ -60,7 +60,7 @@ export const deleteUser = /* GraphQL */ `
     $condition: ModelUserConditionInput
   ) {
     deleteUser(input: $input, condition: $condition) {
-      userId
+      id
       username
       password
       icon
@@ -91,7 +91,7 @@ export const createPost = /* GraphQL */ `
       content
       postImage
       author {
-        userId
+        id
         username
         password
         icon
@@ -139,7 +139,7 @@ export const updatePost = /* GraphQL */ `
       content
       postImage
       author {
-        userId
+        id
         username
         password
         icon
@@ -187,7 +187,7 @@ export const deletePost = /* GraphQL */ `
       content
       postImage
       author {
-        userId
+        id
         username
         password
         icon
@@ -236,7 +236,7 @@ export const createComment = /* GraphQL */ `
       commenterId
       text
       author {
-        userId
+        id
         username
         password
         icon
@@ -252,7 +252,7 @@ export const createComment = /* GraphQL */ `
         content
         postImage
         author {
-          userId
+          id
           username
           password
           icon
@@ -269,7 +269,7 @@ export const createComment = /* GraphQL */ `
         updatedAt
       }
       commenter {
-        userId
+        id
         username
         password
         icon
@@ -296,7 +296,7 @@ export const updateComment = /* GraphQL */ `
       commenterId
       text
       author {
-        userId
+        id
         username
         password
         icon
@@ -312,7 +312,7 @@ export const updateComment = /* GraphQL */ `
         content
         postImage
         author {
-          userId
+          id
           username
           password
           icon
@@ -329,7 +329,7 @@ export const updateComment = /* GraphQL */ `
         updatedAt
       }
       commenter {
-        userId
+        id
         username
         password
         icon
@@ -356,7 +356,7 @@ export const deleteComment = /* GraphQL */ `
       commenterId
       text
       author {
-        userId
+        id
         username
         password
         icon
@@ -372,7 +372,7 @@ export const deleteComment = /* GraphQL */ `
         content
         postImage
         author {
-          userId
+          id
           username
           password
           icon
@@ -389,7 +389,7 @@ export const deleteComment = /* GraphQL */ `
         updatedAt
       }
       commenter {
-        userId
+        id
         username
         password
         icon
@@ -414,7 +414,7 @@ export const createPostLike = /* GraphQL */ `
       postId
       userId
       user {
-        userId
+        id
         username
         password
         icon
@@ -430,7 +430,7 @@ export const createPostLike = /* GraphQL */ `
         content
         postImage
         author {
-          userId
+          id
           username
           password
           icon
@@ -461,7 +461,7 @@ export const updatePostLike = /* GraphQL */ `
       postId
       userId
       user {
-        userId
+        id
         username
         password
         icon
@@ -477,7 +477,7 @@ export const updatePostLike = /* GraphQL */ `
         content
         postImage
         author {
-          userId
+          id
           username
           password
           icon
@@ -508,7 +508,7 @@ export const deletePostLike = /* GraphQL */ `
       postId
       userId
       user {
-        userId
+        id
         username
         password
         icon
@@ -524,7 +524,7 @@ export const deletePostLike = /* GraphQL */ `
         content
         postImage
         author {
-          userId
+          id
           username
           password
           icon

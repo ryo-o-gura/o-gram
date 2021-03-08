@@ -4,6 +4,7 @@
     <PostDetailDialog v-model="isOpenedPostDetailDialog" :post="selectedPost" />
     <h1 class="text-h1 font-weight-bold text-center">O-gram</h1>
     <div class="posts-wrapper">
+      <v-file-input label="テスト" @change="uploadFile" />
       <!--投稿 -------------------------------------------------------->
       <v-card
         v-for="post in allPosts"
@@ -96,10 +97,9 @@
 <script lang="ts">
 import { defineComponent, ref, useFetch } from 'nuxt-composition-api'
 import { listUsersGql } from '~/appsync/queries'
-import Amplify, { Auth } from 'aws-amplify'
+import Amplify, { Auth, Storage } from 'aws-amplify'
 import awsconfig from '~/src/aws-exports'
 Amplify.configure(awsconfig)
-import { Post } from '~/src/API'
 export default defineComponent({
   setup() {
     /** data ***********************************************************/
@@ -261,6 +261,13 @@ export default defineComponent({
     const closeLoginDialog = () => {
       isOpenedLoginDialog.value = false
     }
+    const uploadFile = async (file: any) => {
+      console.debug(file)
+      const filePath = `test/${file.name}`
+      await Storage.put(filePath, file)
+      const b = await Storage.get(filePath)
+      console.debug('dss', b)
+    }
     const openPostDetailDialog = (post: any) => {
       selectedPost.value = post
       console.debug(selectedPost.value)
@@ -295,6 +302,7 @@ export default defineComponent({
       allPosts,
       /** computed */
       /** method */
+      uploadFile,
       openLoginDialog,
       closeLoginDialog,
       openPostDetailDialog,

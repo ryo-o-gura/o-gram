@@ -10,7 +10,7 @@ export const onCreatePost = /* GraphQL */ `
       content
       postImage
       author {
-        userId
+        id
         username
         password
         icon
@@ -55,7 +55,7 @@ export const onUpdatePost = /* GraphQL */ `
       content
       postImage
       author {
-        userId
+        id
         username
         password
         icon
@@ -100,7 +100,7 @@ export const onDeletePost = /* GraphQL */ `
       content
       postImage
       author {
-        userId
+        id
         username
         password
         icon
@@ -146,7 +146,7 @@ export const onCreateComment = /* GraphQL */ `
       commenterId
       text
       author {
-        userId
+        id
         username
         password
         icon
@@ -162,7 +162,7 @@ export const onCreateComment = /* GraphQL */ `
         content
         postImage
         author {
-          userId
+          id
           username
           password
           icon
@@ -179,7 +179,7 @@ export const onCreateComment = /* GraphQL */ `
         updatedAt
       }
       commenter {
-        userId
+        id
         username
         password
         icon
@@ -203,7 +203,7 @@ export const onUpdateComment = /* GraphQL */ `
       commenterId
       text
       author {
-        userId
+        id
         username
         password
         icon
@@ -219,7 +219,7 @@ export const onUpdateComment = /* GraphQL */ `
         content
         postImage
         author {
-          userId
+          id
           username
           password
           icon
@@ -236,7 +236,7 @@ export const onUpdateComment = /* GraphQL */ `
         updatedAt
       }
       commenter {
-        userId
+        id
         username
         password
         icon
@@ -260,7 +260,7 @@ export const onDeleteComment = /* GraphQL */ `
       commenterId
       text
       author {
-        userId
+        id
         username
         password
         icon
@@ -276,7 +276,7 @@ export const onDeleteComment = /* GraphQL */ `
         content
         postImage
         author {
-          userId
+          id
           username
           password
           icon
@@ -293,7 +293,7 @@ export const onDeleteComment = /* GraphQL */ `
         updatedAt
       }
       commenter {
-        userId
+        id
         username
         password
         icon
@@ -315,7 +315,7 @@ export const onCreatePostLike = /* GraphQL */ `
       postId
       userId
       user {
-        userId
+        id
         username
         password
         icon
@@ -331,7 +331,7 @@ export const onCreatePostLike = /* GraphQL */ `
         content
         postImage
         author {
-          userId
+          id
           username
           password
           icon
@@ -359,7 +359,7 @@ export const onUpdatePostLike = /* GraphQL */ `
       postId
       userId
       user {
-        userId
+        id
         username
         password
         icon
@@ -375,7 +375,7 @@ export const onUpdatePostLike = /* GraphQL */ `
         content
         postImage
         author {
-          userId
+          id
           username
           password
           icon
@@ -403,7 +403,7 @@ export const onDeletePostLike = /* GraphQL */ `
       postId
       userId
       user {
-        userId
+        id
         username
         password
         icon
@@ -419,7 +419,7 @@ export const onDeletePostLike = /* GraphQL */ `
         content
         postImage
         author {
-          userId
+          id
           username
           password
           icon
