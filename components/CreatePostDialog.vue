@@ -1,36 +1,51 @@
 <template>
-  <v-dialog
-    :value="isOpened"
-    class="pa-4 login-dialog"
-    width="800"
-    @input="$emit('toggle', $event)"
-  >
+  <v-dialog v-model="isOpened" class="pa-4 login-dialog" width="800" persistent>
     <v-card flat tile class="mx-auto" height="600">
       <v-row no-gutters>
         <!-- 画像 -->
-        <v-col class="img-wrapper">
-          <v-file-input
-            label="テスト"
-            @change="uploadFile($event, 1)"
-            prepend-icon="mdi-camera"
-            accept="image/png, image/jpeg"
-            clearable
-          />
-          <img class="img" :src="imgs" width="200px" />
+        <v-col
+          cols="4"
+          v-for="(img, index) in postImgs"
+          :key="index"
+          class="img-wrapper"
+        >
+          <img class="img" :src="img" width="200px" />
         </v-col>
+        <v-file-input
+          label="テスト"
+          @change="uploadFile($event, 0)"
+          prepend-icon="mdi-camera"
+          hide-input
+          accept="image/png, image/jpeg"
+        />
+      </v-row>
+      <v-row>
+        <v-textarea v-model="postContent" />
+      </v-row>
+      <v-row>
+        <v-btn @click="$emit('close', false)">投稿する</v-btn>
+        <v-btn @click="$emit('close', false)">キャンセル</v-btn>
       </v-row>
     </v-card>
   </v-dialog>
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, PropType, useFetch } from 'nuxt-composition-api'
+import {
+  defineComponent,
+  ref,
+  PropType,
+  useFetch,
+  computed,
+} from 'nuxt-composition-api'
 import { Storage } from 'aws-amplify'
+import { createPost } from '../src/graphql/mutations'
+import { CreatePostInput } from '~/src/API'
 export default defineComponent({
   name: 'PostDetailDialog',
   model: {
     prop: 'isOpened',
-    event: 'toggle',
+    event: 'close',
   },
   props: {
     isOpened: {
@@ -52,24 +67,31 @@ export default defineComponent({
         items: [],
       },
     })
-    const imgs = ref<string[]>()
+    const postImgs = ref<string[]>([])
+    const postContent = ref('')
     /** computed ***********************************************************/
     /** method ***********************************************************/
-    const uploadFile = async (file: any, index: number) => {
-      console.debug(file, index)
+    const uploadFile = async (file: any) => {
       const filePath = `${loginUser.value.id}/${loginUser.value.posts.items.length}/${file.name}`
       await Storage.put(filePath, file)
       const newImg = await Storage.get(filePath)
-      if (typeof newImg === 'string') {
-        imgs.value![index] = newImg
+      if (typeof newImg == 'string') {
+        postImgs.value.push(newImg)
       }
-      console.debug(imgs.value)
+    }
+    const createPost = async () => {
+      const createInput: CreatePostInput = {
+        authorId: loginUser.value.id,
+        content: postContent.value,
+        postImage: postImgs.value,
+      }
     }
     return {
       /** data */
       loginUser,
       uploadFile,
-      imgs,
+      postImgs,
+      postContent,
       /** computed */
       /** method */
     }
@@ -78,14 +100,8 @@ export default defineComponent({
 </script>
 <style scoped>
 .img-wrapper {
-  width: 200px;
   height: 200px;
+  overflow: hidden;
   border: 1px solid #ddd;
-}
-.img {
-  z-index: 999px;
-}
-.v-file-input >>> .v-input__control > .v-input__slot > .v-text-field__slot {
-  display: none;
 }
 </style>
