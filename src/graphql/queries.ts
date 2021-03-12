@@ -12,7 +12,7 @@ export const getUser = /* GraphQL */ `
       posts {
         items {
           id
-          authorId
+          authorname
           content
           postImage
           createdAt
@@ -59,7 +59,7 @@ export const getPost = /* GraphQL */ `
   query GetPost($id: ID!) {
     getPost(id: $id) {
       id
-      authorId
+      authorname
       content
       postImage
       author {
@@ -109,7 +109,7 @@ export const listPosts = /* GraphQL */ `
     listPosts(filter: $filter, limit: $limit, nextToken: $nextToken) {
       items {
         id
-        authorId
+        authorname
         content
         postImage
         author {
@@ -154,7 +154,7 @@ export const getComment = /* GraphQL */ `
       }
       posts {
         id
-        authorId
+        authorname
         content
         postImage
         author {
@@ -213,7 +213,7 @@ export const listComments = /* GraphQL */ `
         }
         posts {
           id
-          authorId
+          authorname
           content
           postImage
           createdAt
@@ -253,7 +253,7 @@ export const getPostLike = /* GraphQL */ `
       }
       post {
         id
-        authorId
+        authorname
         content
         postImage
         author {
@@ -299,7 +299,7 @@ export const listPostLikes = /* GraphQL */ `
         }
         post {
           id
-          authorId
+          authorname
           content
           postImage
           createdAt
@@ -343,7 +343,7 @@ export const likesByUser = /* GraphQL */ `
         }
         post {
           id
-          authorId
+          authorname
           content
           postImage
           createdAt

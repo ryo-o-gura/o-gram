@@ -8,12 +8,12 @@ type User @model(subscriptions: null) @key(fields: ["username"]) {
   updatedAt: String
 }
 
-type Post @model @key(name: "postsByUserId", fields: ["authorId"]) {
+type Post @model @key(name: "postsByUserId", fields: ["authorname"]) {
   id: ID!
-  authorId: ID!
+  authorname: ID!
   content: String!
   postImage: [String]!
-  author: User @connection(fields: ["authorId"])
+  author: User @connection(fields: ["authorname"])
   comments: [Comment] @connection(keyName: "commentsByPostId", fields: ["id"])
   likes: [PostLike] @connection(keyName: "postLikesByPostId", fields: ["id"])
 }

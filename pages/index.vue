@@ -2,13 +2,21 @@
   <div>
     <LoginDialog :is-opened="isOpenedLoginDialog" @close="closeLoginDialog" />
     <PostDetailDialog v-model="isOpenedPostDetailDialog" :post="selectedPost" />
-    <CreatePostDialog v-model="isOpenedCreatePostDialog" :post="selectedPost" />
-    <h1 class="text-h1 font-weight-bold text-center">O-gram</h1>
+    <CreatePostDialog
+      v-model="isOpenedCreatePostDialog"
+      @create="updatePosts"
+    />
+    <h1
+      class="text-h1 font-weight-bold text-center"
+      @click="openCreatePostDialog"
+    >
+      O-gram
+    </h1>
     <div class="posts-wrapper">
       <!--投稿 -------------------------------------------------------->
       <v-card
         v-for="post in allPosts"
-        :key="post.postId"
+        :key="post.id"
         flat
         tile
         class="mx-auto pb-5 my-10"
@@ -16,22 +24,24 @@
       >
         <!-- プロフィール -->
         <v-row class="post-nav py-2 px-3 justify-space-between" no-gutters>
-          <v-col>
-            <v-btn text icon>
-              <v-icon class="text-h4">mdi-account-circle</v-icon>
-            </v-btn>
-            <span>{{ post.userName }}</span>
+          <v-col class="d-flex align-center font-weight-bold">
+            <div class="icon-wrapper">
+              <img :src="ICONS[post.author.icon]" alt="アイコン" width="100%" />
+            </div>
+            <p class="mb-0 ml-2">{{ post.authorname }}</p>
           </v-col>
           <v-col align-self="center" class="text-right">
-            <v-btn text icon><v-icon>mdi-dots-horizontal</v-icon></v-btn>
+            <v-btn text icon @click="deletePost(post)"
+              ><v-icon>mdi-dots-horizontal</v-icon></v-btn
+            >
           </v-col>
         </v-row>
         <!-- 画像 -->
         <v-carousel delimiter-icon="mdi-circle-small" :continuous="false">
-          <v-carousel-item v-for="picture in post.pictures" :key="picture">
+          <v-carousel-item v-for="image in post.postImage" :key="image">
             <v-sheet height="100%" tile>
               <v-row class="fill-height" align="center" justify="center">
-                <img :src="picture" />
+                <img :src="image" />
               </v-row>
             </v-sheet>
           </v-carousel-item>
@@ -41,7 +51,7 @@
           <v-col>
             <span>
               <v-btn text icon @click="toggleFavoriteFlag(post)">
-                <v-icon v-if="post.favoriteFlag" color="red" large>
+                <v-icon v-if="post.likes.items" color="red" large>
                   mdi-heart
                 </v-icon>
                 <v-icon v-else large>mdi-heart-outline</v-icon>
@@ -52,39 +62,38 @@
             </v-btn>
           </v-col>
           <v-col class="text-right">
-            <v-btn text icon @click="openPostDetailDialog">
-              <v-icon v-if="post.bookmarkFlag" large>mdi-bookmark</v-icon>
-              <v-icon v-else large>mdi-bookmark-outline</v-icon>
+            <v-btn text icon>
+              <!-- <v-icon v-if="post.bookmarkFlag" large>mdi-bookmark</v-icon> -->
+              <v-icon large>mdi-bookmark-outline</v-icon>
             </v-btn>
           </v-col>
         </v-row>
         <!-- いいね -->
         <v-row no-gutters class="px-4 text-body-2">
           <v-col>
-            <span class="font-weight-bold">{{ post.favoriteCount }}人</span>
+            <span v-if="post.likes.items" class="font-weight-bold">
+              {{ post.likes.items }}人
+            </span>
+            <span v-else class="font-weight-bold">0人</span>
             <span>が「いいね！」しました</span>
           </v-col>
         </v-row>
         <!-- 投稿テキスト -->
         <v-row no-gutters class="px-4">
           <p class="mb-0">
-            <span class="font-weight-bold">{{ post.userName }}</span>
-            <span style="white-space: pre-wrap">{{ post.postText }} </span>
+            <span class="font-weight-bold">{{ post.authorname }}</span>
+            <span style="white-space: pre-wrap">{{ post.content }} </span>
           </p>
-          <p class="mb-0">
-            <v-btn
-              v-for="(tag, index) in post.tags"
-              :key="index"
-              class="tag pa-1"
-              text
-              >#{{ tag }}</v-btn
-            >
-          </p>
+          <p class="mb-0"></p>
         </v-row>
         <v-row class="px-4" no-gutters>
-          <v-btn v-if="true" text @click="openPostDetailDialog(post)">
+          <v-btn
+            v-if="post.comments.items"
+            text
+            @click="openPostDetailDialog(post)"
+          >
             <p class="text-body-2 text--secondary mb-0">
-              コメント{{ post.comments.length }}件をすべて見る
+              コメント{{ post.comments.items }}件をすべて見る
             </p>
           </v-btn>
           <p v-else class="text-body-2 text--secondary mb-0">コメントなし</p>
@@ -96,16 +105,29 @@
 
 <script lang="ts">
 import { defineComponent, ref, useFetch } from 'nuxt-composition-api'
-import { listUsersGql } from '~/appsync/queries'
-import Amplify, { Auth, Storage } from 'aws-amplify'
+import { listPostsGql } from '~/appsync/queries'
+import { deletePostGql } from '~/appsync/mutations'
+import Amplify, { Auth } from 'aws-amplify'
 import awsconfig from '~/src/aws-exports'
+import { Post } from '~/types/API'
 Amplify.configure(awsconfig)
+const ICONS = [
+  require('~/assets/image/icon/01.png'),
+  require('~/assets/image/icon/02.png'),
+  require('~/assets/image/icon/03.png'),
+  require('~/assets/image/icon/04.png'),
+  require('~/assets/image/icon/05.png'),
+  require('~/assets/image/icon/06.png'),
+  require('~/assets/image/icon/07.png'),
+  require('~/assets/image/icon/08.png'),
+  require('~/assets/image/icon/09.png'),
+]
 export default defineComponent({
   setup() {
     /** data ***********************************************************/
     const isOpenedLoginDialog = ref(false)
     const isOpenedPostDetailDialog = ref(false)
-    const isOpenedCreatePostDialog = ref(true)
+    const isOpenedCreatePostDialog = ref(false)
     const isLikePost = ref(false)
     const isMarkedPost = ref(false)
     const selectedPost = ref<any>({
@@ -128,132 +150,7 @@ export default defineComponent({
         },
       ],
     })
-    const allPosts = ref<any>([
-      {
-        userName: 'user1',
-        userId: 1,
-        postId: 1,
-        favoriteCount: 20,
-        favoriteFlag: true,
-        bookmarkFlag: true,
-        postText: '投稿内容です投稿内容です',
-        updateDate: '2021:01:21:14:21',
-        pictures: [
-          require('@/assets/image/image1.jpg'),
-          require('@/assets/image/image2.jpg'),
-          require('@/assets/image/image3.jpg'),
-          require('@/assets/image/image4.jpg'),
-        ],
-        tags: ['tag1', 'tag2', 'tag3'],
-        comments: [
-          {
-            userName: 'commenter1',
-            userId: 102,
-            commentText: 'コメントですコメントです',
-            updateDate: '2021:01:21:14:21',
-          },
-          {
-            userName: 'commenter2',
-            userId: 10,
-            commentText: 'コメントですコメントです',
-            updateDate: '2021:01:21:14:21',
-          },
-        ],
-      },
-      {
-        userName: 'user2',
-        userId: 2,
-        postId: 2,
-        favoriteCount: 20,
-        favoriteFlag: true,
-        bookmarkFlag: true,
-        postText: '投稿内容です投稿内容です',
-        updateDate: '2021:01:21:14:21',
-        pictures: [
-          require('@/assets/image/image1.jpg'),
-          require('@/assets/image/image2.jpg'),
-          require('@/assets/image/image3.jpg'),
-          require('@/assets/image/image4.jpg'),
-        ],
-        tags: ['tag1', 'tag2', 'tag3'],
-        comments: [
-          {
-            userName: 'commenter1',
-            userId: 102,
-            commentText: 'コメントですコメントです',
-            updateDate: '2021:01:21:14:21',
-          },
-          {
-            userName: 'commenter2',
-            userId: 10,
-            commentText: 'コメントですコメントです',
-            updateDate: '2021:01:21:14:21',
-          },
-        ],
-      },
-      {
-        userName: 'user3',
-        userId: 3,
-        postId: 3,
-        favoriteCount: 20,
-        favoriteFlag: true,
-        bookmarkFlag: true,
-        postText: '投稿内容です投稿内容です',
-        updateDate: '2021:01:21:14:21',
-        pictures: [
-          require('@/assets/image/image1.jpg'),
-          require('@/assets/image/image2.jpg'),
-          require('@/assets/image/image3.jpg'),
-          require('@/assets/image/image4.jpg'),
-        ],
-        tags: ['tag1', 'tag2', 'tag3'],
-        comments: [
-          {
-            userName: 'commenter1',
-            userId: 102,
-            commentText: 'コメントですコメントです',
-            updateDate: '2021:01:21:14:21',
-          },
-          {
-            userName: 'commenter2',
-            userId: 10,
-            commentText: 'コメントですコメントです',
-            updateDate: '2021:01:21:14:21',
-          },
-        ],
-      },
-      {
-        userName: 'user1',
-        userId: 4,
-        postId: 4,
-        favoriteCount: 20,
-        favoriteFlag: true,
-        bookmarkFlag: true,
-        postText: '投稿内容です投稿内容です',
-        updateDate: '2021:01:21:14:21',
-        pictures: [
-          require('@/assets/image/image1.jpg'),
-          require('@/assets/image/image2.jpg'),
-          require('@/assets/image/image3.jpg'),
-          require('@/assets/image/image4.jpg'),
-        ],
-        tags: ['tag1', 'tag2', 'tag3'],
-        comments: [
-          {
-            userName: 'commenter1',
-            userId: 102,
-            commentText: 'コメントですコメントです',
-            updateDate: '2021:01:21:14:21',
-          },
-          {
-            userName: 'commenter2',
-            userId: 10,
-            commentText: 'コメントですコメントです',
-            updateDate: '2021:01:21:14:21',
-          },
-        ],
-      },
-    ])
+    const allPosts = ref<any>([])
     /** computed ***********************************************************/
     /** method ***********************************************************/
     const openLoginDialog = () => {
@@ -262,12 +159,10 @@ export default defineComponent({
     const closeLoginDialog = () => {
       isOpenedLoginDialog.value = false
     }
-    const openCreatePostDialog = (post: any) => {
-      selectedPost.value = post
-      console.debug(selectedPost.value)
+    const openPostDetailDialog = (post: any) => {
       isOpenedPostDetailDialog.value = true
     }
-    const openPostDetailDialog = (post: any) => {
+    const openCreatePostDialog = (post: any) => {
       isOpenedCreatePostDialog.value = true
     }
     const toggleFavoriteFlag = (post: any) => {
@@ -276,21 +171,32 @@ export default defineComponent({
     const toggleBookmarkFlag = (post: any) => {
       post.bookmarkFlag = !post.bookmarkFlag
     }
+    const updatePosts = (post: Post) => {
+      allPosts.value.push(post)
+    }
+    const deletePost = async (post: Post) => {
+      try {
+        const deletedPost = await deletePostGql(post.id!)
+        console.debug(deletedPost)
+      } catch (e) {
+        console.error(e)
+      }
+      console.debug(post)
+    }
     /** init */
     useFetch(async () => {
       try {
         // 自動サインイン（仮）
         await Auth.signIn('admin0000', 'admin-pass')
-        const b = await Auth.currentAuthenticatedUser()
-        const a = await listUsersGql()
-        console.debug('aa', a)
-        console.debug('bb', b)
+        allPosts.value = await listPostsGql()
+        console.debug(allPosts.value)
       } catch (e) {
         console.debug(e)
       }
     })
     return {
       /** data */
+      ICONS,
       isOpenedLoginDialog,
       isOpenedPostDetailDialog,
       isOpenedCreatePostDialog,
@@ -306,6 +212,8 @@ export default defineComponent({
       openCreatePostDialog,
       toggleFavoriteFlag,
       toggleBookmarkFlag,
+      updatePosts,
+      deletePost,
     }
   },
 })
@@ -313,6 +221,13 @@ export default defineComponent({
 <style scoped>
 .v-card--flat {
   border: 1px solid #ddd;
+}
+.icon-wrapper {
+  width: 50px;
+  height: 50px;
+  border: 1px solid #ddd;
+  border-radius: 50%;
+  overflow: hidden;
 }
 .v-window.v-carousel {
   overflow: visible;

@@ -9,7 +9,7 @@
           :key="index"
           class="img-wrapper"
         >
-          <img class="img" :src="img" width="200px" />
+          <img :src="img" width="200px" />
         </v-col>
         <v-file-input
           label="テスト"
@@ -23,7 +23,7 @@
         <v-textarea v-model="postContent" />
       </v-row>
       <v-row>
-        <v-btn @click="$emit('close', false)">投稿する</v-btn>
+        <v-btn @click="createPost">投稿する</v-btn>
         <v-btn @click="$emit('close', false)">キャンセル</v-btn>
       </v-row>
     </v-card>
@@ -39,8 +39,8 @@ import {
   computed,
 } from 'nuxt-composition-api'
 import { Storage } from 'aws-amplify'
-import { createPost } from '../src/graphql/mutations'
-import { CreatePostInput } from '~/src/API'
+import { createPostGql } from '../appsync/mutations'
+import { CreatePostInput } from '~/types/API'
 export default defineComponent({
   name: 'PostDetailDialog',
   model: {
@@ -52,15 +52,12 @@ export default defineComponent({
       type: Boolean,
       default: false,
     },
-    post: {
-      type: Object,
-    },
   },
-  setup() {
+  setup(prop, { emit }) {
     /** data ***********************************************************/
     // TODO:sroreで管理
     const loginUser = ref({
-      id: '372dc9f5-d06b-4cba-bf1a-011c671ef053',
+      id: 'd84c889d-363a-45d6-bf18-5bf737b54057',
       username: 'admin0000',
       icon: '1',
       posts: {
@@ -72,7 +69,9 @@ export default defineComponent({
     /** computed ***********************************************************/
     /** method ***********************************************************/
     const uploadFile = async (file: any) => {
-      const filePath = `${loginUser.value.id}/${loginUser.value.posts.items.length}/${file.name}`
+      const filePath = `${loginUser.value.id}/${
+        loginUser.value.posts.items.length + 1
+      }/${file.name}/${Math.floor(Math.random() * 101)}`
       await Storage.put(filePath, file)
       const newImg = await Storage.get(filePath)
       if (typeof newImg == 'string') {
@@ -81,9 +80,15 @@ export default defineComponent({
     }
     const createPost = async () => {
       const createInput: CreatePostInput = {
-        authorId: loginUser.value.id,
+        authorname: loginUser.value.username,
         content: postContent.value,
         postImage: postImgs.value,
+      }
+      try {
+        const newPost = await createPostGql(createInput)
+        emit('create', newPost)
+      } catch (e) {
+        console.error(e)
       }
     }
     return {
@@ -93,6 +98,7 @@ export default defineComponent({
       postImgs,
       postContent,
       /** computed */
+      createPost,
       /** method */
     }
   },
