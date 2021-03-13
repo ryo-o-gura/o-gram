@@ -40,7 +40,7 @@ import {
 } from 'nuxt-composition-api'
 import { Storage } from 'aws-amplify'
 import { createPostGql } from '../appsync/mutations'
-import { CreatePostInput } from '~/types/API'
+import { CreatePostInput, User } from '~/types/API'
 export default defineComponent({
   name: 'PostDetailDialog',
   model: {
@@ -53,24 +53,16 @@ export default defineComponent({
       default: false,
     },
   },
-  setup(prop, { emit }) {
+  setup(prop, { root, emit }) {
     /** data ***********************************************************/
-    // TODO:sroreで管理
-    const loginUser = ref({
-      id: 'd84c889d-363a-45d6-bf18-5bf737b54057',
-      username: 'admin0000',
-      icon: '1',
-      posts: {
-        items: [],
-      },
-    })
+    const loginUser = ref<User>(root.$store.state.user.loginUser)
     const postImgs = ref<string[]>([])
     const postContent = ref('')
     /** computed ***********************************************************/
     /** method ***********************************************************/
     const uploadFile = async (file: any) => {
       const filePath = `${loginUser.value.id}/${
-        loginUser.value.posts.items.length + 1
+        loginUser.value.posts?.items?.length! + 1
       }/${file.name}/${Math.floor(Math.random() * 101)}`
       await Storage.put(filePath, file)
       const newImg = await Storage.get(filePath)
@@ -80,13 +72,14 @@ export default defineComponent({
     }
     const createPost = async () => {
       const createInput: CreatePostInput = {
-        authorname: loginUser.value.username,
+        authorId: loginUser.value.id!,
         content: postContent.value,
         postImage: postImgs.value,
       }
       try {
         const newPost = await createPostGql(createInput)
         emit('create', newPost)
+        emit('close', false)
       } catch (e) {
         console.error(e)
       }

@@ -15,7 +15,7 @@ export const createUser = /* GraphQL */ `
       posts {
         items {
           id
-          authorname
+          authorId
           content
           postImage
           createdAt
@@ -41,7 +41,7 @@ export const updateUser = /* GraphQL */ `
       posts {
         items {
           id
-          authorname
+          authorId
           content
           postImage
           createdAt
@@ -67,7 +67,7 @@ export const deleteUser = /* GraphQL */ `
       posts {
         items {
           id
-          authorname
+          authorId
           content
           postImage
           createdAt
@@ -87,7 +87,7 @@ export const createPost = /* GraphQL */ `
   ) {
     createPost(input: $input, condition: $condition) {
       id
-      authorname
+      authorId
       content
       postImage
       author {
@@ -135,7 +135,7 @@ export const updatePost = /* GraphQL */ `
   ) {
     updatePost(input: $input, condition: $condition) {
       id
-      authorname
+      authorId
       content
       postImage
       author {
@@ -183,7 +183,7 @@ export const deletePost = /* GraphQL */ `
   ) {
     deletePost(input: $input, condition: $condition) {
       id
-      authorname
+      authorId
       content
       postImage
       author {
@@ -248,7 +248,7 @@ export const createComment = /* GraphQL */ `
       }
       posts {
         id
-        authorname
+        authorId
         content
         postImage
         author {
@@ -308,7 +308,7 @@ export const updateComment = /* GraphQL */ `
       }
       posts {
         id
-        authorname
+        authorId
         content
         postImage
         author {
@@ -368,7 +368,7 @@ export const deleteComment = /* GraphQL */ `
       }
       posts {
         id
-        authorname
+        authorId
         content
         postImage
         author {
@@ -426,7 +426,7 @@ export const createPostLike = /* GraphQL */ `
       }
       post {
         id
-        authorname
+        authorId
         content
         postImage
         author {
@@ -473,7 +473,7 @@ export const updatePostLike = /* GraphQL */ `
       }
       post {
         id
-        authorname
+        authorId
         content
         postImage
         author {
@@ -520,7 +520,7 @@ export const deletePostLike = /* GraphQL */ `
       }
       post {
         id
-        authorname
+        authorId
         content
         postImage
         author {

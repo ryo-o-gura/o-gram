@@ -6,7 +6,7 @@ export const onCreatePost = /* GraphQL */ `
   subscription OnCreatePost {
     onCreatePost {
       id
-      authorname
+      authorId
       content
       postImage
       author {
@@ -51,7 +51,7 @@ export const onUpdatePost = /* GraphQL */ `
   subscription OnUpdatePost {
     onUpdatePost {
       id
-      authorname
+      authorId
       content
       postImage
       author {
@@ -96,7 +96,7 @@ export const onDeletePost = /* GraphQL */ `
   subscription OnDeletePost {
     onDeletePost {
       id
-      authorname
+      authorId
       content
       postImage
       author {
@@ -158,7 +158,7 @@ export const onCreateComment = /* GraphQL */ `
       }
       posts {
         id
-        authorname
+        authorId
         content
         postImage
         author {
@@ -215,7 +215,7 @@ export const onUpdateComment = /* GraphQL */ `
       }
       posts {
         id
-        authorname
+        authorId
         content
         postImage
         author {
@@ -272,7 +272,7 @@ export const onDeleteComment = /* GraphQL */ `
       }
       posts {
         id
-        authorname
+        authorId
         content
         postImage
         author {
@@ -327,7 +327,7 @@ export const onCreatePostLike = /* GraphQL */ `
       }
       post {
         id
-        authorname
+        authorId
         content
         postImage
         author {
@@ -371,7 +371,7 @@ export const onUpdatePostLike = /* GraphQL */ `
       }
       post {
         id
-        authorname
+        authorId
         content
         postImage
         author {
@@ -415,7 +415,7 @@ export const onDeletePostLike = /* GraphQL */ `
       }
       post {
         id
-        authorname
+        authorId
         content
         postImage
         author {

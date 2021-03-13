@@ -3,23 +3,49 @@ import { API, graphqlOperation } from 'aws-amplify'
 import {
   CreatePostInput,
   CreatePostMutation,
-  DeletePostInput,
+  CreatePostLikeInput,
   DeletePostMutation,
+  DeletePostInput,
 } from '~/types/API'
 import { GraphQLResult } from '@aws-amplify/api'
-export const createPostGql = async (CreatePostInput: CreatePostInput) => {
+import {
+  CreatePostLikeMutation,
+  DeletePostLikeInput,
+  DeletePostLikeMutation,
+} from '../types/API'
+export const createPostGql = async (createPostInput: CreatePostInput) => {
   const { data } = (await API.graphql(
     graphqlOperation(gqlMutations.createPost, {
-      input: CreatePostInput,
+      input: createPostInput,
     })
   )) as GraphQLResult<CreatePostMutation>
   return data?.createPost
 }
-export const deletePostGql = async (id: string) => {
+export const deletePostGql = async (deletePostInput: DeletePostInput) => {
   const { data } = (await API.graphql(
     graphqlOperation(gqlMutations.deletePost, {
-      input: { id },
+      input: deletePostInput,
     })
   )) as GraphQLResult<DeletePostMutation>
   return data?.deletePost
+}
+export const createPostLikeGql = async (
+  createPostLikeInput: CreatePostLikeInput
+) => {
+  const { data } = (await API.graphql(
+    graphqlOperation(gqlMutations.createPostLike, {
+      input: createPostLikeInput,
+    })
+  )) as GraphQLResult<CreatePostLikeMutation>
+  return data?.createPostLike
+}
+export const deletePostLikeGql = async (
+  deletePostLikeInput: DeletePostLikeInput
+) => {
+  const { data } = (await API.graphql(
+    graphqlOperation(gqlMutations.deletePostLike, {
+      input: deletePostLikeInput,
+    })
+  )) as GraphQLResult<DeletePostLikeMutation>
+  return data?.deletePostLike
 }

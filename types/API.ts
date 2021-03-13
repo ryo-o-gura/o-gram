@@ -12,6 +12,7 @@ export type CreateUserInput = {
 };
 
 export type ModelUserConditionInput = {
+  username?: ModelIDInput | null,
   password?: ModelStringInput | null,
   icon?: ModelIntInput | null,
   createdAt?: ModelStringInput | null,
@@ -21,7 +22,7 @@ export type ModelUserConditionInput = {
   not?: ModelUserConditionInput | null,
 };
 
-export type ModelStringInput = {
+export type ModelIDInput = {
   ne?: string | null,
   eq?: string | null,
   le?: string | null,
@@ -61,6 +62,22 @@ export type ModelSizeInput = {
   between?: Array< number | null > | null,
 };
 
+export type ModelStringInput = {
+  ne?: string | null,
+  eq?: string | null,
+  le?: string | null,
+  lt?: string | null,
+  ge?: string | null,
+  gt?: string | null,
+  contains?: string | null,
+  notContains?: string | null,
+  between?: Array< string | null > | null,
+  beginsWith?: string | null,
+  attributeExists?: boolean | null,
+  attributeType?: ModelAttributeTypes | null,
+  size?: ModelSizeInput | null,
+};
+
 export type ModelIntInput = {
   ne?: number | null,
   eq?: number | null,
@@ -93,7 +110,7 @@ export type ModelPostConnection = {
 export type Post = {
   __typename: "Post",
   id?: string,
-  authorname?: string,
+  authorId?: string,
   content?: string,
   postImage?: Array< string | null >,
   author?: User,
@@ -142,7 +159,7 @@ export type PostLike = {
 
 export type UpdateUserInput = {
   id: string,
-  username: string,
+  username?: string | null,
   password?: string | null,
   icon?: number | null,
   createdAt?: string | null,
@@ -150,18 +167,18 @@ export type UpdateUserInput = {
 };
 
 export type DeleteUserInput = {
-  username: string,
+  id: string,
 };
 
 export type CreatePostInput = {
   id?: string | null,
-  authorname: string,
+  authorId: string,
   content: string,
   postImage: Array< string | null >,
 };
 
 export type ModelPostConditionInput = {
-  authorname?: ModelIDInput | null,
+  authorId?: ModelIDInput | null,
   content?: ModelStringInput | null,
   postImage?: ModelStringInput | null,
   and?: Array< ModelPostConditionInput | null > | null,
@@ -169,25 +186,9 @@ export type ModelPostConditionInput = {
   not?: ModelPostConditionInput | null,
 };
 
-export type ModelIDInput = {
-  ne?: string | null,
-  eq?: string | null,
-  le?: string | null,
-  lt?: string | null,
-  ge?: string | null,
-  gt?: string | null,
-  contains?: string | null,
-  notContains?: string | null,
-  between?: Array< string | null > | null,
-  beginsWith?: string | null,
-  attributeExists?: boolean | null,
-  attributeType?: ModelAttributeTypes | null,
-  size?: ModelSizeInput | null,
-};
-
 export type UpdatePostInput = {
   id: string,
-  authorname?: string | null,
+  authorId?: string | null,
   content?: string | null,
   postImage?: Array< string | null > | null,
 };
@@ -279,7 +280,7 @@ export type ModelUserConnection = {
 
 export type ModelPostFilterInput = {
   id?: ModelIDInput | null,
-  authorname?: ModelIDInput | null,
+  authorId?: ModelIDInput | null,
   content?: ModelStringInput | null,
   postImage?: ModelStringInput | null,
   and?: Array< ModelPostFilterInput | null > | null,
@@ -335,7 +336,7 @@ export type CreateUserMutation = {
       items?:  Array< {
         __typename: "Post",
         id: string,
-        authorname: string,
+        authorId: string,
         content: string,
         postImage: Array< string | null >,
         createdAt: string,
@@ -365,7 +366,7 @@ export type UpdateUserMutation = {
       items?:  Array< {
         __typename: "Post",
         id: string,
-        authorname: string,
+        authorId: string,
         content: string,
         postImage: Array< string | null >,
         createdAt: string,
@@ -395,7 +396,7 @@ export type DeleteUserMutation = {
       items?:  Array< {
         __typename: "Post",
         id: string,
-        authorname: string,
+        authorId: string,
         content: string,
         postImage: Array< string | null >,
         createdAt: string,
@@ -417,7 +418,7 @@ export type CreatePostMutation = {
   createPost?:  {
     __typename: "Post",
     id: string,
-    authorname: string,
+    authorId: string,
     content: string,
     postImage: Array< string | null >,
     author?:  {
@@ -473,7 +474,7 @@ export type UpdatePostMutation = {
   updatePost?:  {
     __typename: "Post",
     id: string,
-    authorname: string,
+    authorId: string,
     content: string,
     postImage: Array< string | null >,
     author?:  {
@@ -529,7 +530,7 @@ export type DeletePostMutation = {
   deletePost?:  {
     __typename: "Post",
     id: string,
-    authorname: string,
+    authorId: string,
     content: string,
     postImage: Array< string | null >,
     author?:  {
@@ -605,7 +606,7 @@ export type CreateCommentMutation = {
     posts?:  {
       __typename: "Post",
       id: string,
-      authorname: string,
+      authorId: string,
       content: string,
       postImage: Array< string | null >,
       author?:  {
@@ -675,7 +676,7 @@ export type UpdateCommentMutation = {
     posts?:  {
       __typename: "Post",
       id: string,
-      authorname: string,
+      authorId: string,
       content: string,
       postImage: Array< string | null >,
       author?:  {
@@ -745,7 +746,7 @@ export type DeleteCommentMutation = {
     posts?:  {
       __typename: "Post",
       id: string,
-      authorname: string,
+      authorId: string,
       content: string,
       postImage: Array< string | null >,
       author?:  {
@@ -813,7 +814,7 @@ export type CreatePostLikeMutation = {
     post?:  {
       __typename: "Post",
       id: string,
-      authorname: string,
+      authorId: string,
       content: string,
       postImage: Array< string | null >,
       author?:  {
@@ -868,7 +869,7 @@ export type UpdatePostLikeMutation = {
     post?:  {
       __typename: "Post",
       id: string,
-      authorname: string,
+      authorId: string,
       content: string,
       postImage: Array< string | null >,
       author?:  {
@@ -923,7 +924,7 @@ export type DeletePostLikeMutation = {
     post?:  {
       __typename: "Post",
       id: string,
-      authorname: string,
+      authorId: string,
       content: string,
       postImage: Array< string | null >,
       author?:  {
@@ -952,7 +953,7 @@ export type DeletePostLikeMutation = {
 };
 
 export type GetUserQueryVariables = {
-  username?: string,
+  id?: string,
 };
 
 export type GetUserQuery = {
@@ -967,7 +968,7 @@ export type GetUserQuery = {
       items?:  Array< {
         __typename: "Post",
         id: string,
-        authorname: string,
+        authorId: string,
         content: string,
         postImage: Array< string | null >,
         createdAt: string,
@@ -981,7 +982,7 @@ export type GetUserQuery = {
 };
 
 export type ListUsersQueryVariables = {
-  username?: string | null,
+  id?: string | null,
   filter?: ModelUserFilterInput | null,
   limit?: number | null,
   nextToken?: string | null,
@@ -1016,7 +1017,7 @@ export type GetPostQuery = {
   getPost?:  {
     __typename: "Post",
     id: string,
-    authorname: string,
+    authorId: string,
     content: string,
     postImage: Array< string | null >,
     author?:  {
@@ -1075,7 +1076,7 @@ export type ListPostsQuery = {
     items?:  Array< {
       __typename: "Post",
       id: string,
-      authorname: string,
+      authorId: string,
       content: string,
       postImage: Array< string | null >,
       author?:  {
@@ -1130,7 +1131,7 @@ export type GetCommentQuery = {
     posts?:  {
       __typename: "Post",
       id: string,
-      authorname: string,
+      authorId: string,
       content: string,
       postImage: Array< string | null >,
       author?:  {
@@ -1199,7 +1200,7 @@ export type ListCommentsQuery = {
       posts?:  {
         __typename: "Post",
         id: string,
-        authorname: string,
+        authorId: string,
         content: string,
         postImage: Array< string | null >,
         createdAt: string,
@@ -1247,7 +1248,7 @@ export type GetPostLikeQuery = {
     post?:  {
       __typename: "Post",
       id: string,
-      authorname: string,
+      authorId: string,
       content: string,
       postImage: Array< string | null >,
       author?:  {
@@ -1301,7 +1302,7 @@ export type ListPostLikesQuery = {
       post?:  {
         __typename: "Post",
         id: string,
-        authorname: string,
+        authorId: string,
         content: string,
         postImage: Array< string | null >,
         createdAt: string,
@@ -1343,7 +1344,7 @@ export type LikesByUserQuery = {
       post?:  {
         __typename: "Post",
         id: string,
-        authorname: string,
+        authorId: string,
         content: string,
         postImage: Array< string | null >,
         createdAt: string,
@@ -1360,7 +1361,7 @@ export type OnCreatePostSubscription = {
   onCreatePost?:  {
     __typename: "Post",
     id: string,
-    authorname: string,
+    authorId: string,
     content: string,
     postImage: Array< string | null >,
     author?:  {
@@ -1411,7 +1412,7 @@ export type OnUpdatePostSubscription = {
   onUpdatePost?:  {
     __typename: "Post",
     id: string,
-    authorname: string,
+    authorId: string,
     content: string,
     postImage: Array< string | null >,
     author?:  {
@@ -1462,7 +1463,7 @@ export type OnDeletePostSubscription = {
   onDeletePost?:  {
     __typename: "Post",
     id: string,
-    authorname: string,
+    authorId: string,
     content: string,
     postImage: Array< string | null >,
     author?:  {
@@ -1533,7 +1534,7 @@ export type OnCreateCommentSubscription = {
     posts?:  {
       __typename: "Post",
       id: string,
-      authorname: string,
+      authorId: string,
       content: string,
       postImage: Array< string | null >,
       author?:  {
@@ -1598,7 +1599,7 @@ export type OnUpdateCommentSubscription = {
     posts?:  {
       __typename: "Post",
       id: string,
-      authorname: string,
+      authorId: string,
       content: string,
       postImage: Array< string | null >,
       author?:  {
@@ -1663,7 +1664,7 @@ export type OnDeleteCommentSubscription = {
     posts?:  {
       __typename: "Post",
       id: string,
-      authorname: string,
+      authorId: string,
       content: string,
       postImage: Array< string | null >,
       author?:  {
@@ -1726,7 +1727,7 @@ export type OnCreatePostLikeSubscription = {
     post?:  {
       __typename: "Post",
       id: string,
-      authorname: string,
+      authorId: string,
       content: string,
       postImage: Array< string | null >,
       author?:  {
@@ -1776,7 +1777,7 @@ export type OnUpdatePostLikeSubscription = {
     post?:  {
       __typename: "Post",
       id: string,
-      authorname: string,
+      authorId: string,
       content: string,
       postImage: Array< string | null >,
       author?:  {
@@ -1826,7 +1827,7 @@ export type OnDeletePostLikeSubscription = {
     post?:  {
       __typename: "Post",
       id: string,
-      authorname: string,
+      authorId: string,
       content: string,
       postImage: Array< string | null >,
       author?:  {

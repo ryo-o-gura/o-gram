@@ -28,7 +28,7 @@
             <div class="icon-wrapper">
               <img :src="ICONS[post.author.icon]" alt="アイコン" width="100%" />
             </div>
-            <p class="mb-0 ml-2">{{ post.authorname }}</p>
+            <p class="mb-0 ml-2">{{ post.author.username }}</p>
           </v-col>
           <v-col align-self="center" class="text-right">
             <v-btn text icon @click="deletePost(post)"
@@ -50,8 +50,13 @@
         <v-row class="post-icon-row px-3 justify-space-between" no-gutters>
           <v-col>
             <span>
-              <v-btn text icon @click="toggleFavoriteFlag(post)">
-                <v-icon v-if="post.likes.items" color="red" large>
+              <v-btn
+                text
+                icon
+                @click="togglePostLike(post)"
+                :loading="isLoading"
+              >
+                <v-icon v-if="isLikedThePost(post)" color="red" large>
                   mdi-heart
                 </v-icon>
                 <v-icon v-else large>mdi-heart-outline</v-icon>
@@ -71,17 +76,16 @@
         <!-- いいね -->
         <v-row no-gutters class="px-4 text-body-2">
           <v-col>
-            <span v-if="post.likes.items" class="font-weight-bold">
-              {{ post.likes.items }}人
+            <span class="font-weight-bold">
+              {{ post.likes.items.length }}人
             </span>
-            <span v-else class="font-weight-bold">0人</span>
             <span>が「いいね！」しました</span>
           </v-col>
         </v-row>
         <!-- 投稿テキスト -->
         <v-row no-gutters class="px-4">
           <p class="mb-0">
-            <span class="font-weight-bold">{{ post.authorname }}</span>
+            <span class="font-weight-bold">{{ post.author.username }}</span>
             <span style="white-space: pre-wrap">{{ post.content }} </span>
           </p>
           <p class="mb-0"></p>
@@ -93,7 +97,7 @@
             @click="openPostDetailDialog(post)"
           >
             <p class="text-body-2 text--secondary mb-0">
-              コメント{{ post.comments.items }}件をすべて見る
+              コメント{{ post.comments.items.length }}件をすべて見る
             </p>
           </v-btn>
           <p v-else class="text-body-2 text--secondary mb-0">コメントなし</p>
@@ -106,10 +110,21 @@
 <script lang="ts">
 import { defineComponent, ref, useFetch } from 'nuxt-composition-api'
 import { listPostsGql } from '~/appsync/queries'
-import { deletePostGql } from '~/appsync/mutations'
 import Amplify, { Auth } from 'aws-amplify'
 import awsconfig from '~/src/aws-exports'
-import { Post } from '~/types/API'
+import {
+  deletePostLikeGql,
+  deletePostGql,
+  createPostLikeGql,
+} from '../appsync/mutations'
+import {
+  CreatePostInput,
+  CreatePostLikeInput,
+  DeletePostLikeInput,
+  Post,
+  PostLike,
+  User,
+} from '~/types/API'
 Amplify.configure(awsconfig)
 const ICONS = [
   require('~/assets/image/icon/01.png'),
@@ -123,12 +138,13 @@ const ICONS = [
   require('~/assets/image/icon/09.png'),
 ]
 export default defineComponent({
-  setup() {
+  setup(_, { root }) {
     /** data ***********************************************************/
     const isOpenedLoginDialog = ref(false)
     const isOpenedPostDetailDialog = ref(false)
     const isOpenedCreatePostDialog = ref(false)
     const isLikePost = ref(false)
+    const isLoading = ref(false)
     const isMarkedPost = ref(false)
     const selectedPost = ref<any>({
       userName: '',
@@ -151,6 +167,7 @@ export default defineComponent({
       ],
     })
     const allPosts = ref<any>([])
+    const loginUser = ref<User>(root.$store.state.user.loginUser)
     /** computed ***********************************************************/
     /** method ***********************************************************/
     const openLoginDialog = () => {
@@ -165,19 +182,58 @@ export default defineComponent({
     const openCreatePostDialog = (post: any) => {
       isOpenedCreatePostDialog.value = true
     }
-    const toggleFavoriteFlag = (post: any) => {
-      post.favoriteFlag = !post.favoriteFlag
+
+    // 自分がいいねしているかのチェック
+    const isLikedThePost = (post: Post) => {
+      const likesItems = post.likes?.items
+      const findItem = likesItems?.findIndex((item: PostLike | null) => {
+        return item?.userId === loginUser.value.id
+      })
+      return findItem !== -1
     }
-    const toggleBookmarkFlag = (post: any) => {
-      post.bookmarkFlag = !post.bookmarkFlag
+
+    // postLikeのtoggle
+    const togglePostLike = async (post: Post) => {
+      isLoading.value = true
+      if (isLikedThePost(post)) {
+        const likesItems = post.likes?.items
+        const findItem = likesItems?.find((item: PostLike | null) => {
+          return item?.userId === loginUser.value.id
+        })
+        const input: DeletePostLikeInput = {
+          id: findItem?.id,
+        }
+        try {
+          await deletePostLikeGql(input)
+          allPosts.value = await listPostsGql()
+        } catch (e) {
+          console.error(e)
+        }
+      } else {
+        const input: CreatePostLikeInput = {
+          postId: post.id!,
+          userId: loginUser.value.id!,
+        }
+        try {
+          await createPostLikeGql(input)
+          allPosts.value = await listPostsGql()
+        } catch (e) {
+          console.error(e)
+        }
+      }
+      isLoading.value = false
     }
     const updatePosts = (post: Post) => {
       allPosts.value.push(post)
     }
     const deletePost = async (post: Post) => {
       try {
-        const deletedPost = await deletePostGql(post.id!)
+        const input = {
+          id: post.id,
+        }
+        const deletedPost = await deletePostGql(input)
         console.debug(deletedPost)
+        allPosts.value = await listPostsGql()
       } catch (e) {
         console.error(e)
       }
@@ -204,15 +260,16 @@ export default defineComponent({
       isMarkedPost,
       selectedPost,
       allPosts,
+      isLoading,
       /** computed */
       /** method */
       openLoginDialog,
       closeLoginDialog,
       openPostDetailDialog,
       openCreatePostDialog,
-      toggleFavoriteFlag,
-      toggleBookmarkFlag,
+      togglePostLike,
       updatePosts,
+      isLikedThePost,
       deletePost,
     }
   },

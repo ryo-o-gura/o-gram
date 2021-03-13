@@ -3,8 +3,8 @@
 // this is an auto generated file. This will be overwritten
 
 export const getUser = /* GraphQL */ `
-  query GetUser($username: ID!) {
-    getUser(username: $username) {
+  query GetUser($id: ID!) {
+    getUser(id: $id) {
       id
       username
       password
@@ -12,7 +12,7 @@ export const getUser = /* GraphQL */ `
       posts {
         items {
           id
-          authorname
+          authorId
           content
           postImage
           createdAt
@@ -24,17 +24,17 @@ export const getUser = /* GraphQL */ `
       updatedAt
     }
   }
-`;
+`
 export const listUsers = /* GraphQL */ `
   query ListUsers(
-    $username: ID
+    $id: ID
     $filter: ModelUserFilterInput
     $limit: Int
     $nextToken: String
     $sortDirection: ModelSortDirection
   ) {
     listUsers(
-      username: $username
+      id: $id
       filter: $filter
       limit: $limit
       nextToken: $nextToken
@@ -54,12 +54,12 @@ export const listUsers = /* GraphQL */ `
       nextToken
     }
   }
-`;
+`
 export const getPost = /* GraphQL */ `
   query GetPost($id: ID!) {
     getPost(id: $id) {
       id
-      authorname
+      authorId
       content
       postImage
       author {
@@ -99,7 +99,7 @@ export const getPost = /* GraphQL */ `
       updatedAt
     }
   }
-`;
+`
 export const listPosts = /* GraphQL */ `
   query ListPosts(
     $filter: ModelPostFilterInput
@@ -109,7 +109,7 @@ export const listPosts = /* GraphQL */ `
     listPosts(filter: $filter, limit: $limit, nextToken: $nextToken) {
       items {
         id
-        authorname
+        authorId
         content
         postImage
         author {
@@ -125,6 +125,11 @@ export const listPosts = /* GraphQL */ `
         }
         likes {
           nextToken
+          items {
+            postId
+            userId
+            id
+          }
         }
         createdAt
         updatedAt
@@ -132,7 +137,7 @@ export const listPosts = /* GraphQL */ `
       nextToken
     }
   }
-`;
+`
 export const getComment = /* GraphQL */ `
   query GetComment($id: ID!) {
     getComment(id: $id) {
@@ -154,7 +159,7 @@ export const getComment = /* GraphQL */ `
       }
       posts {
         id
-        authorname
+        authorId
         content
         postImage
         author {
@@ -189,7 +194,7 @@ export const getComment = /* GraphQL */ `
       updatedAt
     }
   }
-`;
+`
 export const listComments = /* GraphQL */ `
   query ListComments(
     $filter: ModelCommentFilterInput
@@ -213,7 +218,7 @@ export const listComments = /* GraphQL */ `
         }
         posts {
           id
-          authorname
+          authorId
           content
           postImage
           createdAt
@@ -233,7 +238,7 @@ export const listComments = /* GraphQL */ `
       nextToken
     }
   }
-`;
+`
 export const getPostLike = /* GraphQL */ `
   query GetPostLike($id: ID!) {
     getPostLike(id: $id) {
@@ -253,7 +258,7 @@ export const getPostLike = /* GraphQL */ `
       }
       post {
         id
-        authorname
+        authorId
         content
         postImage
         author {
@@ -277,7 +282,7 @@ export const getPostLike = /* GraphQL */ `
       updatedAt
     }
   }
-`;
+`
 export const listPostLikes = /* GraphQL */ `
   query ListPostLikes(
     $filter: ModelPostLikeFilterInput
@@ -299,7 +304,7 @@ export const listPostLikes = /* GraphQL */ `
         }
         post {
           id
-          authorname
+          authorId
           content
           postImage
           createdAt
@@ -311,7 +316,7 @@ export const listPostLikes = /* GraphQL */ `
       nextToken
     }
   }
-`;
+`
 export const likesByUser = /* GraphQL */ `
   query LikesByUser(
     $userId: ID
@@ -343,7 +348,7 @@ export const likesByUser = /* GraphQL */ `
         }
         post {
           id
-          authorname
+          authorId
           content
           postImage
           createdAt
@@ -355,4 +360,4 @@ export const likesByUser = /* GraphQL */ `
       nextToken
     }
   }
-`;
+`
