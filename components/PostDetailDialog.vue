@@ -14,7 +14,7 @@
             :continuous="false"
             height="600"
           >
-            <v-carousel-item v-for="picture in post.pictures" :key="picture">
+            <v-carousel-item v-for="image in post.postImage" :key="image">
               <v-sheet height="100%" tile>
                 <v-row
                   class="fill-height"
@@ -22,7 +22,7 @@
                   justify="center"
                   no-gutters
                 >
-                  <img :src="picture" />
+                  <img :src="image" />
                 </v-row>
               </v-sheet>
             </v-carousel-item>
@@ -31,11 +31,15 @@
         <v-col cols="5">
           <!-- プロフィール -->
           <v-row class="post-nav py-4 px-3 justify-space-between" no-gutters>
-            <v-col cols="auto">
-              <v-btn text icon>
-                <v-icon class="text-h4">mdi-account-circle</v-icon>
-              </v-btn>
-              <span>{{ post.userName }}</span>
+            <v-col class="d-flex align-center font-weight-bold">
+              <div class="icon-wrapper">
+                <img
+                  :src="ICONS[post.author.icon]"
+                  alt="アイコン"
+                  width="100%"
+                />
+              </div>
+              <p class="mb-0 ml-2">{{ post.author.username }}</p>
             </v-col>
             <v-col align-self="center" class="text-right">
               <v-btn text icon><v-icon>mdi-dots-horizontal</v-icon></v-btn>
@@ -48,28 +52,19 @@
           >
             <v-col cols="auto">
               <p class="mb-0">
-                <span class="font-weight-bold">{{ post.userName }}</span>
-                <span style="white-space: pre-wrap">{{ post.postText }} </span>
-              </p>
-            </v-col>
-            <v-col cols="auto" class="mb-10">
-              <p class="mb-0">
-                <v-btn
-                  v-for="(tag, index) in post.tags"
-                  :key="index"
-                  class="tag pa-1"
-                  text
-                  >#{{ tag }}</v-btn
-                >
+                <span class="font-weight-bold">{{ post.author.username }}</span>
+                <span style="white-space: pre-wrap">{{ post.content }} </span>
               </p>
             </v-col>
             <v-col
               cols="auto"
-              v-for="(comment, index) in post.comments"
+              v-for="(comment, index) in post.comments.items"
               :key="index"
             >
-              <span class="font-weight-bold">{{ comment.userName }}</span>
-              <span>{{ comment.commentText }} </span>
+              <span class="font-weight-bold">{{
+                comment.commenter.username
+              }}</span>
+              <span>{{ comment.text }} </span>
             </v-col>
           </v-row>
           <!-- アイコン -->
@@ -79,7 +74,7 @@
           >
             <v-col>
               <span>
-                <v-btn text icon @click="toggleFavoriteFlag">
+                <v-btn text icon>
                   <v-icon v-if="post.favoriteFlag" color="red" large>
                     mdi-heart
                   </v-icon>
@@ -91,7 +86,7 @@
               </v-btn>
             </v-col>
             <v-col class="text-right">
-              <v-btn text icon @click="toggleBookmarkFlag">
+              <v-btn text icon>
                 <v-icon v-if="post.bookmarkFlag" large>mdi-bookmark</v-icon>
                 <v-icon v-else large>mdi-bookmark-outline</v-icon>
               </v-btn>
@@ -100,16 +95,40 @@
           <!-- いいね -->
           <v-row no-gutters class="px-4 text-caption">
             <v-col cols="12">
-              <span class="font-weight-bold">{{ post.favoriteCount }}人</span>
+              <span v-if="post.likes.items" class="font-weight-bold">
+                {{ post.likes.items.length }}人
+              </span>
+              <span v-else class="font-weight-bold"> 0人 </span>
               <span>が「いいね！」しました</span>
             </v-col>
             <v-col cols="12" class="mt-2">
-              <p class="text-caption grey--text mb-0">{{ post.updateDate }}</p>
+              <p class="text-caption grey--text mb-0">{{ post.updatedAt }}</p>
             </v-col>
           </v-row>
-          <v-row no-gutters class="comment-row px-4 py-1">
-            <v-col cols="10">
-              <v-text-field dense label="コメントを追加" />
+          <v-row
+            no-gutters
+            class="align-content-center comment-row px-4 mt-0 py-1"
+          >
+            <v-col cols="9" class="align-self-center">
+              <v-text-field
+                v-model="newCommentText"
+                placeholder="コメントを追加"
+                dense
+                solo
+                flat
+              />
+            </v-col>
+            <v-col cols="3" class="align-self-center">
+              <v-btn
+                class="font-weight-bold"
+                color="#0095f6"
+                text
+                :loading="isLoading"
+                :disabled="!newCommentText.trim()"
+                @click="createComment(post)"
+              >
+                投稿する
+              </v-btn>
             </v-col>
           </v-row>
         </v-col>
@@ -120,6 +139,20 @@
 
 <script lang="ts">
 import { defineComponent, ref, PropType, useFetch } from 'nuxt-composition-api'
+import { createCommentGql } from '~/appsync/mutations'
+import { getPostGql } from '~/appsync/queries'
+import { CreateCommentInput, Post, User } from '~/types/API'
+const ICONS = [
+  require('~/assets/image/icon/01.png'),
+  require('~/assets/image/icon/02.png'),
+  require('~/assets/image/icon/03.png'),
+  require('~/assets/image/icon/04.png'),
+  require('~/assets/image/icon/05.png'),
+  require('~/assets/image/icon/06.png'),
+  require('~/assets/image/icon/07.png'),
+  require('~/assets/image/icon/08.png'),
+  require('~/assets/image/icon/09.png'),
+]
 export default defineComponent({
   name: 'PostDetailDialog',
   model: {
@@ -132,26 +165,52 @@ export default defineComponent({
       default: false,
     },
     post: {
-      type: Object,
+      type: Object as PropType<Post>,
+    },
+    loginUser: {
+      type: Object as PropType<User>,
     },
   },
-  setup() {
+  setup(props, { emit }) {
     /** data ***********************************************************/
-    const isLikePost = ref(false)
-    const isMarkedPost = ref(false)
+    const newCommentText = ref('')
+    const isLoading = ref(false)
     /** computed ***********************************************************/
     /** method ***********************************************************/
     // TODO:update方法
-    const toggleFavoriteFlag = () => {}
-    const toggleBookmarkFlag = () => {}
+    const createComment = async (post: Post) => {
+      isLoading.value = true
+      const input: CreateCommentInput = {
+        postId: post.id!,
+        authorId: post.authorId!,
+        commenterId: props.loginUser?.id!,
+        text: newCommentText.value,
+      }
+      try {
+        const createdReturn = await createCommentGql(input)
+        // emit('update:post', updatedPost)
+        const getPostInput = {
+          id: createdReturn?.postId!,
+        }
+        console.debug('dsfasdfa', getPostInput)
+        const updatedPost = await getPostGql(getPostInput)
+        console.debug('dsfasdfa', updatedPost)
+        emit('update:post', updatedPost)
+      } catch (e) {
+        console.error(e)
+      } finally {
+        newCommentText.value = ''
+      }
+      isLoading.value = false
+    }
     return {
       /** data */
-      isLikePost,
-      isMarkedPost,
+      ICONS,
+      newCommentText,
+      isLoading,
       /** computed */
       /** method */
-      toggleFavoriteFlag,
-      toggleBookmarkFlag,
+      createComment,
     }
   },
 })
@@ -160,6 +219,14 @@ export default defineComponent({
 .v-dialog__content >>> .v-dialog {
   overflow: hidden;
 }
+.icon-wrapper {
+  width: 50px;
+  height: 50px;
+  border: 1px solid #ddd;
+  border-radius: 50%;
+  overflow: hidden;
+}
+
 .v-window.v-carousel {
   overflow: visible;
 }
@@ -190,6 +257,9 @@ export default defineComponent({
 .post-icon-row,
 .comment-row {
   border-top: 1px solid #ddd;
+}
+.comment-row {
+  height: 55px;
 }
 .post-icon-row >>> .v-btn--icon {
   z-index: 2;

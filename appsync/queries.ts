@@ -2,6 +2,7 @@ import { API, graphqlOperation } from 'aws-amplify'
 import { GraphQLResult } from '@aws-amplify/api'
 import * as gqlQueries from '~/src/graphql/queries'
 import { ListUsersQuery, ListPostsQuery } from '~/types/API'
+import { GetPostQuery, GetPostQueryVariables } from '../types/API'
 export const listUsersGql = async () => {
   const { data } = (await API.graphql(
     graphqlOperation(gqlQueries.listUsers)
@@ -13,4 +14,12 @@ export const listPostsGql = async () => {
     graphqlOperation(gqlQueries.listPosts)
   )) as GraphQLResult<ListPostsQuery>
   return data?.listPosts?.items
+}
+export const getPostGql = async (getPostInput: GetPostQueryVariables) => {
+  const { data } = (await API.graphql(
+    graphqlOperation(gqlQueries.getPost, {
+      input: getPostInput,
+    })
+  )) as GraphQLResult<GetPostQuery>
+  return data?.getPost
 }

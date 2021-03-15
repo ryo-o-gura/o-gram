@@ -1,17 +1,17 @@
 import * as gqlMutations from '~/src/graphql/mutations' // create, update, delete
 import { API, graphqlOperation } from 'aws-amplify'
+import { GraphQLResult } from '@aws-amplify/api'
+import { CreateCommentInput } from '../types/API'
 import {
   CreatePostInput,
   CreatePostMutation,
   CreatePostLikeInput,
   DeletePostMutation,
   DeletePostInput,
-} from '~/types/API'
-import { GraphQLResult } from '@aws-amplify/api'
-import {
   CreatePostLikeMutation,
   DeletePostLikeInput,
   DeletePostLikeMutation,
+  CreateCommentMutation,
 } from '../types/API'
 export const createPostGql = async (createPostInput: CreatePostInput) => {
   const { data } = (await API.graphql(
@@ -48,4 +48,14 @@ export const deletePostLikeGql = async (
     })
   )) as GraphQLResult<DeletePostLikeMutation>
   return data?.deletePostLike
+}
+export const createCommentGql = async (
+  createCommentInput: CreateCommentInput
+) => {
+  const { data } = (await API.graphql(
+    graphqlOperation(gqlMutations.createComment, {
+      input: createCommentInput,
+    })
+  )) as GraphQLResult<CreateCommentMutation>
+  return data?.createComment
 }

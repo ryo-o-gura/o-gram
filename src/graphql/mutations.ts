@@ -260,6 +260,15 @@ export const createComment = /* GraphQL */ `
           updatedAt
         }
         comments {
+          items {
+            id
+            postId
+            authorId
+            commenterId
+            text
+            createdAt
+            updatedAt
+          }
           nextToken
         }
         likes {
@@ -283,7 +292,7 @@ export const createComment = /* GraphQL */ `
       updatedAt
     }
   }
-`;
+`
 export const updateComment = /* GraphQL */ `
   mutation UpdateComment(
     $input: UpdateCommentInput!

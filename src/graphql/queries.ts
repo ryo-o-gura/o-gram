@@ -122,6 +122,23 @@ export const listPosts = /* GraphQL */ `
         }
         comments {
           nextToken
+          items {
+            authorId
+            commenterId
+            createdAt
+            text
+            commenter {
+              username
+              updatedAt
+              password
+              id
+              icon
+              createdAt
+            }
+            postId
+            id
+            updatedAt
+          }
         }
         likes {
           nextToken

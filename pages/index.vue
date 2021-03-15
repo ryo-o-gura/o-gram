@@ -1,10 +1,15 @@
 <template>
   <div>
     <LoginDialog :is-opened="isOpenedLoginDialog" @close="closeLoginDialog" />
-    <PostDetailDialog v-model="isOpenedPostDetailDialog" :post="selectedPost" />
+    <PostDetailDialog
+      v-model="isOpenedPostDetailDialog"
+      :post.sync="selectedPost"
+      :loginUser="loginUser"
+      @update="updatePosts"
+    />
     <CreatePostDialog
       v-model="isOpenedCreatePostDialog"
-      @create="updatePosts"
+      @create="createPosts"
     />
     <h1
       class="text-h1 font-weight-bold text-center"
@@ -67,7 +72,7 @@
             </v-btn>
           </v-col>
           <v-col class="text-right">
-            <v-btn text icon>
+            <v-btn text icon @click="openPostDetailDialog(post)">
               <!-- <v-icon v-if="post.bookmarkFlag" large>mdi-bookmark</v-icon> -->
               <v-icon large>mdi-bookmark-outline</v-icon>
             </v-btn>
@@ -112,6 +117,7 @@ import { defineComponent, ref, useFetch } from 'nuxt-composition-api'
 import { listPostsGql } from '~/appsync/queries'
 import Amplify, { Auth } from 'aws-amplify'
 import awsconfig from '~/src/aws-exports'
+import { updatePost } from '../src/graphql/mutations'
 import {
   deletePostLikeGql,
   deletePostGql,
@@ -147,24 +153,23 @@ export default defineComponent({
     const isLoading = ref(false)
     const isMarkedPost = ref(false)
     const selectedPost = ref<any>({
-      userName: '',
-      userId: 0,
-      postId: 0,
-      favoriteCount: 0,
-      favoriteFlag: false,
-      bookmarkFlag: false,
-      postText: '',
-      updateDate: '',
-      pictures: [],
-      tags: [''],
-      comments: [
-        {
-          userName: '',
-          userId: 0,
-          commentText: '',
-          updateDate: '',
-        },
-      ],
+      __typename: 'Post',
+      id: '',
+      authorId: '',
+      content: '',
+      postImage: [],
+      author: {
+        icon: 0,
+        username: '',
+      },
+      comments: {
+        items: [],
+      },
+      likes: {
+        items: []
+      },
+      createdAt: '',
+      updatedAt: '',
     })
     const allPosts = ref<any>([])
     const loginUser = ref<User>(root.$store.state.user.loginUser)
@@ -177,6 +182,8 @@ export default defineComponent({
       isOpenedLoginDialog.value = false
     }
     const openPostDetailDialog = (post: any) => {
+      selectedPost.value = post
+      console.debug(selectedPost.value)
       isOpenedPostDetailDialog.value = true
     }
     const openCreatePostDialog = (post: any) => {
@@ -223,8 +230,11 @@ export default defineComponent({
       }
       isLoading.value = false
     }
-    const updatePosts = (post: Post) => {
+    const createPosts = (post: Post) => {
       allPosts.value.push(post)
+    }
+    const updatePosts = async (post: Post) => {
+      allPosts.value = await listPostsGql()
     }
     const deletePost = async (post: Post) => {
       try {
@@ -253,6 +263,7 @@ export default defineComponent({
     return {
       /** data */
       ICONS,
+      loginUser,
       isOpenedLoginDialog,
       isOpenedPostDetailDialog,
       isOpenedCreatePostDialog,
@@ -260,6 +271,7 @@ export default defineComponent({
       isMarkedPost,
       selectedPost,
       allPosts,
+      updatePosts,
       isLoading,
       /** computed */
       /** method */
@@ -268,7 +280,7 @@ export default defineComponent({
       openPostDetailDialog,
       openCreatePostDialog,
       togglePostLike,
-      updatePosts,
+      createPosts,
       isLikedThePost,
       deletePost,
     }
