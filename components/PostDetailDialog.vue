@@ -189,12 +189,7 @@ export default defineComponent({
       try {
         const createdReturn = await createCommentGql(input)
         if(!createdReturn) return
-        const getPostInput = {
-          id: createdReturn.postId!,
-        }
-        console.debug('dsfasdfa', getPostInput)
-        const updatedPost = await getPostGql(getPostInput)
-        console.debug('dsfasdfa', updatedPost)
+        const updatedPost = await getPostGql(createdReturn.postId)
         emit('update:post', updatedPost)
       } catch (e) {
         console.error(e)

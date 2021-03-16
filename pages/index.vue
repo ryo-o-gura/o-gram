@@ -166,7 +166,7 @@ export default defineComponent({
         items: [],
       },
       likes: {
-        items: []
+        items: [],
       },
       createdAt: '',
       updatedAt: '',

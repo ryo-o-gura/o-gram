@@ -15,10 +15,10 @@ export const listPostsGql = async () => {
   )) as GraphQLResult<ListPostsQuery>
   return data?.listPosts?.items
 }
-export const getPostGql = async (getPostInput: GetPostQueryVariables) => {
+export const getPostGql = async (id: string) => {
   const { data } = (await API.graphql(
     graphqlOperation(gqlQueries.getPost, {
-      input: getPostInput,
+      id,
     })
   )) as GraphQLResult<GetPostQuery>
   return data?.getPost

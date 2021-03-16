@@ -79,6 +79,14 @@ export const getPost = /* GraphQL */ `
           postId
           authorId
           commenterId
+          commenter {
+            id
+            username
+            password
+            icon
+            createdAt
+            updatedAt
+          }
           text
           createdAt
           updatedAt
