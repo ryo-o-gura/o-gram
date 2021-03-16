@@ -1010,7 +1010,7 @@ export type ListUsersQuery = {
 };
 
 export type GetPostQueryVariables = {
-  id?: string,
+  id: string,
 };
 
 export type GetPostQuery = {
