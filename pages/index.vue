@@ -7,6 +7,7 @@
       :loginUser="loginUser"
       @update="updatePosts"
     />
+
     <CreatePostDialog
       v-model="isOpenedCreatePostDialog"
       @create="createPosts"
@@ -67,12 +68,12 @@
                 <v-icon v-else large>mdi-heart-outline</v-icon>
               </v-btn>
             </span>
-            <v-btn text icon>
+            <v-btn text icon @click="openPostDetailDialog(post)">
               <v-icon large>mdi-chat-processing-outline</v-icon>
             </v-btn>
           </v-col>
           <v-col class="text-right">
-            <v-btn text icon @click="openPostDetailDialog(post)">
+            <v-btn text icon>
               <!-- <v-icon v-if="post.bookmarkFlag" large>mdi-bookmark</v-icon> -->
               <v-icon large>mdi-bookmark-outline</v-icon>
             </v-btn>
@@ -81,9 +82,10 @@
         <!-- いいね -->
         <v-row no-gutters class="px-4 text-body-2">
           <v-col>
-            <span class="font-weight-bold">
-              {{ post.likes.items.length }}人
+            <span v-if="post.likes.items" class="font-weight-bold">
+              {{ post.likes.items }}人
             </span>
+            <span v-else class="font-weight-bold">0人</span>
             <span>が「いいね！」しました</span>
           </v-col>
         </v-row>
@@ -117,20 +119,11 @@ import { defineComponent, ref, useFetch } from 'nuxt-composition-api'
 import { listPostsGql } from '~/appsync/queries'
 import Amplify, { Auth } from 'aws-amplify'
 import awsconfig from '~/src/aws-exports'
-import { updatePost } from '../src/graphql/mutations'
 import {
   deletePostLikeGql,
   deletePostGql,
   createPostLikeGql,
 } from '../appsync/mutations'
-import {
-  CreatePostInput,
-  CreatePostLikeInput,
-  DeletePostLikeInput,
-  Post,
-  PostLike,
-  User,
-} from '~/types/API'
 Amplify.configure(awsconfig)
 const ICONS = [
   require('~/assets/image/icon/01.png'),
@@ -152,26 +145,8 @@ export default defineComponent({
     const isLikePost = ref(false)
     const isLoading = ref(false)
     const isMarkedPost = ref(false)
-    const selectedPost = ref<any>({
-      __typename: 'Post',
-      id: '',
-      authorId: '',
-      content: '',
-      postImage: [],
-      author: {
-        icon: 0,
-        username: '',
-      },
-      comments: {
-        items: [],
-      },
-      likes: {
-        items: [],
-      },
-      createdAt: '',
-      updatedAt: '',
-    })
-    const allPosts = ref<any>([])
+    const selectedPost = ref<Post>()
+    const allPosts = ref<Post[]>([])
     const loginUser = ref<User>(root.$store.state.user.loginUser)
     /** computed ***********************************************************/
     /** method ***********************************************************/
@@ -203,12 +178,12 @@ export default defineComponent({
     const togglePostLike = async (post: Post) => {
       isLoading.value = true
       if (isLikedThePost(post)) {
-        const likesItems = post.likes?.items
+        const likesItems = post.likes.items
         const findItem = likesItems?.find((item: PostLike | null) => {
           return item?.userId === loginUser.value.id
         })
         const input: DeletePostLikeInput = {
-          id: findItem?.id,
+          id: findItem?.id!,
         }
         try {
           await deletePostLikeGql(input)

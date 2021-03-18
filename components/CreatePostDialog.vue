@@ -40,7 +40,6 @@ import {
 } from 'nuxt-composition-api'
 import { Storage } from 'aws-amplify'
 import { createPostGql } from '../appsync/mutations'
-import { CreatePostInput, User } from '~/types/API'
 export default defineComponent({
   name: 'PostDetailDialog',
   model: {

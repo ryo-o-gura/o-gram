@@ -1,5 +1,6 @@
 <template>
   <v-dialog
+    v-if="post"
     :value="isOpened"
     class="pa-4 login-dialog"
     width="800"
@@ -45,17 +46,18 @@
               <v-btn text icon><v-icon>mdi-dots-horizontal</v-icon></v-btn>
             </v-col>
           </v-row>
-          <!-- 投稿テキスト -->
           <v-row
             no-gutters
             class="post-row px-4 flex-column flex-start flex-nowrap"
           >
+            <!-- 投稿テキスト -->
             <v-col cols="auto">
               <p class="mb-0">
                 <span class="font-weight-bold">{{ post.author.username }}</span>
                 <span style="white-space: pre-wrap">{{ post.content }} </span>
               </p>
             </v-col>
+            <!-- コメント -->
             <v-col
               cols="auto"
               v-for="(comment, index) in post.comments.items"
@@ -141,7 +143,6 @@
 import { defineComponent, ref, PropType, useFetch } from 'nuxt-composition-api'
 import { createCommentGql } from '~/appsync/mutations'
 import { getPostGql } from '~/appsync/queries'
-import { CreateCommentInput, Post, User } from '~/types/API'
 const ICONS = [
   require('~/assets/image/icon/01.png'),
   require('~/assets/image/icon/02.png'),
@@ -166,6 +167,7 @@ export default defineComponent({
     },
     post: {
       type: Object as PropType<Post>,
+      default: () => {},
     },
     loginUser: {
       type: Object as PropType<User>,
@@ -188,7 +190,7 @@ export default defineComponent({
       }
       try {
         const createdReturn = await createCommentGql(input)
-        if(!createdReturn) return
+        if (!createdReturn) return
         const updatedPost = await getPostGql(createdReturn.postId)
         emit('update:post', updatedPost)
       } catch (e) {

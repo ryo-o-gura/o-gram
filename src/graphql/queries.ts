@@ -24,7 +24,7 @@ export const getUser = /* GraphQL */ `
       updatedAt
     }
   }
-`
+`;
 export const listUsers = /* GraphQL */ `
   query ListUsers(
     $id: ID
@@ -54,7 +54,7 @@ export const listUsers = /* GraphQL */ `
       nextToken
     }
   }
-`
+`;
 export const getPost = /* GraphQL */ `
   query GetPost($id: ID!) {
     getPost(id: $id) {
@@ -79,14 +79,6 @@ export const getPost = /* GraphQL */ `
           postId
           authorId
           commenterId
-          commenter {
-            id
-            username
-            password
-            icon
-            createdAt
-            updatedAt
-          }
           text
           createdAt
           updatedAt
@@ -107,7 +99,7 @@ export const getPost = /* GraphQL */ `
       updatedAt
     }
   }
-`
+`;
 export const listPosts = /* GraphQL */ `
   query ListPosts(
     $filter: ModelPostFilterInput
@@ -130,31 +122,9 @@ export const listPosts = /* GraphQL */ `
         }
         comments {
           nextToken
-          items {
-            authorId
-            commenterId
-            createdAt
-            text
-            commenter {
-              username
-              updatedAt
-              password
-              id
-              icon
-              createdAt
-            }
-            postId
-            id
-            updatedAt
-          }
         }
         likes {
           nextToken
-          items {
-            postId
-            userId
-            id
-          }
         }
         createdAt
         updatedAt
@@ -162,7 +132,7 @@ export const listPosts = /* GraphQL */ `
       nextToken
     }
   }
-`
+`;
 export const getComment = /* GraphQL */ `
   query GetComment($id: ID!) {
     getComment(id: $id) {
@@ -219,7 +189,7 @@ export const getComment = /* GraphQL */ `
       updatedAt
     }
   }
-`
+`;
 export const listComments = /* GraphQL */ `
   query ListComments(
     $filter: ModelCommentFilterInput
@@ -263,7 +233,7 @@ export const listComments = /* GraphQL */ `
       nextToken
     }
   }
-`
+`;
 export const getPostLike = /* GraphQL */ `
   query GetPostLike($id: ID!) {
     getPostLike(id: $id) {
@@ -307,7 +277,7 @@ export const getPostLike = /* GraphQL */ `
       updatedAt
     }
   }
-`
+`;
 export const listPostLikes = /* GraphQL */ `
   query ListPostLikes(
     $filter: ModelPostLikeFilterInput
@@ -341,11 +311,11 @@ export const listPostLikes = /* GraphQL */ `
       nextToken
     }
   }
-`
+`;
 export const likesByUser = /* GraphQL */ `
   query LikesByUser(
     $userId: ID
-    $createdAt: ModelStringKeyConditionInput
+    $createdAt: ModelIntKeyConditionInput
     $sortDirection: ModelSortDirection
     $filter: ModelPostLikeFilterInput
     $limit: Int
@@ -385,4 +355,4 @@ export const likesByUser = /* GraphQL */ `
       nextToken
     }
   }
-`
+`;
