@@ -1,24 +1,25 @@
-declare interface ListUsersQuery {
+import { User, Post, PostItems, PostLike, Comment } from './schema';
+export interface ListUsersQuery {
   listUsers: User[]
 }
-declare interface CreatePostMutation {
+export interface CreatePostMutation {
   createPost: Post
 }
-declare interface DeletePostMutation {
+export interface DeletePostMutation {
   deletePost: Post
 }
-declare interface ListPostsQuery {
+export interface ListPostsQuery {
   listPosts: PostItems
 }
-declare interface GetPostQuery {
+export interface GetPostQuery {
   getPost: Post
 }
-declare interface CreatePostLikeMutation {
+export interface CreatePostLikeMutation {
   createPostLike: PostLike
 }
-declare interface DeletePostLikeMutation {
+export interface DeletePostLikeMutation {
   deletePostLike: PostLike
 }
-declare interface CreateCommentMutation {
+export interface CreateCommentMutation {
   createComment: Comment
 }

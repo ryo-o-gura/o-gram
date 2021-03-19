@@ -1,14 +1,14 @@
-declare interface User {
+export interface User {
   __typename: 'User'
   id: string
   username: string
   password: string
   icon: number | null
-  posts: Post[]
+  posts: PostItems
   createdAt: number | null
   updatedAt: string
 }
-declare interface Post {
+export interface Post {
   __typename: 'Post'
   id: string
   authorId: string
@@ -20,13 +20,13 @@ declare interface Post {
   createdAt: number
   updatedAt: string
 }
-declare interface PostItems {
+export interface PostItems {
   items: Post[]
 }
-declare interface PostLikeItems {
+export interface PostLikeItems {
   items: PostLike[]
 }
-declare interface PostLike {
+export interface PostLike {
   __typename: 'PostLike'
   id: string
   postId: string
@@ -36,10 +36,10 @@ declare interface PostLike {
   createdAt: number
   updatedAt: string
 }
-declare interface CommentItems {
+export interface CommentItems {
   items: Comment[]
 }
-declare interface Comment {
+export interface Comment {
   __typename: 'Comment'
   id: string
   postId: string
@@ -56,28 +56,28 @@ declare interface Comment {
 /* user系 *******************************************************************/
 
 /* post系 *******************************************************************/
-declare interface CreatePostInput {
+export interface CreatePostInput {
   authorId: string
   content: string
   postImage: string[]
 }
-declare interface DeletePostInput {
+export interface DeletePostInput {
   id: string
 }
-declare interface GetPostInput {
+export interface GetPostInput {
   id: string
 }
 /* postLike系 *******************************************************************/
-declare interface CreatePostLikeInput {
+export interface CreatePostLikeInput {
   postId: string
   userId: string
 }
-declare interface DeletePostLikeInput {
+export interface DeletePostLikeInput {
   id: string
 }
 
 /* comment系 *******************************************************************/
-declare interface CreateCommentInput {
+export interface CreateCommentInput {
   postId: string
   authorId: string
   commenterId: string

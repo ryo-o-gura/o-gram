@@ -1,6 +1,8 @@
-import * as gqlMutations from '~/src/graphql/mutations'
+import * as gqlMutations from '~/gql/mutations'
 import { API, graphqlOperation } from 'aws-amplify'
 import { GraphQLResult } from '@aws-amplify/api'
+import { CreatePostInput, CreatePostLikeInput, DeletePostLikeInput, CreateCommentInput, DeletePostInput } from '../types/schema';
+import { CreatePostMutation, DeletePostMutation, CreatePostLikeMutation, DeletePostLikeMutation, CreateCommentMutation } from '../types/gqlResult';
 
 export const createPostGql = async (createPostInput: CreatePostInput) => {
   const { data } = (await API.graphql(
@@ -8,7 +10,7 @@ export const createPostGql = async (createPostInput: CreatePostInput) => {
       input: createPostInput,
     })
   )) as GraphQLResult<CreatePostMutation>
-  return data?.createPost
+  return data?.createPost!
 }
 export const deletePostGql = async (deletePostInput: DeletePostInput) => {
   const { data } = (await API.graphql(
@@ -16,7 +18,7 @@ export const deletePostGql = async (deletePostInput: DeletePostInput) => {
       input: deletePostInput,
     })
   )) as GraphQLResult<DeletePostMutation>
-  return data?.deletePost
+  return data?.deletePost!
 }
 export const createPostLikeGql = async (
   createPostLikeInput: CreatePostLikeInput
@@ -26,7 +28,7 @@ export const createPostLikeGql = async (
       input: createPostLikeInput,
     })
   )) as GraphQLResult<CreatePostLikeMutation>
-  return data?.createPostLike
+  return data?.createPostLike!
 }
 export const deletePostLikeGql = async (
   deletePostLikeInput: DeletePostLikeInput
@@ -36,7 +38,7 @@ export const deletePostLikeGql = async (
       input: deletePostLikeInput,
     })
   )) as GraphQLResult<DeletePostLikeMutation>
-  return data?.deletePostLike
+  return data?.deletePostLike!
 }
 export const createCommentGql = async (
   createCommentInput: CreateCommentInput
@@ -46,5 +48,5 @@ export const createCommentGql = async (
       input: createCommentInput,
     })
   )) as GraphQLResult<CreateCommentMutation>
-  return data?.createComment
+  return data?.createComment!
 }

@@ -76,16 +76,18 @@
           >
             <v-col>
               <span>
-                <v-btn text icon>
-                  <v-icon v-if="post.favoriteFlag" color="red" large>
+                <v-btn
+                  text
+                  icon
+                  :loading="isLoading"
+                  @click="togglePostLike(post)"
+                >
+                  <v-icon v-if="isLikedThePost(post)" color="red" large>
                     mdi-heart
                   </v-icon>
                   <v-icon v-else large>mdi-heart-outline</v-icon>
                 </v-btn>
               </span>
-              <v-btn text icon>
-                <v-icon large>mdi-chat-processing-outline</v-icon>
-              </v-btn>
             </v-col>
             <v-col class="text-right">
               <v-btn text icon>
@@ -141,8 +143,21 @@
 
 <script lang="ts">
 import { defineComponent, ref, PropType, useFetch } from 'nuxt-composition-api'
-import { createCommentGql } from '~/appsync/mutations'
+import {
+  createCommentGql,
+  createPostLikeGql,
+  deletePostLikeGql,
+} from '~/appsync/mutations'
 import { getPostGql } from '~/appsync/queries'
+import {
+  CreateCommentInput,
+  CreatePostLikeInput,
+  DeletePostLikeInput,
+  GetPostInput,
+  Post,
+  PostLike,
+  User,
+} from '~/types/schema'
 const ICONS = [
   require('~/assets/image/icon/01.png'),
   require('~/assets/image/icon/02.png'),
@@ -179,6 +194,55 @@ export default defineComponent({
     const isLoading = ref(false)
     /** computed ***********************************************************/
     /** method ***********************************************************/
+    // 自分がいいねしているかのチェック
+    const isLikedThePost = (post: Post) => {
+      const likesItems = post.likes?.items
+      const findItem = likesItems?.findIndex((item: PostLike) => {
+        return item?.userId === props.loginUser?.id
+      })
+      return findItem !== -1
+    }
+
+    // postLikeのtoggle
+    const togglePostLike = async (post: Post) => {
+      isLoading.value = true
+      if (isLikedThePost(post)) {
+        const likesItems = post.likes.items
+        const findItem = likesItems?.find((item: PostLike | null) => {
+          return item?.userId === props.loginUser?.id
+        })
+        const deletePostLikeInput: DeletePostLikeInput = {
+          id: findItem?.id!,
+        }
+        try {
+          await deletePostLikeGql(deletePostLikeInput)
+          const getPostInput: DeletePostLikeInput = {
+            id: post?.id!,
+          }
+          const updatedPost = await getPostGql(getPostInput)
+          emit('update:post', updatedPost)
+        } catch (e) {
+          console.error(e)
+        }
+      } else {
+        const createPostLikeInput: CreatePostLikeInput = {
+          postId: post.id!,
+          userId: props.loginUser?.id!,
+        }
+        try {
+          await createPostLikeGql(createPostLikeInput)
+          const getPostInput: DeletePostLikeInput = {
+            id: post?.id!,
+          }
+          const updatedPost = await getPostGql(getPostInput)
+          emit('update:post', updatedPost)
+        } catch (e) {
+          console.error(e)
+        }
+      }
+      isLoading.value = false
+    }
+
     // TODO:update方法
     const createComment = async (post: Post) => {
       isLoading.value = true
@@ -190,8 +254,10 @@ export default defineComponent({
       }
       try {
         const createdReturn = await createCommentGql(input)
-        if (!createdReturn) return
-        const updatedPost = await getPostGql(createdReturn.postId)
+        const getPostInput: GetPostInput = {
+          id: createdReturn?.postId!,
+        }
+        const updatedPost = await getPostGql(getPostInput)
         emit('update:post', updatedPost)
       } catch (e) {
         console.error(e)
@@ -207,6 +273,8 @@ export default defineComponent({
       isLoading,
       /** computed */
       /** method */
+      isLikedThePost,
+      togglePostLike,
       createComment,
     }
   },

@@ -5,19 +5,30 @@
       v-model="isOpenedPostDetailDialog"
       :post.sync="selectedPost"
       :loginUser="loginUser"
-      @update="updatePosts"
     />
 
     <CreatePostDialog
       v-model="isOpenedCreatePostDialog"
       @create="createPosts"
     />
-    <h1
-      class="text-h1 font-weight-bold text-center"
-      @click="openCreatePostDialog"
-    >
-      O-gram
-    </h1>
+    <v-app-bar>
+      <v-row no-gutters>
+        <v-col
+          class="text-h3 font-weight-bold text-center"
+          @click="openCreatePostDialog"
+        >
+          O-gram
+        </v-col>
+        <v-col>
+          <v-btn tile>
+            ログイン・アカウント作成
+          </v-btn>
+          <v-btn tile>
+            ログイン・アカウント作成
+          </v-btn>
+        </v-col>
+      </v-row>
+    </v-app-bar>
     <div class="posts-wrapper">
       <!--投稿 -------------------------------------------------------->
       <v-card
@@ -82,8 +93,8 @@
         <!-- いいね -->
         <v-row no-gutters class="px-4 text-body-2">
           <v-col>
-            <span v-if="post.likes.items" class="font-weight-bold">
-              {{ post.likes.items }}人
+            <span v-if="post.likes.items.length" class="font-weight-bold">
+              {{ post.likes.items.length }}人
             </span>
             <span v-else class="font-weight-bold">0人</span>
             <span>が「いいね！」しました</span>
@@ -99,7 +110,7 @@
         </v-row>
         <v-row class="px-4" no-gutters>
           <v-btn
-            v-if="post.comments.items"
+            v-if="post.comments.items.length"
             text
             @click="openPostDetailDialog(post)"
           >
@@ -124,6 +135,13 @@ import {
   deletePostGql,
   createPostLikeGql,
 } from '../appsync/mutations'
+import {
+  CreatePostLikeInput,
+  DeletePostLikeInput,
+  Post,
+  PostLike,
+  User,
+} from '~/types/schema'
 Amplify.configure(awsconfig)
 const ICONS = [
   require('~/assets/image/icon/01.png'),
@@ -156,19 +174,19 @@ export default defineComponent({
     const closeLoginDialog = () => {
       isOpenedLoginDialog.value = false
     }
-    const openPostDetailDialog = (post: any) => {
+    const openPostDetailDialog = (post: Post) => {
       selectedPost.value = post
       console.debug(selectedPost.value)
       isOpenedPostDetailDialog.value = true
     }
-    const openCreatePostDialog = (post: any) => {
+    const openCreatePostDialog = (post: Post) => {
       isOpenedCreatePostDialog.value = true
     }
 
     // 自分がいいねしているかのチェック
     const isLikedThePost = (post: Post) => {
       const likesItems = post.likes?.items
-      const findItem = likesItems?.findIndex((item: PostLike | null) => {
+      const findItem = likesItems?.findIndex((item: PostLike) => {
         return item?.userId === loginUser.value.id
       })
       return findItem !== -1
@@ -208,9 +226,6 @@ export default defineComponent({
     const createPosts = (post: Post) => {
       allPosts.value.push(post)
     }
-    const updatePosts = async (post: Post) => {
-      allPosts.value = await listPostsGql()
-    }
     const deletePost = async (post: Post) => {
       try {
         const input = {
@@ -246,7 +261,6 @@ export default defineComponent({
       isMarkedPost,
       selectedPost,
       allPosts,
-      updatePosts,
       isLoading,
       /** computed */
       /** method */
