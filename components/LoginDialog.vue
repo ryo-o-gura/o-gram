@@ -16,7 +16,7 @@
       </div>
       <div>
         <v-btn text color="#0095f6" class="text-body-1 font-weight-bold">
-          ゲストモードで使う
+          アカウントを作成する
         </v-btn>
       </div>
       <div class="text-center">

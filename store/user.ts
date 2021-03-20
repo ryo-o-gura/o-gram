@@ -1,10 +1,21 @@
+import { User, GetUserInput } from '../types/schema'
+import { getUserGql } from '../appsync/queries'
 export const state = () => ({
-  loginUser: {
-    id: 'da74a514-dd6b-4f01-884c-0bde23a41801',
-    username: '管理者',
-    icon: '0',
-    posts: {
-      items: [],
-    },
-  },
+  loginUser: {},
 })
+
+export const mutations = {
+  setUser(state: any, user: User) {
+    state.loginUser = user
+  },
+}
+
+export const actions = {
+  async signIn({ commit }: any, getUserInput: GetUserInput) {
+    const loginUser = await getUserGql(getUserInput)
+    commit('setUser', loginUser)
+  },
+  async signOut({ commit }: any) {
+    commit('setUser', {})
+  },
+}

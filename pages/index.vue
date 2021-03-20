@@ -12,27 +12,26 @@
       @create="createPosts"
     />
     <v-app-bar>
-      <v-row no-gutters>
-        <v-col
-          class="text-h3 font-weight-bold text-center"
-          @click="openCreatePostDialog"
-        >
+      <v-row no-gutters class="mx-10">
+        <v-col class="text-h3 font-weight-bold" @click="openCreatePostDialog">
           O-gram
         </v-col>
-        <v-col>
-          <v-btn tile>
+        <v-col class="d-flex">
+          <v-spacer />
+          <v-btn class="d-block font-weight-bold" text @click="guestLogin">
+            ゲストユーザーとしてログイン
+          </v-btn>
+          <v-btn class="d-block font-weight-bold" text @click="openLoginDialog">
             ログイン・アカウント作成
           </v-btn>
-          <v-btn tile>
-            ログイン・アカウント作成
-          </v-btn>
+          <p class="mb-0">{{ loginUser.username }}</p>
         </v-col>
       </v-row>
     </v-app-bar>
     <div class="posts-wrapper">
       <!--投稿 -------------------------------------------------------->
       <v-card
-        v-for="post in allPosts"
+        v-for="(post, postIndex) in allPosts"
         :key="post.id"
         flat
         tile
@@ -55,7 +54,10 @@
         </v-row>
         <!-- 画像 -->
         <v-carousel delimiter-icon="mdi-circle-small" :continuous="false">
-          <v-carousel-item v-for="image in post.postImage" :key="image">
+          <v-carousel-item
+            v-for="(image, imageIndex) in postImagesUrls[postIndex]"
+            :key="imageIndex"
+          >
             <v-sheet height="100%" tile>
               <v-row class="fill-height" align="center" justify="center">
                 <img :src="image" />
@@ -126,10 +128,9 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, useFetch } from 'nuxt-composition-api'
+import { computed, defineComponent, ref, useFetch } from 'nuxt-composition-api'
 import { listPostsGql } from '~/appsync/queries'
-import Amplify, { Auth } from 'aws-amplify'
-import awsconfig from '~/src/aws-exports'
+import { Storage } from 'aws-amplify'
 import {
   deletePostLikeGql,
   deletePostGql,
@@ -142,7 +143,6 @@ import {
   PostLike,
   User,
 } from '~/types/schema'
-Amplify.configure(awsconfig)
 const ICONS = [
   require('~/assets/image/icon/01.png'),
   require('~/assets/image/icon/02.png'),
@@ -165,7 +165,10 @@ export default defineComponent({
     const isMarkedPost = ref(false)
     const selectedPost = ref<Post>()
     const allPosts = ref<Post[]>([])
-    const loginUser = ref<User>(root.$store.state.user.loginUser)
+    const postImagesUrls = ref<any[]>([])
+    const loginUser = computed(() => {
+      return root.$store.state.user.loginUser
+    })
     /** computed ***********************************************************/
     /** method ***********************************************************/
     const openLoginDialog = () => {
@@ -173,6 +176,12 @@ export default defineComponent({
     }
     const closeLoginDialog = () => {
       isOpenedLoginDialog.value = false
+    }
+    const guestLogin = async () => {
+      const id = {
+        id: 'da74a514-dd6b-4f01-884c-0bde23a41801',
+      }
+      await root.$store.dispatch('user/signIn', id)
     }
     const openPostDetailDialog = (post: Post) => {
       selectedPost.value = post
@@ -183,11 +192,31 @@ export default defineComponent({
       isOpenedCreatePostDialog.value = true
     }
 
+    const getPostUrl = async (postImgs: string[]) => {
+      return Promise.all(
+        postImgs.map((img) => {
+          return Storage.get(img)
+        })
+      ).then((arg) => {
+        return arg
+      })
+    }
+    const getPostImgsArray = async (postList: Post[]) => {
+      return Promise.all(
+        postList.map((post: Post) => {
+          return getPostUrl(post.postImage)
+        })
+      ).then((arg) => {
+        console.debug('terer', arg)
+        return arg
+      })
+    }
+
     // 自分がいいねしているかのチェック
     const isLikedThePost = (post: Post) => {
       const likesItems = post.likes?.items
       const findItem = likesItems?.findIndex((item: PostLike) => {
-        return item?.userId === loginUser.value.id
+        return item?.userId === loginUser.value?.id
       })
       return findItem !== -1
     }
@@ -198,7 +227,7 @@ export default defineComponent({
       if (isLikedThePost(post)) {
         const likesItems = post.likes.items
         const findItem = likesItems?.find((item: PostLike | null) => {
-          return item?.userId === loginUser.value.id
+          return item?.userId === loginUser.value?.id
         })
         const input: DeletePostLikeInput = {
           id: findItem?.id!,
@@ -212,7 +241,7 @@ export default defineComponent({
       } else {
         const input: CreatePostLikeInput = {
           postId: post.id!,
-          userId: loginUser.value.id!,
+          userId: loginUser.value?.id!,
         }
         try {
           await createPostLikeGql(input)
@@ -242,12 +271,18 @@ export default defineComponent({
     /** init */
     useFetch(async () => {
       try {
-        // 自動サインイン（仮）
-        await Auth.signIn('admin0000', 'admin-pass')
+        const id = {
+          id: 'da74a514-dd6b-4f01-884c-0bde23a41801',
+        }
+        await root.$store.dispatch('user/signIn', id)
         allPosts.value = await listPostsGql()
-        console.debug(allPosts.value)
+        postImagesUrls.value = await getPostImgsArray(allPosts.value)
+        console.debug('fdsaf', postImagesUrls.value[0])
       } catch (e) {
         console.debug(e)
+      } finally {
+        console.debug('allpost', allPosts.value)
+        console.debug('loginUser', loginUser.value)
       }
     })
     return {
@@ -261,13 +296,16 @@ export default defineComponent({
       isMarkedPost,
       selectedPost,
       allPosts,
+      postImagesUrls,
       isLoading,
       /** computed */
       /** method */
       openLoginDialog,
       closeLoginDialog,
+      guestLogin,
       openPostDetailDialog,
       openCreatePostDialog,
+      getPostUrl,
       togglePostLike,
       createPosts,
       isLikedThePost,
@@ -287,6 +325,7 @@ export default defineComponent({
   border-radius: 50%;
   overflow: hidden;
 }
+/* カルーセル */
 .v-window.v-carousel {
   overflow: visible;
 }
@@ -311,11 +350,6 @@ export default defineComponent({
 }
 .post-icon-row >>> .v-btn--icon {
   z-index: 2;
-}
-.tag {
-  text-transform: none;
-  font-weight: normal;
-  color: #00376b;
 }
 .v-btn:not(.v-btn--round).v-size--default {
   padding: 0;

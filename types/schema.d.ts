@@ -3,9 +3,9 @@ export interface User {
   id: string
   username: string
   password: string
-  icon: number | null
+  icon: number
   posts: PostItems
-  createdAt: number | null
+  createdAt: number
   updatedAt: string
 }
 export interface Post {
@@ -65,6 +65,9 @@ export interface DeletePostInput {
   id: string
 }
 export interface GetPostInput {
+  id: string
+}
+export interface GetUserInput {
   id: string
 }
 /* postLike系 *******************************************************************/

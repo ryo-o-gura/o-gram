@@ -5,7 +5,7 @@
         <!-- 画像 -->
         <v-col
           cols="4"
-          v-for="(img, index) in postImgs"
+          v-for="(img, index) in previewImgs"
           :key="index"
           class="img-wrapper"
         >
@@ -55,20 +55,25 @@ export default defineComponent({
   },
   setup(prop, { root, emit }) {
     /** data ***********************************************************/
-    const loginUser = ref<User>(root.$store.state.user.loginUser)
+    const loginUser = computed(() => {
+      return root.$store.state.user.loginUser
+    })
+    const previewImgs = computed(() => {
+      return postImgs.value.map((img) => {
+        return window.URL.createObjectURL(img)
+      })
+    })
     const postImgs = ref<string[]>([])
     const postContent = ref('')
+    const selectedFile = ref()
     /** computed ***********************************************************/
-    /** method ***********************************************************/
-    const uploadFile = async (file: any) => {
-      const filePath = `${loginUser.value.id}/${
-        loginUser.value.posts?.items?.length! + 1
-      }/${file.name}/${Math.floor(Math.random() * 101)}`
-      await Storage.put(filePath, file)
-      const newImg = await Storage.get(filePath)
-      if (typeof newImg == 'string') {
-        postImgs.value.push(newImg)
-      }
+    /** method ***********`************************************************/
+    // TODO:ファイルアップロード
+    const uploadFile = async (file: File) => {
+      selectedFile.value = file
+      console.debug('fifi', file)
+      // postImgs.value.push(file)
+      previewImgs.value.push(window.URL.createObjectURL(file))
     }
     const createPost = async () => {
       const createInput: CreatePostInput = {
@@ -77,7 +82,13 @@ export default defineComponent({
         postImage: postImgs.value,
       }
       try {
+        // 投稿作成
+        console.debug('f', postImgs.value)
         const newPost = await createPostGql(createInput)
+        // ストレージにアップロード
+        postImgs.value.forEach(async (img) => {
+          await Storage.put(img, selectedFile.value)
+        })
         emit('create', newPost)
         emit('close', false)
       } catch (e) {
@@ -88,6 +99,7 @@ export default defineComponent({
       /** data */
       loginUser,
       uploadFile,
+      previewImgs,
       postImgs,
       postContent,
       /** computed */

@@ -329,11 +329,6 @@ export default defineComponent({
 .post-icon-row >>> .v-btn--icon {
   z-index: 2;
 }
-.tag {
-  text-transform: none;
-  font-weight: normal;
-  color: #00376b;
-}
 .v-btn:not(.v-btn--round).v-size--default {
   padding: 0;
   min-width: 0;

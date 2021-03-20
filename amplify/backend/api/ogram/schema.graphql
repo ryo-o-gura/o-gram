@@ -11,7 +11,7 @@ type Post @model @key(name: "postsByUserId", fields: ["authorId"]) {
   id: ID!
   authorId: ID!
   content: String!
-  postImage: [String]!
+  postImage: [Fike]!
   author: User @connection(fields: ["authorId"])
   comments: [Comment] @connection(keyName: "commentsByPostId", fields: ["id"])
   likes: [PostLike] @connection(keyName: "postLikesByPostId", fields: ["id"])

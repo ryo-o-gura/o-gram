@@ -14,6 +14,9 @@ export interface ListPostsQuery {
 export interface GetPostQuery {
   getPost: Post
 }
+export interface GetUserQuery {
+  getUser: User
+}
 export interface CreatePostLikeMutation {
   createPostLike: PostLike
 }
