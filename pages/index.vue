@@ -11,31 +11,67 @@
       v-model="isOpenedCreatePostDialog"
       @create="createPosts"
     />
-    <v-app-bar>
-      <v-row no-gutters class="mx-10">
-        <v-col class="text-h3 font-weight-bold" @click="openCreatePostDialog">
-          O-gram
-        </v-col>
-        <v-col class="d-flex">
+    <v-app-bar fixed dark color="black">
+      <v-row class="mx-10">
+        <v-col class="text-h3 font-weight-bold"> O-gram </v-col>
+        <v-col v-if="isLogined" class="d-flex">
           <v-spacer />
-          <v-btn class="d-block font-weight-bold" text @click="guestLogin">
-            ゲストユーザーとしてログイン
+          <p
+            class="mb-0 white--text text-body-1 font-weight-bold mr-4"
+            style="line-height: 60px"
+          >
+            <v-icon>mdi-account-outline</v-icon>
+            {{ loginUser.username }}
+          </p>
+          <v-btn
+            class="d-block white--text text-body-1 font-weight-bold"
+            text
+            @click="logout"
+          >
+            <v-icon>mdi-logout</v-icon>
+            ログアウト
           </v-btn>
-          <v-btn class="d-block font-weight-bold" text @click="openLoginDialog">
-            ログイン・アカウント作成
+          <!-- <p class="mb-0">{{ loginUser.username }}</p> -->
+        </v-col>
+        <v-col v-else class="d-flex">
+          <v-spacer />
+          <v-btn
+            class="d-block white--text text-body-1 font-weight-bold mr-4"
+            text
+            @click="openLoginDialog"
+          >
+            <v-icon>mdi-login</v-icon>
+            ログイン
           </v-btn>
-          <p class="mb-0">{{ loginUser.username }}</p>
+          <v-btn
+            class="d-block white--text text-body-1 font-weight-bold"
+            text
+            @click="openLoginDialog"
+          >
+            <v-icon>mdi-account-multiple-plus-outline</v-icon>
+            新規登録
+          </v-btn>
+          <!-- <p class="mb-0">{{ loginUser.username }}</p> -->
         </v-col>
       </v-row>
     </v-app-bar>
     <div class="posts-wrapper">
+      <v-btn
+        tile
+        class="d-block mx-auto font-weight-bold"
+        width="600px"
+        height="40px"
+        @click="openCreatePostDialog"
+      >
+        <v-icon>mdi-plus</v-icon> 投稿を追加する
+      </v-btn>
       <!--投稿 -------------------------------------------------------->
       <v-card
         v-for="(post, postIndex) in allPosts"
         :key="post.id"
         flat
         tile
-        class="mx-auto pb-5 my-10"
+        class="mx-auto pb-5 mt-5 mb-10"
         width="600"
       >
         <!-- プロフィール -->
@@ -160,6 +196,7 @@ export default defineComponent({
     const isOpenedLoginDialog = ref(false)
     const isOpenedPostDetailDialog = ref(false)
     const isOpenedCreatePostDialog = ref(false)
+    const isLogined = ref(true)
     const isLikePost = ref(false)
     const isLoading = ref(false)
     const isMarkedPost = ref(false)
@@ -177,12 +214,10 @@ export default defineComponent({
     const closeLoginDialog = () => {
       isOpenedLoginDialog.value = false
     }
-    const guestLogin = async () => {
-      const id = {
-        id: 'da74a514-dd6b-4f01-884c-0bde23a41801',
-      }
-      await root.$store.dispatch('user/signIn', id)
+    const logout = () => {
+      isLogined.value = false
     }
+
     const openPostDetailDialog = (post: Post) => {
       selectedPost.value = post
       console.debug(selectedPost.value)
@@ -207,7 +242,6 @@ export default defineComponent({
           return getPostUrl(post.postImage)
         })
       ).then((arg) => {
-        console.debug('terer', arg)
         return arg
       })
     }
@@ -277,9 +311,8 @@ export default defineComponent({
         await root.$store.dispatch('user/signIn', id)
         allPosts.value = await listPostsGql()
         postImagesUrls.value = await getPostImgsArray(allPosts.value)
-        console.debug('fdsaf', postImagesUrls.value[0])
       } catch (e) {
-        console.debug(e)
+        console.error(e)
       } finally {
         console.debug('allpost', allPosts.value)
         console.debug('loginUser', loginUser.value)
@@ -292,6 +325,7 @@ export default defineComponent({
       isOpenedLoginDialog,
       isOpenedPostDetailDialog,
       isOpenedCreatePostDialog,
+      isLogined,
       isLikePost,
       isMarkedPost,
       selectedPost,
@@ -302,7 +336,7 @@ export default defineComponent({
       /** method */
       openLoginDialog,
       closeLoginDialog,
-      guestLogin,
+      logout,
       openPostDetailDialog,
       openCreatePostDialog,
       getPostUrl,
@@ -317,6 +351,13 @@ export default defineComponent({
 <style scoped>
 .v-card--flat {
   border: 1px solid #ddd;
+}
+.v-app-bar >>> .v-toolbar__content {
+  max-width: 1000px;
+  margin: 0 auto;
+}
+.posts-wrapper {
+  margin-top: 100px;
 }
 .icon-wrapper {
   width: 50px;
@@ -355,5 +396,12 @@ export default defineComponent({
   padding: 0;
   min-width: 0;
   height: auto;
+}
+.v-btn.white--text:hover {
+  transition: 0.3s;
+  background-color: rgb(61, 61, 61);
+}
+.v-btn.theme--light.v-btn.v-btn--has-bg {
+  background-color: #fff;
 }
 </style>

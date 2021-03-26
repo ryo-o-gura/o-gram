@@ -1,6 +1,7 @@
 <template>
   <v-dialog v-model="isOpened" class="pa-4 login-dialog" width="800" persistent>
-    <v-card flat tile class="mx-auto" height="600">
+    <v-card flat tile class="mx-auto pa-10" height="600">
+      <p class="text-center text-h3 font-weight-bold">投稿作成</p>
       <v-row no-gutters>
         <!-- 画像 -->
         <v-col
@@ -71,7 +72,6 @@ export default defineComponent({
     // TODO:ファイルアップロード
     const uploadFile = async (file: File) => {
       selectedFile.value = file
-      console.debug('fifi', file)
       // postImgs.value.push(file)
       previewImgs.value.push(window.URL.createObjectURL(file))
     }
@@ -83,7 +83,6 @@ export default defineComponent({
       }
       try {
         // 投稿作成
-        console.debug('f', postImgs.value)
         const newPost = await createPostGql(createInput)
         // ストレージにアップロード
         postImgs.value.forEach(async (img) => {
