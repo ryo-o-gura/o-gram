@@ -86,6 +86,7 @@ export default defineComponent({
         authorId: loginUser.value.id!,
         content: postContent.value,
         postImage: postImgs.value,
+        createdAt: Date.now(),
       }
       try {
         // 投稿作成

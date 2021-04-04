@@ -9,10 +9,15 @@
     <v-card class="pa-8">
       <p class="text-center text-h3 font-weight-bold">Login</p>
       <div class="input-wrapper">
-        <v-text-field label="mail" prepend-inner-icon="mdi-account-circle" />
+        <v-text-field
+          v-model="userInput.id"
+          label="id"
+          prepend-inner-icon="mdi-account-circle"
+        />
       </div>
       <div class="input-wrapper">
         <v-text-field
+          v-model="userInput.password"
           :type="inputType"
           :append-icon="passwordIcon"
           label="password"
@@ -32,7 +37,12 @@
       </div>
       <div class="text-center">
         <v-btn class="mr-2" text>Login</v-btn>
-        <v-btn class="ml-2" text @click="$emit('close')">Cancel</v-btn>
+        <v-btn
+          class="ml-2"
+          text
+          @click="$emit('update:isOpened', false)"
+          >Cancel</v-btn
+        >
       </div>
     </v-card>
   </v-dialog>
@@ -52,7 +62,7 @@ export default defineComponent({
       default: false,
     },
   },
-  setup(_, { root }) {
+  setup(_, { root, emit }) {
     const isShowPassword = ref(false)
     const inputType = computed(() => {
       return isShowPassword.value ? 'text' : 'password'
@@ -60,16 +70,28 @@ export default defineComponent({
     const passwordIcon = computed(() => {
       return isShowPassword.value ? 'mdi-eye' : 'mdi-eye-off'
     })
+    const userInput = ref({
+      id: '',
+      password: '',
+    })
     const guestLogin = async () => {
       const id = {
-        id: 'da74a514-dd6b-4f01-884c-0bde23a41801',
+        id: '589dfc63-f336-4b89-833d-f7e0aeb7e728',
       }
-      await root.$store.dispatch('user/signIn', id)
+      try {
+        await root.$store.dispatch('user/signIn', id)
+        emit('update', root.$store.state.user.loginUser)
+      } catch (e) {
+        console.error(e)
+      } finally {
+        emit('update:isOpened', false)
+      }
     }
     return {
       isShowPassword,
       inputType,
       passwordIcon,
+      userInput,
       guestLogin,
     }
   },

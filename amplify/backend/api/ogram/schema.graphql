@@ -4,7 +4,8 @@ type User @model(subscriptions: null) @key(fields: ["id"]) {
   password: String!
   icon: Int
   posts: [Post] @connection(keyName: "postsByUserId", fields: ["id"])
-  createdAt: AWSTimestamp
+  updatedAt: Int
+  createdAt: Int
 }
 
 type Post @model @key(name: "postsByUserId", fields: ["authorId"]) {
@@ -15,7 +16,8 @@ type Post @model @key(name: "postsByUserId", fields: ["authorId"]) {
   author: User @connection(fields: ["authorId"])
   comments: [Comment] @connection(keyName: "commentsByPostId", fields: ["id"])
   likes: [PostLike] @connection(keyName: "postLikesByPostId", fields: ["id"])
-  createdAt: AWSTimestamp
+  updatedAt: Int
+  createdAt: Int
 }
 
 type Comment @model @key(name: "commentsByPostId", fields: ["postId"]) {
@@ -27,7 +29,8 @@ type Comment @model @key(name: "commentsByPostId", fields: ["postId"]) {
   author: User @connection(fields: ["authorId"])
   posts: Post @connection(fields: ["postId"])
   commenter: User @connection(fields: ["commenterId"])
-  createdAt: AWSTimestamp
+  updatedAt: Int
+  createdAt: Int
 }
 
 type PostLike
@@ -43,5 +46,6 @@ type PostLike
   userId: ID!
   user: User @connection(fields: ["userId"])
   post: Post @connection(fields: ["postId"])
-  createdAt: AWSTimestamp
+  updatedAt: Int
+  createdAt: Int
 }

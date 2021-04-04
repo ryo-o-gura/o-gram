@@ -6,7 +6,7 @@ export interface User {
   icon: number
   posts: PostItems
   createdAt: number
-  updatedAt: string
+  updatedAt: number
 }
 export interface Post {
   __typename: 'Post'
@@ -18,7 +18,7 @@ export interface Post {
   comments: CommentItems
   likes: PostLikeItems
   createdAt: number
-  updatedAt: string
+  updatedAt: number
 }
 export interface PostItems {
   items: Post[]
@@ -34,7 +34,7 @@ export interface PostLike {
   user: User
   post: Post
   createdAt: number
-  updatedAt: string
+  updatedAt: number
 }
 export interface CommentItems {
   items: Comment[]
@@ -50,7 +50,7 @@ export interface Comment {
   posts: Post
   commenter: User
   createdAt: number
-  updatedAt: string
+  updatedAt: number
 }
 
 /* user系 *******************************************************************/
@@ -60,6 +60,7 @@ export interface CreatePostInput {
   authorId: string
   content: string
   postImage: string[]
+  createdAt: number
 }
 export interface DeletePostInput {
   id: string

@@ -1,6 +1,9 @@
 <template>
   <div>
-    <LoginDialog :is-opened="isOpenedLoginDialog" @close="closeLoginDialog" />
+    <LoginDialog
+      :is-opened.sync="isOpenedLoginDialog"
+      @update="updateLoginUser"
+    />
     <PostDetailDialog
       v-model="isOpenedPostDetailDialog"
       :post.sync="selectedPost"
@@ -78,7 +81,11 @@
         <v-row class="post-nav py-2 px-3 justify-space-between" no-gutters>
           <v-col class="d-flex align-center font-weight-bold">
             <div class="icon-wrapper">
-              <img :src="ICONS[post.author.icon]" alt="アイコン" width="100%" />
+              <img
+                :src="ICONS[post.author.icon] || ICONS[0]"
+                alt="アイコン"
+                width="100%"
+              />
             </div>
             <p class="mb-0 ml-2">{{ post.author.username }}</p>
           </v-col>
@@ -217,11 +224,13 @@ export default defineComponent({
     const openLoginDialog = () => {
       isOpenedLoginDialog.value = true
     }
-    const closeLoginDialog = () => {
-      isOpenedLoginDialog.value = false
-    }
     const logout = () => {
       isLogined.value = false
+    }
+
+    const updateLoginUser = (user: User) => {
+      if (!user) return
+      isLogined.value = true
     }
 
     const openPostDetailDialog = (post: Post) => {
@@ -326,7 +335,7 @@ export default defineComponent({
     useFetch(async () => {
       try {
         const id = {
-          id: 'da74a514-dd6b-4f01-884c-0bde23a41801',
+          id: 'cc41ac84-67e1-448c-ad0a-40624bc9144a',
         }
         await root.$store.dispatch('user/signIn', id)
         allPosts.value = await listPostsGql()
@@ -356,7 +365,7 @@ export default defineComponent({
       /** computed */
       /** method */
       openLoginDialog,
-      closeLoginDialog,
+      updateLoginUser,
       logout,
       openPostDetailDialog,
       openCreatePostDialog,

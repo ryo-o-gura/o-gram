@@ -18,13 +18,13 @@ export const createUser = /* GraphQL */ `
           authorId
           content
           postImage
-          createdAt
           updatedAt
+          createdAt
         }
         nextToken
       }
-      createdAt
       updatedAt
+      createdAt
     }
   }
 `;
@@ -44,13 +44,13 @@ export const updateUser = /* GraphQL */ `
           authorId
           content
           postImage
-          createdAt
           updatedAt
+          createdAt
         }
         nextToken
       }
-      createdAt
       updatedAt
+      createdAt
     }
   }
 `;
@@ -70,13 +70,13 @@ export const deleteUser = /* GraphQL */ `
           authorId
           content
           postImage
-          createdAt
           updatedAt
+          createdAt
         }
         nextToken
       }
-      createdAt
       updatedAt
+      createdAt
     }
   }
 `;
@@ -98,8 +98,8 @@ export const createPost = /* GraphQL */ `
         posts {
           nextToken
         }
-        createdAt
         updatedAt
+        createdAt
       }
       comments {
         items {
@@ -108,8 +108,8 @@ export const createPost = /* GraphQL */ `
           authorId
           commenterId
           text
-          createdAt
           updatedAt
+          createdAt
         }
         nextToken
       }
@@ -118,13 +118,13 @@ export const createPost = /* GraphQL */ `
           id
           postId
           userId
-          createdAt
           updatedAt
+          createdAt
         }
         nextToken
       }
-      createdAt
       updatedAt
+      createdAt
     }
   }
 `;
@@ -146,8 +146,8 @@ export const updatePost = /* GraphQL */ `
         posts {
           nextToken
         }
-        createdAt
         updatedAt
+        createdAt
       }
       comments {
         items {
@@ -156,8 +156,8 @@ export const updatePost = /* GraphQL */ `
           authorId
           commenterId
           text
-          createdAt
           updatedAt
+          createdAt
         }
         nextToken
       }
@@ -166,13 +166,13 @@ export const updatePost = /* GraphQL */ `
           id
           postId
           userId
-          createdAt
           updatedAt
+          createdAt
         }
         nextToken
       }
-      createdAt
       updatedAt
+      createdAt
     }
   }
 `;
@@ -194,8 +194,8 @@ export const deletePost = /* GraphQL */ `
         posts {
           nextToken
         }
-        createdAt
         updatedAt
+        createdAt
       }
       comments {
         items {
@@ -204,8 +204,8 @@ export const deletePost = /* GraphQL */ `
           authorId
           commenterId
           text
-          createdAt
           updatedAt
+          createdAt
         }
         nextToken
       }
@@ -214,13 +214,13 @@ export const deletePost = /* GraphQL */ `
           id
           postId
           userId
-          createdAt
           updatedAt
+          createdAt
         }
         nextToken
       }
-      createdAt
       updatedAt
+      createdAt
     }
   }
 `;
@@ -243,8 +243,8 @@ export const createComment = /* GraphQL */ `
         posts {
           nextToken
         }
-        createdAt
         updatedAt
+        createdAt
       }
       posts {
         id
@@ -256,8 +256,8 @@ export const createComment = /* GraphQL */ `
           username
           password
           icon
-          createdAt
           updatedAt
+          createdAt
         }
         comments {
           nextToken
@@ -265,8 +265,8 @@ export const createComment = /* GraphQL */ `
         likes {
           nextToken
         }
-        createdAt
         updatedAt
+        createdAt
       }
       commenter {
         id
@@ -276,11 +276,11 @@ export const createComment = /* GraphQL */ `
         posts {
           nextToken
         }
-        createdAt
         updatedAt
+        createdAt
       }
-      createdAt
       updatedAt
+      createdAt
     }
   }
 `;
@@ -303,8 +303,8 @@ export const updateComment = /* GraphQL */ `
         posts {
           nextToken
         }
-        createdAt
         updatedAt
+        createdAt
       }
       posts {
         id
@@ -316,8 +316,8 @@ export const updateComment = /* GraphQL */ `
           username
           password
           icon
-          createdAt
           updatedAt
+          createdAt
         }
         comments {
           nextToken
@@ -325,8 +325,8 @@ export const updateComment = /* GraphQL */ `
         likes {
           nextToken
         }
-        createdAt
         updatedAt
+        createdAt
       }
       commenter {
         id
@@ -336,11 +336,11 @@ export const updateComment = /* GraphQL */ `
         posts {
           nextToken
         }
-        createdAt
         updatedAt
+        createdAt
       }
-      createdAt
       updatedAt
+      createdAt
     }
   }
 `;
@@ -363,8 +363,8 @@ export const deleteComment = /* GraphQL */ `
         posts {
           nextToken
         }
-        createdAt
         updatedAt
+        createdAt
       }
       posts {
         id
@@ -376,8 +376,8 @@ export const deleteComment = /* GraphQL */ `
           username
           password
           icon
-          createdAt
           updatedAt
+          createdAt
         }
         comments {
           nextToken
@@ -385,8 +385,8 @@ export const deleteComment = /* GraphQL */ `
         likes {
           nextToken
         }
-        createdAt
         updatedAt
+        createdAt
       }
       commenter {
         id
@@ -396,11 +396,11 @@ export const deleteComment = /* GraphQL */ `
         posts {
           nextToken
         }
-        createdAt
         updatedAt
+        createdAt
       }
-      createdAt
       updatedAt
+      createdAt
     }
   }
 `;
@@ -421,8 +421,8 @@ export const createPostLike = /* GraphQL */ `
         posts {
           nextToken
         }
-        createdAt
         updatedAt
+        createdAt
       }
       post {
         id
@@ -434,8 +434,8 @@ export const createPostLike = /* GraphQL */ `
           username
           password
           icon
-          createdAt
           updatedAt
+          createdAt
         }
         comments {
           nextToken
@@ -443,11 +443,11 @@ export const createPostLike = /* GraphQL */ `
         likes {
           nextToken
         }
-        createdAt
         updatedAt
+        createdAt
       }
-      createdAt
       updatedAt
+      createdAt
     }
   }
 `;
@@ -468,8 +468,8 @@ export const updatePostLike = /* GraphQL */ `
         posts {
           nextToken
         }
-        createdAt
         updatedAt
+        createdAt
       }
       post {
         id
@@ -481,8 +481,8 @@ export const updatePostLike = /* GraphQL */ `
           username
           password
           icon
-          createdAt
           updatedAt
+          createdAt
         }
         comments {
           nextToken
@@ -490,11 +490,11 @@ export const updatePostLike = /* GraphQL */ `
         likes {
           nextToken
         }
-        createdAt
         updatedAt
+        createdAt
       }
-      createdAt
       updatedAt
+      createdAt
     }
   }
 `;
@@ -515,8 +515,8 @@ export const deletePostLike = /* GraphQL */ `
         posts {
           nextToken
         }
-        createdAt
         updatedAt
+        createdAt
       }
       post {
         id
@@ -528,8 +528,8 @@ export const deletePostLike = /* GraphQL */ `
           username
           password
           icon
-          createdAt
           updatedAt
+          createdAt
         }
         comments {
           nextToken
@@ -537,11 +537,11 @@ export const deletePostLike = /* GraphQL */ `
         likes {
           nextToken
         }
-        createdAt
         updatedAt
+        createdAt
       }
-      createdAt
       updatedAt
+      createdAt
     }
   }
 `;

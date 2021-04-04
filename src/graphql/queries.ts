@@ -15,13 +15,13 @@ export const getUser = /* GraphQL */ `
           authorId
           content
           postImage
-          createdAt
           updatedAt
+          createdAt
         }
         nextToken
       }
-      createdAt
       updatedAt
+      createdAt
     }
   }
 `;
@@ -48,8 +48,8 @@ export const listUsers = /* GraphQL */ `
         posts {
           nextToken
         }
-        createdAt
         updatedAt
+        createdAt
       }
       nextToken
     }
@@ -70,8 +70,8 @@ export const getPost = /* GraphQL */ `
         posts {
           nextToken
         }
-        createdAt
         updatedAt
+        createdAt
       }
       comments {
         items {
@@ -80,8 +80,8 @@ export const getPost = /* GraphQL */ `
           authorId
           commenterId
           text
-          createdAt
           updatedAt
+          createdAt
         }
         nextToken
       }
@@ -90,13 +90,13 @@ export const getPost = /* GraphQL */ `
           id
           postId
           userId
-          createdAt
           updatedAt
+          createdAt
         }
         nextToken
       }
-      createdAt
       updatedAt
+      createdAt
     }
   }
 `;
@@ -117,8 +117,8 @@ export const listPosts = /* GraphQL */ `
           username
           password
           icon
-          createdAt
           updatedAt
+          createdAt
         }
         comments {
           nextToken
@@ -126,8 +126,8 @@ export const listPosts = /* GraphQL */ `
         likes {
           nextToken
         }
-        createdAt
         updatedAt
+        createdAt
       }
       nextToken
     }
@@ -149,8 +149,8 @@ export const getComment = /* GraphQL */ `
         posts {
           nextToken
         }
-        createdAt
         updatedAt
+        createdAt
       }
       posts {
         id
@@ -162,8 +162,8 @@ export const getComment = /* GraphQL */ `
           username
           password
           icon
-          createdAt
           updatedAt
+          createdAt
         }
         comments {
           nextToken
@@ -171,8 +171,8 @@ export const getComment = /* GraphQL */ `
         likes {
           nextToken
         }
-        createdAt
         updatedAt
+        createdAt
       }
       commenter {
         id
@@ -182,11 +182,11 @@ export const getComment = /* GraphQL */ `
         posts {
           nextToken
         }
-        createdAt
         updatedAt
+        createdAt
       }
-      createdAt
       updatedAt
+      createdAt
     }
   }
 `;
@@ -208,27 +208,27 @@ export const listComments = /* GraphQL */ `
           username
           password
           icon
-          createdAt
           updatedAt
+          createdAt
         }
         posts {
           id
           authorId
           content
           postImage
-          createdAt
           updatedAt
+          createdAt
         }
         commenter {
           id
           username
           password
           icon
-          createdAt
           updatedAt
+          createdAt
         }
-        createdAt
         updatedAt
+        createdAt
       }
       nextToken
     }
@@ -248,8 +248,8 @@ export const getPostLike = /* GraphQL */ `
         posts {
           nextToken
         }
-        createdAt
         updatedAt
+        createdAt
       }
       post {
         id
@@ -261,8 +261,8 @@ export const getPostLike = /* GraphQL */ `
           username
           password
           icon
-          createdAt
           updatedAt
+          createdAt
         }
         comments {
           nextToken
@@ -270,11 +270,11 @@ export const getPostLike = /* GraphQL */ `
         likes {
           nextToken
         }
-        createdAt
         updatedAt
+        createdAt
       }
-      createdAt
       updatedAt
+      createdAt
     }
   }
 `;
@@ -294,19 +294,19 @@ export const listPostLikes = /* GraphQL */ `
           username
           password
           icon
-          createdAt
           updatedAt
+          createdAt
         }
         post {
           id
           authorId
           content
           postImage
-          createdAt
           updatedAt
+          createdAt
         }
-        createdAt
         updatedAt
+        createdAt
       }
       nextToken
     }
@@ -338,19 +338,19 @@ export const likesByUser = /* GraphQL */ `
           username
           password
           icon
-          createdAt
           updatedAt
+          createdAt
         }
         post {
           id
           authorId
           content
           postImage
-          createdAt
           updatedAt
+          createdAt
         }
-        createdAt
         updatedAt
+        createdAt
       }
       nextToken
     }
