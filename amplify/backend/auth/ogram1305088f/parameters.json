@@ -1,6 +1,6 @@
 {
     "identityPoolName": "ogram1305088f_identitypool_1305088f",
-    "allowUnauthenticatedIdentities": false,
+    "allowUnauthenticatedIdentities": true,
     "resourceNameTruncated": "ogram1305088f",
     "userPoolName": "ogram1305088f_userpool_1305088f",
     "autoVerifiedAttributes": [

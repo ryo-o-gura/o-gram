@@ -14,7 +14,7 @@
         </v-col>
         <v-file-input
           label="テスト"
-          @change="uploadFile($event, 0)"
+          @change="uploadFile($event)"
           prepend-icon="mdi-camera"
           hide-input
           accept="image/png, image/jpeg"
@@ -59,11 +59,7 @@ export default defineComponent({
     const loginUser = computed(() => {
       return root.$store.state.user.loginUser
     })
-    const previewImgs = computed(() => {
-      return postImgs.value.map((img) => {
-        return window.URL.createObjectURL(img)
-      })
-    })
+    const previewImgs = ref<string[]>([])
     const postImgs = ref<string[]>([])
     const postContent = ref('')
     const selectedFile = ref()
@@ -71,9 +67,19 @@ export default defineComponent({
     /** method ***********`************************************************/
     // TODO:ファイルアップロード
     const uploadFile = async (file: File) => {
-      selectedFile.value = file
-      // postImgs.value.push(file)
-      previewImgs.value.push(window.URL.createObjectURL(file))
+      try {
+        // ストレージにアップロード
+        const filePath = `${loginUser.value.id}/${
+          loginUser.value.posts?.items?.length! + 1
+        }/${file.name}/${Math.floor(Math.random() * 101)}`
+
+        await Storage.put(filePath, file)
+        const newImg = await Storage.get(filePath)
+        previewImgs.value.push(newImg as string)
+        postImgs.value.push(filePath)
+      } catch (e) {
+        console.error(e)
+      }
     }
     const createPost = async () => {
       const createInput: CreatePostInput = {
@@ -83,11 +89,8 @@ export default defineComponent({
       }
       try {
         // 投稿作成
+        console.debug(postImgs.value)
         const newPost = await createPostGql(createInput)
-        // ストレージにアップロード
-        postImgs.value.forEach(async (img) => {
-          await Storage.put(img, selectedFile.value)
-        })
         emit('create', newPost)
         emit('close', false)
       } catch (e) {

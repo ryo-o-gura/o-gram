@@ -91,7 +91,7 @@
         <!-- 画像 -->
         <v-carousel delimiter-icon="mdi-circle-small" :continuous="false">
           <v-carousel-item
-            v-for="(image, imageIndex) in postImagesUrls[postIndex]"
+            v-for="(image, imageIndex) in postImages[postIndex]"
             :key="imageIndex"
           >
             <v-sheet height="100%" tile>
@@ -164,7 +164,13 @@
 </template>
 
 <script lang="ts">
-import { computed, defineComponent, ref, useFetch } from 'nuxt-composition-api'
+import {
+  computed,
+  defineComponent,
+  ref,
+  useFetch,
+  watch,
+} from 'nuxt-composition-api'
 import { listPostsGql } from '~/appsync/queries'
 import { Storage } from 'aws-amplify'
 import {
@@ -202,11 +208,11 @@ export default defineComponent({
     const isMarkedPost = ref(false)
     const selectedPost = ref<Post>()
     const allPosts = ref<Post[]>([])
-    const postImagesUrls = ref<any[]>([])
     const loginUser = computed(() => {
       return root.$store.state.user.loginUser
     })
     /** computed ***********************************************************/
+    const postImages = ref<any>([])
     /** method ***********************************************************/
     const openLoginDialog = () => {
       isOpenedLoginDialog.value = true
@@ -227,23 +233,29 @@ export default defineComponent({
       isOpenedCreatePostDialog.value = true
     }
 
-    const getPostUrl = async (postImgs: string[]) => {
-      return Promise.all(
-        postImgs.map((img) => {
-          return Storage.get(img)
+    const getPostImageList = async () => {
+      const getPostImage = async (post: Post) => {
+        const getOnePostImages = post.postImage.map(async (image) => {
+          return await Storage.get(image)
         })
-      ).then((arg) => {
-        return arg
-      })
-    }
-    const getPostImgsArray = async (postList: Post[]) => {
-      return Promise.all(
-        postList.map((post: Post) => {
-          return getPostUrl(post.postImage)
-        })
-      ).then((arg) => {
-        return arg
-      })
+        return await Promise.all(getOnePostImages)
+          .then((result) => {
+            return result
+          })
+          .catch((e) => {
+            console.error(e)
+          })
+      }
+
+      for (const post in allPosts.value) {
+        try {
+          const images = await getPostImage(allPosts.value[post])
+          postImages.value.push(images)
+        } catch (e) {
+          console.error(e)
+        }
+      }
+      console.debug(postImages.value)
     }
 
     // 自分がいいねしているかのチェック
@@ -303,6 +315,14 @@ export default defineComponent({
       console.debug(post)
     }
     /** init */
+    watch(
+      () => {
+        allPosts.value
+      },
+      async () => {
+        await getPostImageList()
+      }
+    )
     useFetch(async () => {
       try {
         const id = {
@@ -310,12 +330,13 @@ export default defineComponent({
         }
         await root.$store.dispatch('user/signIn', id)
         allPosts.value = await listPostsGql()
-        postImagesUrls.value = await getPostImgsArray(allPosts.value)
+        await getPostImageList()
       } catch (e) {
         console.error(e)
       } finally {
         console.debug('allpost', allPosts.value)
         console.debug('loginUser', loginUser.value)
+        console.debug('postImage', postImages.value)
       }
     })
     return {
@@ -330,7 +351,7 @@ export default defineComponent({
       isMarkedPost,
       selectedPost,
       allPosts,
-      postImagesUrls,
+      postImages,
       isLoading,
       /** computed */
       /** method */
@@ -339,7 +360,6 @@ export default defineComponent({
       logout,
       openPostDetailDialog,
       openCreatePostDialog,
-      getPostUrl,
       togglePostLike,
       createPosts,
       isLikedThePost,

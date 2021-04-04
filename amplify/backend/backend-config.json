@@ -25,7 +25,7 @@
     }
   },
   "storage": {
-    "postimgstorage": {
+    "s339635e03": {
       "service": "S3",
       "providerPlugin": "awscloudformation"
     }
