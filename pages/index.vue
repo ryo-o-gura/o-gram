@@ -3,16 +3,20 @@
     <LoginDialog
       :is-opened.sync="isOpenedLoginDialog"
       @update="updateLoginUser"
+      @snackbar="updateSnackbar"
     />
     <PostDetailDialog
       v-model="isOpenedPostDetailDialog"
       :post.sync="selectedPost"
+      :post-image="selectedPostImage"
       :loginUser="loginUser"
+      @snackbar="updateSnackbar"
     />
 
     <CreatePostDialog
       v-model="isOpenedCreatePostDialog"
       @create="createPosts"
+      @snackbar="updateSnackbar"
     />
     <v-app-bar fixed dark color="black">
       <v-row class="mx-10">
@@ -58,6 +62,7 @@
         </v-col>
       </v-row>
     </v-app-bar>
+
     <div class="posts-wrapper">
       <v-btn
         tile
@@ -70,11 +75,11 @@
       </v-btn>
       <!--投稿 -------------------------------------------------------->
       <v-card
-        v-for="(post, postIndex) in allPosts"
+        v-for="(post, postIndex) in sortedAllPosts"
         :key="post.id"
         flat
         tile
-        class="mx-auto pb-5 mt-5 mb-10"
+        class="mx-auto pb-2 mt-5 mb-10"
         width="600"
       >
         <!-- プロフィール -->
@@ -98,7 +103,7 @@
         <!-- 画像 -->
         <v-carousel delimiter-icon="mdi-circle-small" :continuous="false">
           <v-carousel-item
-            v-for="(image, imageIndex) in postImages[postIndex]"
+            v-for="(image, imageIndex) in postImageList[postIndex]"
             :key="imageIndex"
           >
             <v-sheet height="100%" tile>
@@ -124,7 +129,11 @@
                 <v-icon v-else large>mdi-heart-outline</v-icon>
               </v-btn>
             </span>
-            <v-btn text icon @click="openPostDetailDialog(post)">
+            <v-btn
+              text
+              icon
+              @click="openPostDetailDialog(post, postImageList[postIndex])"
+            >
               <v-icon large>mdi-chat-processing-outline</v-icon>
             </v-btn>
           </v-col>
@@ -157,7 +166,7 @@
           <v-btn
             v-if="post.comments.items.length"
             text
-            @click="openPostDetailDialog(post)"
+            @click="openPostDetailDialog(post, postImageList[postIndex])"
           >
             <p class="text-body-2 text--secondary mb-0">
               コメント{{ post.comments.items.length }}件をすべて見る
@@ -165,8 +174,23 @@
           </v-btn>
           <p v-else class="text-body-2 text--secondary mb-0">コメントなし</p>
         </v-row>
+        <v-row class="px-4 grey--text" no-gutters>
+          {{ getDate(Number(post.createdAt)) }}
+        </v-row>
       </v-card>
     </div>
+    <v-snackbar v-model="isOpenedSnackbar" light bottom left>
+      <v-row no-gutters>
+        <v-col
+          class="text-center align-self-center font-weight-bold text-body-1"
+        >
+          <p class="mb-0">{{ snackbarText }}</p>
+        </v-col>
+        <v-col cols="2" class="text-right">
+          <img :src="ICONS[0]" width="60px" />
+        </v-col>
+      </v-row>
+    </v-snackbar>
   </div>
 </template>
 
@@ -180,6 +204,7 @@ import {
 } from 'nuxt-composition-api'
 import { listPostsGql } from '~/appsync/queries'
 import { Storage } from 'aws-amplify'
+import { getDate } from '~/modules/getDate'
 import {
   deletePostLikeGql,
   deletePostGql,
@@ -209,33 +234,48 @@ export default defineComponent({
     const isOpenedLoginDialog = ref(false)
     const isOpenedPostDetailDialog = ref(false)
     const isOpenedCreatePostDialog = ref(false)
+    const isOpenedSnackbar = ref(false)
+    const snackbarText = ref('')
     const isLogined = ref(true)
     const isLikePost = ref(false)
     const isLoading = ref(false)
     const isMarkedPost = ref(false)
     const selectedPost = ref<Post>()
+    const selectedPostImage = ref<any>()
     const allPosts = ref<Post[]>([])
+    const postImageList = ref<any>([])
     const loginUser = computed(() => {
       return root.$store.state.user.loginUser
     })
     /** computed ***********************************************************/
-    const postImages = ref<any>([])
+    const sortedAllPosts = computed(() => {
+      return allPosts.value.sort(function (a, b) {
+        if (a.createdAt < b.createdAt) return -1
+        if (a.createdAt > b.createdAt) return 1
+        return 0
+      })
+    })
     /** method ***********************************************************/
     const openLoginDialog = () => {
       isOpenedLoginDialog.value = true
     }
     const logout = () => {
       isLogined.value = false
+      updateSnackbar('ログアウトしました')
     }
 
     const updateLoginUser = (user: User) => {
       if (!user) return
       isLogined.value = true
     }
+    const updateSnackbar = (text: string) => {
+      snackbarText.value = text
+      isOpenedSnackbar.value = true
+    }
 
-    const openPostDetailDialog = (post: Post) => {
+    const openPostDetailDialog = (post: Post, image: string[]) => {
       selectedPost.value = post
-      console.debug(selectedPost.value)
+      selectedPostImage.value = image
       isOpenedPostDetailDialog.value = true
     }
     const openCreatePostDialog = (post: Post) => {
@@ -255,16 +295,14 @@ export default defineComponent({
             console.error(e)
           })
       }
-
       for (const post in allPosts.value) {
         try {
           const images = await getPostImage(allPosts.value[post])
-          postImages.value.push(images)
+          postImageList.value.push(images)
         } catch (e) {
           console.error(e)
         }
       }
-      console.debug(postImages.value)
     }
 
     // 自分がいいねしているかのチェック
@@ -290,8 +328,10 @@ export default defineComponent({
         try {
           await deletePostLikeGql(input)
           allPosts.value = await listPostsGql()
+          updateSnackbar('いいねを取り消しました')
         } catch (e) {
           console.error(e)
+          updateSnackbar('いいねを取り消せませんでした')
         }
       } else {
         const input: CreatePostLikeInput = {
@@ -301,14 +341,17 @@ export default defineComponent({
         try {
           await createPostLikeGql(input)
           allPosts.value = await listPostsGql()
+          updateSnackbar('いいねしました')
         } catch (e) {
           console.error(e)
+          updateSnackbar('いいねできませんでした')
         }
       }
       isLoading.value = false
     }
-    const createPosts = (post: Post) => {
+    const createPosts = async (post: Post) => {
       allPosts.value.push(post)
+      await getPostImageList()
     }
     const deletePost = async (post: Post) => {
       try {
@@ -316,12 +359,10 @@ export default defineComponent({
           id: post.id,
         }
         const deletedPost = await deletePostGql(input)
-        console.debug(deletedPost)
         allPosts.value = await listPostsGql()
       } catch (e) {
         console.error(e)
       }
-      console.debug(post)
     }
     /** init */
     watch(
@@ -334,6 +375,7 @@ export default defineComponent({
     )
     useFetch(async () => {
       try {
+        // TODO: ログイン情報保持期間
         const id = {
           id: 'cc41ac84-67e1-448c-ad0a-40624bc9144a',
         }
@@ -345,7 +387,7 @@ export default defineComponent({
       } finally {
         console.debug('allpost', allPosts.value)
         console.debug('loginUser', loginUser.value)
-        console.debug('postImage', postImages.value)
+        console.debug('postImage', postImageList.value)
       }
     })
     return {
@@ -355,18 +397,24 @@ export default defineComponent({
       isOpenedLoginDialog,
       isOpenedPostDetailDialog,
       isOpenedCreatePostDialog,
+      isOpenedSnackbar,
+      snackbarText,
       isLogined,
       isLikePost,
       isMarkedPost,
       selectedPost,
+      selectedPostImage,
       allPosts,
-      postImages,
+      postImageList,
       isLoading,
       /** computed */
+      sortedAllPosts,
       /** method */
       openLoginDialog,
       updateLoginUser,
+      updateSnackbar,
       logout,
+      getDate,
       openPostDetailDialog,
       openCreatePostDialog,
       togglePostLike,

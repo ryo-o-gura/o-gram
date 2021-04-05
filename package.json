@@ -17,6 +17,7 @@
     "@nuxtjs/axios": "^5.12.5",
     "aws-amplify": "^3.3.22",
     "core-js": "^3.8.3",
+    "dayjs": "^1.10.4",
     "nuxt": "^2.14.12",
     "nuxt-composition-api": "^0.11.0",
     "nuxt-property-decorator": "^2.9.1",

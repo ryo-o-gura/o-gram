@@ -24,8 +24,10 @@
         <v-textarea v-model="postContent" />
       </v-row>
       <v-row>
-        <v-btn @click="createPost">投稿する</v-btn>
-        <v-btn @click="$emit('close', false)">キャンセル</v-btn>
+        <v-btn :loading="isLoading" @click="createPost">投稿する</v-btn>
+        <v-btn :loading="isLoading" @click="$emit('close', false)">
+          キャンセル
+        </v-btn>
       </v-row>
     </v-card>
   </v-dialog>
@@ -61,11 +63,10 @@ export default defineComponent({
     })
     const previewImgs = ref<string[]>([])
     const postImgs = ref<string[]>([])
+    const isLoading = ref(false)
     const postContent = ref('')
-    const selectedFile = ref()
     /** computed ***********************************************************/
     /** method ***********`************************************************/
-    // TODO:ファイルアップロード
     const uploadFile = async (file: File) => {
       try {
         // ストレージにアップロード
@@ -82,25 +83,38 @@ export default defineComponent({
       }
     }
     const createPost = async () => {
+      if (!postImgs.value.length) {
+        emit('snackbar', '写真は最低一枚は選択してください')
+        return
+      }
+
       const createInput: CreatePostInput = {
         authorId: loginUser.value.id!,
         content: postContent.value,
         postImage: postImgs.value,
-        createdAt: Date.now(),
+        createdAt: String(Date.now()),
       }
       try {
+        isLoading.value = true
         // 投稿作成
-        console.debug(postImgs.value)
         const newPost = await createPostGql(createInput)
         emit('create', newPost)
         emit('close', false)
+        postContent.value = ''
+        postImgs.value = []
+        previewImgs.value = []
+        emit('snackbar', '投稿を作成しました！')
       } catch (e) {
         console.error(e)
+        emit('snackbar', '投稿を作成できませんでした。')
+      } finally {
+        isLoading.value = false
       }
     }
     return {
       /** data */
       loginUser,
+      isLoading,
       uploadFile,
       previewImgs,
       postImgs,

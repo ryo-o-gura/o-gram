@@ -8,6 +8,10 @@ export interface User {
   createdAt: number
   updatedAt: number
 }
+export interface UserItems {
+  items: User[]
+}
+
 export interface Post {
   __typename: 'Post'
   id: string
@@ -60,7 +64,7 @@ export interface CreatePostInput {
   authorId: string
   content: string
   postImage: string[]
-  createdAt: number
+  createdAt: string
 }
 export interface DeletePostInput {
   id: string
@@ -70,6 +74,9 @@ export interface GetPostInput {
 }
 export interface GetUserInput {
   id: string
+}
+export interface GetUserByUsernameInput {
+  username: string
 }
 /* postLike系 *******************************************************************/
 export interface CreatePostLikeInput {
@@ -86,4 +93,5 @@ export interface CreateCommentInput {
   authorId: string
   commenterId: string
   text: string
+  createdAt?: string
 }

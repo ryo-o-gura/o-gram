@@ -1,11 +1,18 @@
-type User @model(subscriptions: null) @key(fields: ["id"]) {
+type User
+  @model(subscriptions: null)
+  @key(fields: ["id"])
+  @key(
+    name: "userByUsername"
+    fields: ["username"]
+    queryField: "getUserByUsername"
+  ) {
   id: ID!
   username: ID!
   password: String!
   icon: Int
   posts: [Post] @connection(keyName: "postsByUserId", fields: ["id"])
-  updatedAt: Int
-  createdAt: Int
+  updatedAt: String
+  createdAt: String
 }
 
 type Post @model @key(name: "postsByUserId", fields: ["authorId"]) {
@@ -16,8 +23,8 @@ type Post @model @key(name: "postsByUserId", fields: ["authorId"]) {
   author: User @connection(fields: ["authorId"])
   comments: [Comment] @connection(keyName: "commentsByPostId", fields: ["id"])
   likes: [PostLike] @connection(keyName: "postLikesByPostId", fields: ["id"])
-  updatedAt: Int
-  createdAt: Int
+  updatedAt: String
+  createdAt: String
 }
 
 type Comment @model @key(name: "commentsByPostId", fields: ["postId"]) {
@@ -29,8 +36,8 @@ type Comment @model @key(name: "commentsByPostId", fields: ["postId"]) {
   author: User @connection(fields: ["authorId"])
   posts: Post @connection(fields: ["postId"])
   commenter: User @connection(fields: ["commenterId"])
-  updatedAt: Int
-  createdAt: Int
+  updatedAt: String
+  createdAt: String
 }
 
 type PostLike

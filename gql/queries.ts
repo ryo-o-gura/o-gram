@@ -21,15 +21,32 @@ export const getUser = /* GraphQL */ `
     }
   }
 `
+export const getUserByUsername = /* GraphQL */ `
+  query GetUserByUsername($id: ID!) {
+    getUser(id: $id) {
+      id
+      username
+      password
+      icon
+      posts {
+        items {
+          id
+          authorId
+          content
+          postImage
+          createdAt
+          updatedAt
+        }
+        nextToken
+      }
+      createdAt
+      updatedAt
+    }
+  }
+`
 export const listUsers = /* GraphQL */ `
-  query ListUsers($id: ID) {
-    listUsers(
-      id: $id
-      filter: $filter
-      limit: $limit
-      nextToken: $nextToken
-      sortDirection: $sortDirection
-    ) {
+  query ListUsers {
+    listUsers{
       items {
         id
         username

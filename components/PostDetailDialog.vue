@@ -15,7 +15,7 @@
             :continuous="false"
             height="600"
           >
-            <v-carousel-item v-for="image in post.postImage" :key="image">
+            <v-carousel-item v-for="image in postImage" :key="image">
               <v-sheet height="100%" tile>
                 <v-row
                   class="fill-height"
@@ -35,7 +35,7 @@
             <v-col class="d-flex align-center font-weight-bold">
               <div class="icon-wrapper">
                 <img
-                  :src="ICONS[post.author.icon]"
+                  :src="ICONS[post.author.icon] || ICONS[0]"
                   alt="アイコン"
                   width="100%"
                 />
@@ -51,22 +51,30 @@
             class="post-row px-4 flex-column flex-start flex-nowrap"
           >
             <!-- 投稿テキスト -->
-            <v-col cols="auto">
+            <v-col cols="auto" class="pb-10">
               <p class="mb-0">
-                <span class="font-weight-bold">{{ post.author.username }}</span>
+                <span class="font-weight-bold text-h6">{{
+                  post.author.username
+                }}</span>
                 <span style="white-space: pre-wrap">{{ post.content }} </span>
               </p>
             </v-col>
             <!-- コメント -->
             <v-col
               cols="auto"
-              v-for="(comment, index) in post.comments.items"
+              class="mb-1"
+              v-for="(comment, index) in sortedAllPosts"
               :key="index"
             >
-              <span class="font-weight-bold">{{
-                comment.commenter.username
-              }}</span>
-              <span>{{ comment.text }} </span>
+              <p class="mb-0">
+                <span class="font-weight-bold">{{
+                  comment.commenter.username
+                }}</span>
+                <span>{{ comment.text }} </span>
+              </p>
+              <p class="mb-0 pl-1 comment-date grey--text">
+                {{ getDate(Number(comment.createdAt)) }}
+              </p>
             </v-col>
           </v-row>
           <!-- アイコン -->
@@ -97,7 +105,7 @@
             </v-col>
           </v-row>
           <!-- いいね -->
-          <v-row no-gutters class="px-4 text-caption">
+          <v-row no-gutters class="px-4 mt-1 text-body-2">
             <v-col cols="12">
               <span v-if="post.likes.items" class="font-weight-bold">
                 {{ post.likes.items.length }}人
@@ -106,23 +114,22 @@
               <span>が「いいね！」しました</span>
             </v-col>
             <v-col cols="12" class="mt-2">
-              <p class="text-caption grey--text mb-0">{{ post.updatedAt }}</p>
+              <p class="text-caption grey--text mb-0">
+                {{ getDate(Number(post.createdAt)) }}
+              </p>
             </v-col>
           </v-row>
-          <v-row
-            no-gutters
-            class="align-content-center comment-row px-4 mt-0 py-1"
-          >
+          <v-row no-gutters class="align-content-center comment-row px-4 mt-2">
             <v-col cols="9" class="align-self-center">
               <v-text-field
                 v-model="newCommentText"
                 placeholder="コメントを追加"
                 dense
-                solo
                 flat
+                @keypress.enter="createComment(post)"
               />
             </v-col>
-            <v-col cols="3" class="align-self-center">
+            <v-col cols="3" class="align-self-center pl-2">
               <v-btn
                 class="font-weight-bold"
                 color="#0095f6"
@@ -142,13 +149,20 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, PropType, useFetch } from 'nuxt-composition-api'
+import {
+  defineComponent,
+  ref,
+  PropType,
+  useFetch,
+  computed,
+} from 'nuxt-composition-api'
 import {
   createCommentGql,
   createPostLikeGql,
   deletePostLikeGql,
 } from '~/appsync/mutations'
 import { getPostGql } from '~/appsync/queries'
+import { getDate } from '~/modules/getDate'
 import {
   CreateCommentInput,
   CreatePostLikeInput,
@@ -184,6 +198,10 @@ export default defineComponent({
       type: Object as PropType<Post>,
       default: () => {},
     },
+    postImage: {
+      type: Array,
+      default: () => [],
+    },
     loginUser: {
       type: Object as PropType<User>,
     },
@@ -193,6 +211,15 @@ export default defineComponent({
     const newCommentText = ref('')
     const isLoading = ref(false)
     /** computed ***********************************************************/
+    const sortedAllPosts = computed(() => {
+      if (props.post)
+        return props.post.comments.items.sort(function (a, b) {
+          if (a.createdAt < b.createdAt) return -1
+          if (a.createdAt > b.createdAt) return 1
+          return 0
+        })
+    })
+
     /** method ***********************************************************/
     // 自分がいいねしているかのチェック
     const isLikedThePost = (post: Post) => {
@@ -221,8 +248,10 @@ export default defineComponent({
           }
           const updatedPost = await getPostGql(getPostInput)
           emit('update:post', updatedPost)
+          emit('snackbar', 'いいねを取り消しました')
         } catch (e) {
           console.error(e)
+          emit('snackbar', 'いいねを取り消せませんでした')
         }
       } else {
         const createPostLikeInput: CreatePostLikeInput = {
@@ -236,21 +265,24 @@ export default defineComponent({
           }
           const updatedPost = await getPostGql(getPostInput)
           emit('update:post', updatedPost)
+          emit('snackbar', 'いいねしました')
         } catch (e) {
           console.error(e)
+          emit('snackbar', 'いいねできませんでした')
         }
       }
       isLoading.value = false
     }
 
-    // TODO:update方法
     const createComment = async (post: Post) => {
+      if (!newCommentText.value.trim()) return
       isLoading.value = true
       const input: CreateCommentInput = {
         postId: post.id!,
         authorId: post.authorId!,
         commenterId: props.loginUser?.id!,
         text: newCommentText.value,
+        createdAt: String(Date.now()),
       }
       try {
         const createdReturn = await createCommentGql(input)
@@ -259,7 +291,9 @@ export default defineComponent({
         }
         const updatedPost = await getPostGql(getPostInput)
         emit('update:post', updatedPost)
+        emit('snackbar', 'コメントしました')
       } catch (e) {
+        emit('snackbar', 'コメントできませんでした')
         console.error(e)
       } finally {
         newCommentText.value = ''
@@ -272,9 +306,11 @@ export default defineComponent({
       newCommentText,
       isLoading,
       /** computed */
+      sortedAllPosts,
       /** method */
       isLikedThePost,
       togglePostLike,
+      getDate,
       createComment,
     }
   },
@@ -325,6 +361,13 @@ export default defineComponent({
 }
 .comment-row {
   height: 55px;
+}
+.comment-row >>> .v-text-field__details {
+  display: none;
+}
+.comment-date {
+  font-size: 10px;
+  line-height: 1;
 }
 .post-icon-row >>> .v-btn--icon {
   z-index: 2;

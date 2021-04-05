@@ -10,8 +10,8 @@
       <p class="text-center text-h3 font-weight-bold">Login</p>
       <div class="input-wrapper">
         <v-text-field
-          v-model="userInput.id"
-          label="id"
+          v-model="userInput.username"
+          label="username"
           prepend-inner-icon="mdi-account-circle"
         />
       </div>
@@ -30,26 +30,34 @@
           text
           color="#0095f6"
           class="text-body-1 font-weight-bold"
+          :loading="isLoading"
           @click="guestLogin"
         >
           ゲストユーザーでログイン
         </v-btn>
       </div>
       <div class="text-center">
-        <v-btn class="mr-2" text>Login</v-btn>
+        <v-btn class="mr-2" text :loading="isLoading" @click="login">
+          Login
+        </v-btn>
         <v-btn
           class="ml-2"
           text
+          :loading="isLoading"
           @click="$emit('update:isOpened', false)"
-          >Cancel</v-btn
         >
+          Cancel
+        </v-btn>
       </div>
     </v-card>
   </v-dialog>
 </template>
 
 <script lang="ts">
-import { computed, defineComponent, ref } from 'nuxt-composition-api'
+import { computed, defineComponent, ref, watch } from 'nuxt-composition-api'
+import { getUserByUsernameGql, listUsersGql } from '~/appsync/queries'
+import { getUserByUsername } from '~/gql/queries'
+import { User } from '~/types/schema'
 export default defineComponent({
   name: 'LoginDialog',
   model: {
@@ -62,8 +70,10 @@ export default defineComponent({
       default: false,
     },
   },
-  setup(_, { root, emit }) {
+  setup(props, { root, emit }) {
+    const isLoading = ref(false)
     const isShowPassword = ref(false)
+    const allUsers = ref<User[]>([])
     const inputType = computed(() => {
       return isShowPassword.value ? 'text' : 'password'
     })
@@ -71,28 +81,79 @@ export default defineComponent({
       return isShowPassword.value ? 'mdi-eye' : 'mdi-eye-off'
     })
     const userInput = ref({
-      id: '',
+      username: '',
       password: '',
     })
     const guestLogin = async () => {
       const id = {
         id: '589dfc63-f336-4b89-833d-f7e0aeb7e728',
       }
+      isLoading.value = true
       try {
         await root.$store.dispatch('user/signIn', id)
         emit('update', root.$store.state.user.loginUser)
+        emit('snackbar', 'ゲストユーザーでログインしました')
       } catch (e) {
         console.error(e)
+        emit('snackbar', 'ログインできませんでした')
       } finally {
         emit('update:isOpened', false)
+        isLoading.value = false
       }
     }
+    const login = async () => {
+      if (!userInput.value.username || !userInput.value.password) return
+      isLoading.value = true
+      try {
+        // 入力されたusernameのユーザがいるか
+        const findedUser = allUsers.value.find((user: User) => {
+          return user.username === userInput.value.username
+        })
+        console.debug(findedUser)
+        if (findedUser) {
+          // パスワードが一致しているか
+          if (findedUser.password === userInput.value.password) {
+            const input = {
+              id: findedUser.id,
+            }
+            await root.$store.dispatch('user/signIn', input)
+            emit('update', root.$store.state.user.loginUser)
+            emit('snackbar', 'ログインしました')
+            emit('update:isOpened', false)
+            userInput.value = {
+              username: '',
+              password: '',
+            }
+          } else {
+            emit('snackbar', 'パスワードが違います')
+          }
+        } else {
+          emit('snackbar', 'ユーザーネームが違います')
+        }
+      } catch (e) {
+        console.error(e)
+        emit('snackbar', 'ログインできませんでした')
+      } finally {
+        isLoading.value = false
+      }
+    }
+    /** init */
+    watch(
+      () => props.isOpened,
+      async (event) => {
+        if (!event) return
+        allUsers.value = await listUsersGql()
+      }
+    )
     return {
+      isLoading,
       isShowPassword,
       inputType,
+      allUsers,
       passwordIcon,
       userInput,
       guestLogin,
+      login,
     }
   },
 })

@@ -1,6 +1,6 @@
-import { User, Post, PostItems, PostLike, Comment } from './schema';
+import { User, Post, PostItems, PostLike, Comment, UserItems } from './schema';
 export interface ListUsersQuery {
-  listUsers: User[]
+  listUsers: UserItems
 }
 export interface CreatePostMutation {
   createPost: Post

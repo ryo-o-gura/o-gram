@@ -312,6 +312,36 @@ export const listPostLikes = /* GraphQL */ `
     }
   }
 `;
+export const getUserByUsername = /* GraphQL */ `
+  query GetUserByUsername(
+    $username: ID
+    $sortDirection: ModelSortDirection
+    $filter: ModelUserFilterInput
+    $limit: Int
+    $nextToken: String
+  ) {
+    getUserByUsername(
+      username: $username
+      sortDirection: $sortDirection
+      filter: $filter
+      limit: $limit
+      nextToken: $nextToken
+    ) {
+      items {
+        id
+        username
+        password
+        icon
+        posts {
+          nextToken
+        }
+        updatedAt
+        createdAt
+      }
+      nextToken
+    }
+  }
+`;
 export const likesByUser = /* GraphQL */ `
   query LikesByUser(
     $userId: ID
