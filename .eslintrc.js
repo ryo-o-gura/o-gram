@@ -15,6 +15,5 @@ module.exports = {
   // add your custom rules here
   rules: {
     'no-console': 'off',
-    'comma-dangle': 'on'
   },
 }
