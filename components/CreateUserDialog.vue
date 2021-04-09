@@ -7,7 +7,7 @@
     @input="$emit('toggle', $event)"
   >
     <v-card class="pa-8">
-      <p class="text-center text-h3 font-weight-bold">Login</p>
+      <p class="text-center text-h3 font-weight-bold">Sign Up</p>
       <div class="input-wrapper">
         <v-text-field
           v-model="userInput.username"
@@ -25,6 +25,17 @@
           @click:append="isShowPassword = !isShowPassword"
         />
       </div>
+      <div class="input-wrapper">
+        <img v-if="previewImgs" :src="previewImgs" alt="アイコン画像" />
+        <v-file-input
+          v-else
+          label="テスト"
+          @change="uploadFile($event)"
+          prepend-icon="mdi-camera"
+          hide-input
+          accept="image/png, image/jpeg"
+        />
+      </div>
       <div>
         <v-btn
           text
@@ -37,8 +48,8 @@
         </v-btn>
       </div>
       <div class="text-center">
-        <v-btn class="mr-2" text :loading="isLoading" @click="login">
-          Login
+        <v-btn class="mr-2" text :loading="isLoading" @click="createUser">
+          SIGN UP
         </v-btn>
         <v-btn
           class="ml-2"
@@ -55,9 +66,10 @@
 
 <script lang="ts">
 import { computed, defineComponent, ref, watch } from 'nuxt-composition-api'
-import { getUserByUsernameGql, listUsersGql } from '~/appsync/queries'
-import { getUserByUsername } from '~/gql/queries'
+import { Storage } from 'aws-amplify'
+import { listUsersGql } from '~/appsync/queries'
 import { User } from '~/types/schema'
+import { createUserGql } from '../appsync/mutations'
 export default defineComponent({
   name: 'LoginDialog',
   model: {
@@ -73,6 +85,7 @@ export default defineComponent({
   setup(props, { root, emit }) {
     const isLoading = ref(false)
     const isShowPassword = ref(false)
+    const previewImgs = ref<string | Object>()
     const allUsers = ref<User[]>([])
     const inputType = computed(() => {
       return isShowPassword.value ? 'text' : 'password'
@@ -83,6 +96,8 @@ export default defineComponent({
     const userInput = ref({
       username: '',
       password: '',
+      icon: '',
+      createdAt: String(Date.now()),
     })
     const guestLogin = async () => {
       const id = {
@@ -101,39 +116,48 @@ export default defineComponent({
         isLoading.value = false
       }
     }
-    const login = async () => {
-      if (!userInput.value.username || !userInput.value.password) return
-      isLoading.value = true
+
+    const uploadFile = async (file: File) => {
       try {
-        // 入力されたusernameのユーザがいるか
-        const findedUser = allUsers.value.find((user: User) => {
-          return user.username === userInput.value.username
-        })
-        if (findedUser) {
-          // パスワードが一致しているか
-          if (findedUser.password === userInput.value.password) {
-            const input = {
-              id: findedUser.id,
-            }
-            await root.$store.dispatch('user/signIn', input)
-            emit('update', root.$store.state.user.loginUser)
-            emit('snackbar', 'ログインしました')
-            emit('update:isOpened', false)
-            userInput.value = {
-              username: '',
-              password: '',
-            }
-          } else {
-            emit('snackbar', 'パスワードが違います')
-          }
-        } else {
-          emit('snackbar', 'ユーザーネームが違います')
-        }
+        // ストレージにアップロード
+        const filePath = `${userInput.value.username}/icon/${
+          file.name
+        }/${Math.floor(Math.random() * 101)}`
+        userInput.value.icon = filePath
+        await Storage.put(filePath, file)
+        const newImg = await Storage.get(filePath)
+        previewImgs.value = newImg
       } catch (e) {
         console.error(e)
-        emit('snackbar', 'ログインできませんでした')
-      } finally {
-        isLoading.value = false
+      }
+    }
+
+    const createUser = async () => {
+      // 入力されたusernameのユーザがいるか
+      const findedUser = allUsers.value.find((user: User) => {
+        return user.username === userInput.value.username
+      })
+      isLoading.value = false
+      if (!userInput.value.username || !userInput.value.password) return
+      if (!findedUser) {
+        try {
+          await createUserGql(userInput.value)
+          emit('snackbar', 'アカウントを作成しました！')
+          userInput.value = {
+            username: '',
+            password: '',
+            icon: '',
+            createdAt: String(Date.now()),
+          }
+        } catch (e) {
+          console.error(e)
+          emit('snackbar', 'アカウントを作成できませんでした')
+        } finally {
+          emit('update:isOpened', false)
+          isLoading.value = false
+        }
+      } else {
+        emit('snackbar', 'そのユーザー名はすでに使用されています。')
       }
     }
     /** init */
@@ -152,7 +176,9 @@ export default defineComponent({
       passwordIcon,
       userInput,
       guestLogin,
-      login,
+      uploadFile,
+      createUser,
+      previewImgs,
     }
   },
 })

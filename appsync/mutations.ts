@@ -1,9 +1,17 @@
 import * as gqlMutations from '~/gql/mutations'
 import { API, graphqlOperation } from 'aws-amplify'
 import { GraphQLResult } from '@aws-amplify/api'
-import { CreatePostInput, CreatePostLikeInput, DeletePostLikeInput, CreateCommentInput, DeletePostInput } from '../types/schema';
-import { CreatePostMutation, DeletePostMutation, CreatePostLikeMutation, DeletePostLikeMutation, CreateCommentMutation } from '../types/gqlResult';
+import { CreatePostInput, CreatePostLikeInput, DeletePostLikeInput, CreateCommentInput, DeletePostInput, CreateUserInput } from '../types/schema';
+import { CreatePostMutation, DeletePostMutation, CreatePostLikeMutation, DeletePostLikeMutation, CreateCommentMutation, CreateUserMutation } from '../types/gqlResult';
 
+export const createUserGql = async (createUserInput: CreateUserInput) => {
+  const { data } = (await API.graphql(
+    graphqlOperation(gqlMutations.createUser, {
+      input: createUserInput,
+    })
+  )) as GraphQLResult<CreateUserMutation>
+  return data?.createUser!
+}
 export const createPostGql = async (createPostInput: CreatePostInput) => {
   const { data } = (await API.graphql(
     graphqlOperation(gqlMutations.createPost, {

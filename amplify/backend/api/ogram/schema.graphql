@@ -9,7 +9,7 @@ type User
   id: ID!
   username: ID!
   password: String!
-  icon: Int
+  icon: String
   posts: [Post] @connection(keyName: "postsByUserId", fields: ["id"])
   updatedAt: String
   createdAt: String

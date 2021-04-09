@@ -2,6 +2,9 @@ import { User, Post, PostItems, PostLike, Comment, UserItems } from './schema';
 export interface ListUsersQuery {
   listUsers: UserItems
 }
+export interface CreateUserMutation {
+  createUser: User
+}
 export interface CreatePostMutation {
   createPost: Post
 }

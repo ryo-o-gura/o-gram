@@ -5,11 +5,17 @@
       @update="updateLoginUser"
       @snackbar="updateSnackbar"
     />
+    <CreateUserDialog
+      :is-opened.sync="isOpenedCreateUserDialog"
+      @update="updateLoginUser"
+      @snackbar="updateSnackbar"
+    />
     <PostDetailDialog
       v-model="isOpenedPostDetailDialog"
       :post.sync="selectedPost"
       :post-image="selectedPostImage"
       :loginUser="loginUser"
+      :icon="selectedPostIcon"
       @snackbar="updateSnackbar"
     />
 
@@ -45,7 +51,7 @@
           <v-btn
             class="d-block white--text text-body-1 font-weight-bold mr-4"
             text
-            @click="openLoginDialog"
+            @click="isOpenedLoginDialog = true"
           >
             <v-icon>mdi-login</v-icon>
             ログイン
@@ -53,7 +59,7 @@
           <v-btn
             class="d-block white--text text-body-1 font-weight-bold"
             text
-            @click="openLoginDialog"
+            @click="isOpenedCreateUserDialog = true"
           >
             <v-icon>mdi-account-multiple-plus-outline</v-icon>
             新規登録
@@ -85,13 +91,10 @@
         <!-- プロフィール -->
         <v-row class="post-nav py-2 px-3 justify-space-between" no-gutters>
           <v-col class="d-flex align-center font-weight-bold">
-            <div class="icon-wrapper">
-              <img
-                :src="ICONS[post.author.icon] || ICONS[0]"
-                alt="アイコン"
-                width="100%"
-              />
+            <div v-if="postIconList[postIndex]" class="icon-wrapper">
+              <img :src="postIconList[postIndex]" alt="アイコン" width="100%" />
             </div>
+            <v-icon v-else size="55"> mdi-account-circle </v-icon>
             <p class="mb-0 ml-2">{{ post.author.username }}</p>
           </v-col>
           <v-col align-self="center" class="text-right">
@@ -166,7 +169,7 @@
           <v-btn
             v-if="post.comments.items.length"
             text
-            @click="openPostDetailDialog(post, postImageList[postIndex])"
+            @click="openPostDetailDialog(post, postIndex)"
           >
             <p class="text-body-2 text--secondary mb-0">
               コメント{{ post.comments.items.length }}件をすべて見る
@@ -185,9 +188,6 @@
           class="text-center align-self-center font-weight-bold text-body-1"
         >
           <p class="mb-0">{{ snackbarText }}</p>
-        </v-col>
-        <v-col cols="2" class="text-right">
-          <img :src="ICONS[0]" width="60px" />
         </v-col>
       </v-row>
     </v-snackbar>
@@ -217,21 +217,11 @@ import {
   PostLike,
   User,
 } from '~/types/schema'
-const ICONS = [
-  require('~/assets/image/icon/01.png'),
-  require('~/assets/image/icon/02.png'),
-  require('~/assets/image/icon/03.png'),
-  require('~/assets/image/icon/04.png'),
-  require('~/assets/image/icon/05.png'),
-  require('~/assets/image/icon/06.png'),
-  require('~/assets/image/icon/07.png'),
-  require('~/assets/image/icon/08.png'),
-  require('~/assets/image/icon/09.png'),
-]
 export default defineComponent({
   setup(_, { root }) {
     /** data ***********************************************************/
     const isOpenedLoginDialog = ref(false)
+    const isOpenedCreateUserDialog = ref(false)
     const isOpenedPostDetailDialog = ref(false)
     const isOpenedCreatePostDialog = ref(false)
     const isOpenedSnackbar = ref(false)
@@ -242,9 +232,11 @@ export default defineComponent({
     const isMarkedPost = ref(false)
     const selectedPost = ref<Post>()
     const selectedPostImage = ref<any>()
+    const selectedPostIcon = ref<any>()
     const allPosts = ref<Post[]>([])
     const postImageList = ref<any>([])
-    const loginUser = computed(() => {
+    const postIconList = ref<any>('')
+    const loginUser = computed<User>(() => {
       return root.$store.state.user.loginUser
     })
     /** computed ***********************************************************/
@@ -256,9 +248,6 @@ export default defineComponent({
       })
     })
     /** method ***********************************************************/
-    const openLoginDialog = () => {
-      isOpenedLoginDialog.value = true
-    }
     const logout = () => {
       isLogined.value = false
       updateSnackbar('ログアウトしました')
@@ -273,9 +262,10 @@ export default defineComponent({
       isOpenedSnackbar.value = true
     }
 
-    const openPostDetailDialog = (post: Post, image: string[]) => {
+    const openPostDetailDialog = (post: Post, index: number) => {
       selectedPost.value = post
-      selectedPostImage.value = image
+      selectedPostImage.value = postImageList[index]
+      selectedPostIcon.value = postIconList[index]
       isOpenedPostDetailDialog.value = true
     }
     const openCreatePostDialog = (post: Post) => {
@@ -303,6 +293,18 @@ export default defineComponent({
           console.error(e)
         }
       }
+    }
+    const getPostIconList = async () => {
+      const getPostIcons = allPosts.value.map(async (post) => {
+        return await Storage.get(post.author.icon)
+      })
+      postIconList.value = await Promise.all(getPostIcons)
+        .then((result) => {
+          return result
+        })
+        .catch((e) => {
+          console.error(e)
+        })
     }
 
     // 自分がいいねしているかのチェック
@@ -382,6 +384,7 @@ export default defineComponent({
         await root.$store.dispatch('user/signIn', id)
         allPosts.value = await listPostsGql()
         await getPostImageList()
+        await getPostIconList()
       } catch (e) {
         console.error(e)
       } finally {
@@ -392,9 +395,9 @@ export default defineComponent({
     })
     return {
       /** data */
-      ICONS,
       loginUser,
       isOpenedLoginDialog,
+      isOpenedCreateUserDialog,
       isOpenedPostDetailDialog,
       isOpenedCreatePostDialog,
       isOpenedSnackbar,
@@ -404,13 +407,14 @@ export default defineComponent({
       isMarkedPost,
       selectedPost,
       selectedPostImage,
+      selectedPostIcon,
       allPosts,
       postImageList,
+      postIconList,
       isLoading,
       /** computed */
       sortedAllPosts,
       /** method */
-      openLoginDialog,
       updateLoginUser,
       updateSnackbar,
       logout,

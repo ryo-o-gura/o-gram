@@ -33,13 +33,10 @@
           <!-- プロフィール -->
           <v-row class="post-nav py-4 px-3 justify-space-between" no-gutters>
             <v-col class="d-flex align-center font-weight-bold">
-              <div class="icon-wrapper">
-                <img
-                  :src="ICONS[post.author.icon] || ICONS[0]"
-                  alt="アイコン"
-                  width="100%"
-                />
+              <div v-if="icon" class="icon-wrapper">
+                <img :src="icon" alt="アイコン" width="100%" />
               </div>
+              <v-icon v-else size="55"> mdi-account-circle </v-icon>
               <p class="mb-0 ml-2">{{ post.author.username }}</p>
             </v-col>
             <v-col align-self="center" class="text-right">
@@ -201,6 +198,9 @@ export default defineComponent({
     postImage: {
       type: Array,
       default: () => [],
+    },
+    icon: {
+      type: String,
     },
     loginUser: {
       type: Object as PropType<User>,

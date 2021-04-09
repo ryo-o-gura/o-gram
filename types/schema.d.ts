@@ -3,7 +3,7 @@ export interface User {
   id: string
   username: string
   password: string
-  icon: number
+  icon: string
   posts: PostItems
   createdAt: number
   updatedAt: number
@@ -58,6 +58,13 @@ export interface Comment {
 }
 
 /* user系 *******************************************************************/
+export interface CreateUserInput {
+  username: string
+  password: string
+  icon?: string
+  createdAt: String
+}
+
 
 /* post系 *******************************************************************/
 export interface CreatePostInput {

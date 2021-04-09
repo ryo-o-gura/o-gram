@@ -70,10 +70,7 @@ export default defineComponent({
     const uploadFile = async (file: File) => {
       try {
         // ストレージにアップロード
-        const filePath = `${loginUser.value.id}/${
-          loginUser.value.posts?.items?.length! + 1
-        }/${file.name}/${Math.floor(Math.random() * 101)}`
-
+        const filePath = `${loginUser.value.username}/post/${file.name}/${Math.floor(Math.random() * 101)}`
         await Storage.put(filePath, file)
         const newImg = await Storage.get(filePath)
         previewImgs.value.push(newImg as string)
