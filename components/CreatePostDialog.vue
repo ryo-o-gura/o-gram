@@ -1,31 +1,57 @@
 <template>
   <v-dialog v-model="isOpened" class="pa-4 login-dialog" width="800" persistent>
     <v-card flat tile class="mx-auto pa-10" height="600">
-      <p class="text-center text-h3 font-weight-bold">投稿作成</p>
-      <v-row no-gutters>
+      <p class="text-center text-h3 font-weight-bold title-font">Post</p>
+      <v-row no-gutters class="my-5">
         <!-- 画像 -->
         <v-col
-          cols="4"
+          cols="3"
           v-for="(img, index) in previewImgs"
           :key="index"
           class="img-wrapper"
         >
           <img :src="img" width="200px" />
         </v-col>
-        <v-file-input
-          label="テスト"
-          @change="uploadFile($event)"
-          prepend-icon="mdi-camera"
-          hide-input
-          accept="image/png, image/jpeg"
+        <v-col cols="3" class="img-wrapper">
+          <v-file-input
+            class="pa-0 file-input"
+            @change="uploadFile($event)"
+            prepend-icon="mdi-camera"
+            hide-input
+            accept="image/png, image/jpeg"
+          />
+        </v-col>
+      </v-row>
+      <v-row no-gutters class="mt-4">
+        <v-textarea
+          v-model="postContent"
+          no-resize
+          outlined
+          label="テキストを追加"
         />
       </v-row>
-      <v-row>
-        <v-textarea v-model="postContent" />
-      </v-row>
-      <v-row>
-        <v-btn :loading="isLoading" @click="createPost">投稿する</v-btn>
-        <v-btn :loading="isLoading" @click="$emit('close', false)">
+      <v-row no-gutters class="justify-center">
+        <v-btn
+          :loading="isLoading"
+          class="white--text font-weight-bold mr-2"
+          width="200px"
+          height="40px"
+          tile
+          elevation="0"
+          color="black"
+          @click="createPost"
+          >投稿する</v-btn
+        >
+        <v-btn
+          :loading="isLoading"
+          class="white--text font-weight-bold ml-2"
+          width="200px"
+          height="40px"
+          tile
+          elevation="0"
+          color="black"
+          @click="$emit('close', false)"
+        >
           キャンセル
         </v-btn>
       </v-row>
@@ -34,13 +60,7 @@
 </template>
 
 <script lang="ts">
-import {
-  defineComponent,
-  ref,
-  PropType,
-  useFetch,
-  computed,
-} from 'nuxt-composition-api'
+import { defineComponent, ref, computed, watch } from 'nuxt-composition-api'
 import { Storage } from 'aws-amplify'
 import { createPostGql } from '../appsync/mutations'
 import { CreatePostInput, User } from '~/types/schema'
@@ -56,7 +76,7 @@ export default defineComponent({
       default: false,
     },
   },
-  setup(prop, { root, emit }) {
+  setup(props, { root, emit }) {
     /** data ***********************************************************/
     const loginUser = computed(() => {
       return root.$store.state.user.loginUser
@@ -70,7 +90,9 @@ export default defineComponent({
     const uploadFile = async (file: File) => {
       try {
         // ストレージにアップロード
-        const filePath = `${loginUser.value.username}/post/${file.name}/${Math.floor(Math.random() * 101)}`
+        const filePath = `${loginUser.value.username}/post/${
+          file.name
+        }/${Math.floor(Math.random() * 101)}`
         await Storage.put(filePath, file)
         const newImg = await Storage.get(filePath)
         previewImgs.value.push(newImg as string)
@@ -108,6 +130,16 @@ export default defineComponent({
         isLoading.value = false
       }
     }
+    /** init */
+    watch(
+      () => props.isOpened,
+      (arg) => {
+        if (!arg) {
+          postImgs.value = []
+          postContent.value = ''
+        }
+      }
+    )
     return {
       /** data */
       loginUser,
@@ -124,9 +156,25 @@ export default defineComponent({
 })
 </script>
 <style scoped>
+.title-font {
+  font-family: 'Kaushan Script', cursive !important;
+}
 .img-wrapper {
-  height: 200px;
+  height: 180px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
   overflow: hidden;
   border: 1px solid #ddd;
+}
+.file-input {
+  justify-content: center;
+  width: 100%;
+}
+.file-input >>> .v-icon--link {
+  font-size: 50px;
+}
+.file-input >>> .v-icon--link:hover {
+  opacity: 0.7;
 }
 </style>

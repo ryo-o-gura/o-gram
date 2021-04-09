@@ -7,7 +7,7 @@
     @input="$emit('toggle', $event)"
   >
     <v-card class="pa-8">
-      <p class="text-center text-h3 font-weight-bold">Login</p>
+      <p class="text-center text-h3 font-weight-bold title-font">Login</p>
       <div class="input-wrapper">
         <v-text-field
           v-model="userInput.username"
@@ -158,6 +158,9 @@ export default defineComponent({
 })
 </script>
 <style scoped>
+.title-font {
+  font-family: 'Kaushan Script', cursive !important;
+}
 .input-wrapper {
   max-width: 300px;
   margin: 0 auto;

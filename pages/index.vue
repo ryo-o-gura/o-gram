@@ -24,9 +24,9 @@
       @create="createPosts"
       @snackbar="updateSnackbar"
     />
-    <v-app-bar fixed dark color="black">
+    <v-app-bar fixed dark color="black" height="80px">
       <v-row class="mx-10">
-        <v-col class="text-h3 font-weight-bold"> O-gram </v-col>
+        <v-col class="text-h3 font-weight-bold title-font"> O-gram </v-col>
         <v-col v-if="isLogined" class="d-flex">
           <v-spacer />
           <p
@@ -430,6 +430,9 @@ export default defineComponent({
 })
 </script>
 <style scoped>
+.title-font {
+  font-family: 'Kaushan Script', cursive !important;
+}
 .v-card--flat {
   border: 1px solid #ddd;
 }
