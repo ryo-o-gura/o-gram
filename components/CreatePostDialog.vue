@@ -157,7 +157,7 @@ export default defineComponent({
 </script>
 <style scoped>
 .title-font {
-  font-family: 'Kaushan Script', cursive !important;
+  font-family: 'Londrina Solid', cursive !important;
 }
 .img-wrapper {
   height: 180px;

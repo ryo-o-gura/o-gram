@@ -43,7 +43,7 @@ export default {
   ],
   webfontloader: {
     google: {
-      families: ['Kaushan+Script:400'],
+      families: ['Righteous:400'],
     },
   },
 

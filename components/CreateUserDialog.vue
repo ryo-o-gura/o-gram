@@ -185,7 +185,7 @@ export default defineComponent({
 </script>
 <style scoped>
 .title-font {
-  font-family: 'Kaushan Script', cursive !important;
+  font-family: 'Londrina Solid', cursive !important;
 }
 .input-wrapper {
   max-width: 300px;

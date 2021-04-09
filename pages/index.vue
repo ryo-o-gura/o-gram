@@ -98,9 +98,9 @@
             <p class="mb-0 ml-2">{{ post.author.username }}</p>
           </v-col>
           <v-col align-self="center" class="text-right">
-            <v-btn text icon @click="deletePost(post)"
-              ><v-icon>mdi-dots-horizontal</v-icon></v-btn
-            >
+            <v-btn text icon>
+              <v-icon>mdi-dots-horizontal</v-icon>
+            </v-btn>
           </v-col>
         </v-row>
         <!-- 画像 -->
@@ -141,9 +141,13 @@
             </v-btn>
           </v-col>
           <v-col class="text-right">
-            <v-btn text icon>
-              <!-- <v-icon v-if="post.bookmarkFlag" large>mdi-bookmark</v-icon> -->
-              <v-icon large>mdi-bookmark-outline</v-icon>
+            <v-btn
+              v-if="isMineThePost(post)"
+              text
+              icon
+              @click="deletePost(post)"
+            >
+              <v-icon large>mdi-trash-can-outline</v-icon>
             </v-btn>
           </v-col>
         </v-row>
@@ -306,6 +310,12 @@ export default defineComponent({
           console.error(e)
         })
     }
+    // 自分の投稿かのチェック
+    const isMineThePost = (post: Post) => {
+      const author = post.authorId
+
+      return author === loginUser.value.id
+    }
 
     // 自分がいいねしているかのチェック
     const isLikedThePost = (post: Post) => {
@@ -423,6 +433,7 @@ export default defineComponent({
       openCreatePostDialog,
       togglePostLike,
       createPosts,
+      isMineThePost,
       isLikedThePost,
       deletePost,
     }
@@ -431,7 +442,7 @@ export default defineComponent({
 </script>
 <style scoped>
 .title-font {
-  font-family: 'Kaushan Script', cursive !important;
+  font-family: 'Righteous', cursive !important;
 }
 .v-card--flat {
   border: 1px solid #ddd;
