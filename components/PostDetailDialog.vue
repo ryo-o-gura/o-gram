@@ -169,17 +169,6 @@ import {
   PostLike,
   User,
 } from '~/types/schema'
-const ICONS = [
-  require('~/assets/image/icon/01.png'),
-  require('~/assets/image/icon/02.png'),
-  require('~/assets/image/icon/03.png'),
-  require('~/assets/image/icon/04.png'),
-  require('~/assets/image/icon/05.png'),
-  require('~/assets/image/icon/06.png'),
-  require('~/assets/image/icon/07.png'),
-  require('~/assets/image/icon/08.png'),
-  require('~/assets/image/icon/09.png'),
-]
 export default defineComponent({
   name: 'PostDetailDialog',
   model: {
@@ -302,7 +291,6 @@ export default defineComponent({
     }
     return {
       /** data */
-      ICONS,
       newCommentText,
       isLoading,
       /** computed */
