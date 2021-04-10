@@ -24,18 +24,24 @@
       @create="createPosts"
       @snackbar="updateSnackbar"
     />
+    <EditUserDialog
+      v-model="isOpenedEditUserDialog"
+      @create="createPosts"
+      @snackbar="updateSnackbar"
+    />
     <v-app-bar fixed dark color="black" height="80px">
       <v-row class="mx-10">
         <v-col class="text-h3 font-weight-bold title-font"> O-gram </v-col>
         <v-col v-if="isLogined" class="d-flex">
           <v-spacer />
-          <p
-            class="mb-0 white--text text-body-1 font-weight-bold mr-4"
-            style="line-height: 60px"
+          <v-btn
+            class="d-block white--text text-body-1 font-weight-bold mr-4"
+            text
+            @click="isOpenedEditUserDialog = true"
           >
             <v-icon>mdi-account-outline</v-icon>
             {{ loginUser.username }}
-          </p>
+          </v-btn>
           <v-btn
             class="d-block white--text text-body-1 font-weight-bold"
             text
@@ -228,6 +234,7 @@ export default defineComponent({
     const isOpenedCreateUserDialog = ref(false)
     const isOpenedPostDetailDialog = ref(false)
     const isOpenedCreatePostDialog = ref(false)
+    const isOpenedEditUserDialog = ref(false)
     const isOpenedSnackbar = ref(false)
     const snackbarText = ref('')
     const isLogined = ref(true)
@@ -410,6 +417,7 @@ export default defineComponent({
       isOpenedCreateUserDialog,
       isOpenedPostDetailDialog,
       isOpenedCreatePostDialog,
+      isOpenedEditUserDialog,
       isOpenedSnackbar,
       snackbarText,
       isLogined,
