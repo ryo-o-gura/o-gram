@@ -450,7 +450,7 @@ export default defineComponent({
 </script>
 <style scoped>
 .title-font {
-  font-family: 'Righteous', cursive !important;
+  font-family: 'Londrina Solid', cursive !important;
 }
 .v-card--flat {
   border: 1px solid #ddd;

@@ -1,6 +1,6 @@
 <template>
   <v-app>
-    <v-main style="background: #eee">
+    <v-main>
       <v-container>
         <nuxt />
       </v-container>
@@ -29,3 +29,8 @@ export default defineComponent({
   },
 })
 </script>
+<style scoped>
+.v-main {
+  background: url('~/assets/image/bg.jpg');
+}
+</style>
