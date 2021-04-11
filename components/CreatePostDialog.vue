@@ -60,7 +60,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, computed, watch } from 'nuxt-composition-api'
+import { defineComponent, ref, computed, watch, PropType } from 'nuxt-composition-api'
 import { Storage } from 'aws-amplify'
 import { createPostGql } from '../appsync/mutations'
 import { CreatePostInput, User } from '~/types/schema'
@@ -75,12 +75,13 @@ export default defineComponent({
       type: Boolean,
       default: false,
     },
+    loginUser: {
+      type: Object as PropType<User>,
+      required: true
+    },
   },
   setup(props, { root, emit }) {
     /** data ***********************************************************/
-    const loginUser = computed(() => {
-      return root.$store.state.user.loginUser
-    })
     const previewImgs = ref<string[]>([])
     const postImgs = ref<string[]>([])
     const isLoading = ref(false)
@@ -90,7 +91,7 @@ export default defineComponent({
     const uploadFile = async (file: File) => {
       try {
         // ストレージにアップロード
-        const filePath = `${loginUser.value.username}/post/${
+        const filePath = `${props.loginUser.username}/post/${
           file.name
         }/${Math.floor(Math.random() * 101)}`
         await Storage.put(filePath, file)
@@ -108,7 +109,7 @@ export default defineComponent({
       }
 
       const createInput: CreatePostInput = {
-        authorId: loginUser.value.id!,
+        authorId: props.loginUser.id,
         content: postContent.value,
         postImage: postImgs.value,
         createdAt: String(Date.now()),
@@ -142,7 +143,6 @@ export default defineComponent({
     )
     return {
       /** data */
-      loginUser,
       isLoading,
       uploadFile,
       previewImgs,

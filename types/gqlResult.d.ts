@@ -29,3 +29,6 @@ export interface DeletePostLikeMutation {
 export interface CreateCommentMutation {
   createComment: Comment
 }
+export interface UpdateUserMutation {
+  updateUser: User
+}

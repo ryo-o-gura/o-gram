@@ -97,7 +97,7 @@ export default defineComponent({
       username: '',
       password: '',
       icon: '',
-      createdAt: String(Date.now()),
+      createdAt: Date.now(),
     })
     const guestLogin = async () => {
       const id = {
@@ -147,7 +147,7 @@ export default defineComponent({
             username: '',
             password: '',
             icon: '',
-            createdAt: String(Date.now()),
+            createdAt: Date.now(),
           }
         } catch (e) {
           console.error(e)

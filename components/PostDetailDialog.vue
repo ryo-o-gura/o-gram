@@ -193,6 +193,7 @@ export default defineComponent({
     },
     loginUser: {
       type: Object as PropType<User>,
+      required: true,
     },
   },
   setup(props, { emit }) {
@@ -225,7 +226,7 @@ export default defineComponent({
       if (isLikedThePost(post)) {
         const likesItems = post.likes.items
         const findItem = likesItems?.find((item: PostLike | null) => {
-          return item?.userId === props.loginUser?.id
+          return item?.userId === props.loginUser.id
         })
         const deletePostLikeInput: DeletePostLikeInput = {
           id: findItem?.id!,
@@ -269,7 +270,7 @@ export default defineComponent({
       const input: CreateCommentInput = {
         postId: post.id!,
         authorId: post.authorId!,
-        commenterId: props.loginUser?.id!,
+        commenterId: props.loginUser.id!,
         text: newCommentText.value,
         createdAt: String(Date.now()),
       }

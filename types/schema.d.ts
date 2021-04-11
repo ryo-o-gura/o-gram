@@ -62,7 +62,14 @@ export interface CreateUserInput {
   username: string
   password: string
   icon?: string
-  createdAt: String
+  createdAt: number
+}
+export interface UpdateUserInput {
+  id: string
+  username: string
+  password: string
+  icon?: string
+  updatedAt: number
 }
 
 

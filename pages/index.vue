@@ -12,27 +12,31 @@
     />
     <PostDetailDialog
       v-model="isOpenedPostDetailDialog"
+      :login-user="loginUser"
       :post.sync="selectedPost"
       :post-image="selectedPostImage"
       :loginUser="loginUser"
       :icon="selectedPostIcon"
+      @update="getPostList"
       @snackbar="updateSnackbar"
     />
 
     <CreatePostDialog
       v-model="isOpenedCreatePostDialog"
+      :login-user="loginUser"
       @create="createPosts"
       @snackbar="updateSnackbar"
     />
     <EditUserDialog
       v-model="isOpenedEditUserDialog"
-      @create="createPosts"
+      :login-user="loginUser"
+      @update="getPostList"
       @snackbar="updateSnackbar"
     />
     <v-app-bar fixed dark color="black" height="80px">
       <v-row class="mx-10">
         <v-col class="text-h3 font-weight-bold title-font"> O-gram </v-col>
-        <v-col v-if="isLogined" class="d-flex">
+        <v-col v-if="isLogined && loginUser" class="d-flex">
           <v-spacer />
           <v-btn
             class="d-block white--text text-body-1 font-weight-bold mr-4"
@@ -80,6 +84,7 @@
         tile
         class="d-block mx-auto font-weight-bold"
         width="600px"
+        elevation="10"
         height="40px"
         @click="openCreatePostDialog"
       >
@@ -89,7 +94,7 @@
       <v-card
         v-for="(post, postIndex) in sortedAllPosts"
         :key="post.id"
-        flat
+        elevation="10"
         tile
         class="mx-auto pb-2 mt-5 mb-10"
         width="600"
@@ -212,7 +217,7 @@ import {
   useFetch,
   watch,
 } from 'nuxt-composition-api'
-import { listPostsGql } from '~/appsync/queries'
+import { getUserGql, listPostsGql } from '~/appsync/queries'
 import { Storage } from 'aws-amplify'
 import { getDate } from '~/modules/getDate'
 import {
@@ -247,8 +252,15 @@ export default defineComponent({
     const allPosts = ref<Post[]>([])
     const postImageList = ref<any>([])
     const postIconList = ref<any>('')
-    const loginUser = computed<User>(() => {
-      return root.$store.state.user.loginUser
+    const loginUser = ref<User>({
+      __typename: 'User',
+      id: '',
+      username: '',
+      password: '',
+      icon: '',
+      posts: { items: [] },
+      createdAt: 0,
+      updatedAt: 0,
     })
     /** computed ***********************************************************/
     const sortedAllPosts = computed(() => {
@@ -281,6 +293,9 @@ export default defineComponent({
     }
     const openCreatePostDialog = (post: Post) => {
       isOpenedCreatePostDialog.value = true
+    }
+    const getPostList = async () => {
+      allPosts.value = await listPostsGql()
     }
 
     const getPostImageList = async () => {
@@ -320,7 +335,7 @@ export default defineComponent({
     // 自分の投稿かのチェック
     const isMineThePost = (post: Post) => {
       const author = post.authorId
-
+      if (!loginUser.value) return
       return author === loginUser.value.id
     }
 
@@ -398,8 +413,8 @@ export default defineComponent({
         const id = {
           id: 'cc41ac84-67e1-448c-ad0a-40624bc9144a',
         }
-        await root.$store.dispatch('user/signIn', id)
-        allPosts.value = await listPostsGql()
+        loginUser.value = await getUserGql(id)
+        await getPostList()
         await getPostImageList()
         await getPostIconList()
       } catch (e) {
@@ -439,6 +454,7 @@ export default defineComponent({
       getDate,
       openPostDetailDialog,
       openCreatePostDialog,
+      getPostList,
       togglePostLike,
       createPosts,
       isMineThePost,
