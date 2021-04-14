@@ -124,8 +124,8 @@ export default defineComponent({
       isLoading.value = true
       console.debug(props.loginUser)
       console.debug(userInfo.value)
-      if (!userInfo.value.icon) {
-        userInfo.value.icon = props.loginUser.icon
+      if (!previewImg.value) {
+        userInfo.value.icon = ''
       }
       try {
         await updateUserGql(userInfo.value)
@@ -150,10 +150,10 @@ export default defineComponent({
     watch(
       () => props.isOpened,
       async () => {
-          console.debug(props.loginUser)
           userInfo.value.id = props.loginUser.id
           userInfo.value.username = props.loginUser.username
           userInfo.value.password = props.loginUser.password
+          userInfo.value.icon = props.loginUser.icon
           previewImg.value = (await Storage.get(props.loginUser.icon)) as string
       }
     )

@@ -17,7 +17,7 @@
       :post-image="selectedPostImage"
       :loginUser="loginUser"
       :icon="selectedPostIcon"
-      @update="getPostList"
+      @update="updateAll"
       @snackbar="updateSnackbar"
     />
 
@@ -30,7 +30,7 @@
     <EditUserDialog
       v-model="isOpenedEditUserDialog"
       :login-user="loginUser"
-      @update="getPostList"
+      @update="updateAll"
       @snackbar="updateSnackbar"
     />
     <v-app-bar fixed dark color="black" height="80px">
@@ -294,8 +294,15 @@ export default defineComponent({
     const openCreatePostDialog = (post: Post) => {
       isOpenedCreatePostDialog.value = true
     }
-    const getPostList = async () => {
+    // ダイアログでの変更反映
+    const updateAll = async () => {
+      const id = {
+        id: loginUser.value.id,
+      }
+      loginUser.value = await getUserGql(id)
       allPosts.value = await listPostsGql()
+      await getPostIconList()
+      await getPostImageList()
     }
 
     const getPostImageList = async () => {
@@ -322,7 +329,11 @@ export default defineComponent({
     }
     const getPostIconList = async () => {
       const getPostIcons = allPosts.value.map(async (post) => {
-        return await Storage.get(post.author.icon)
+        if (post.author.icon) {
+          return await Storage.get(post.author.icon)
+        } else {
+          return ''
+        }
       })
       postIconList.value = await Promise.all(getPostIcons)
         .then((result) => {
@@ -414,7 +425,7 @@ export default defineComponent({
           id: 'cc41ac84-67e1-448c-ad0a-40624bc9144a',
         }
         loginUser.value = await getUserGql(id)
-        await getPostList()
+        allPosts.value = await listPostsGql()
         await getPostImageList()
         await getPostIconList()
       } catch (e) {
@@ -454,7 +465,7 @@ export default defineComponent({
       getDate,
       openPostDetailDialog,
       openCreatePostDialog,
-      getPostList,
+      updateAll,
       togglePostLike,
       createPosts,
       isMineThePost,
@@ -510,6 +521,9 @@ export default defineComponent({
 }
 .post-icon-row >>> .v-btn--icon {
   z-index: 2;
+}
+.v-btn--text >>> .v-btn__content {
+  text-transform: none;
 }
 .v-btn:not(.v-btn--round).v-size--default {
   padding: 0;
