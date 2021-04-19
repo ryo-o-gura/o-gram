@@ -3,61 +3,91 @@
     :value="isOpened"
     persistent
     class="pa-4 login-dialog"
-    width="400"
+    width="800"
     @input="$emit('toggle', $event)"
   >
-    <v-card class="pa-8">
+    <v-card class="card-wrapper pa-10">
       <p class="text-center text-h3 font-weight-bold title-font">Sign Up</p>
-      <div class="input-wrapper">
-        <v-text-field
-          v-model="userInput.username"
-          label="username"
-          prepend-inner-icon="mdi-account-circle"
-        />
-      </div>
-      <div class="input-wrapper">
-        <v-text-field
-          v-model="userInput.password"
-          :type="inputType"
-          :append-icon="passwordIcon"
-          label="password"
-          prepend-inner-icon="mdi-lock"
-          @click:append="isShowPassword = !isShowPassword"
-        />
-      </div>
-      <div class="input-wrapper">
-        <img v-if="previewImgs" :src="previewImgs" alt="アイコン画像" />
-        <v-file-input
-          v-else
-          label="テスト"
-          @change="uploadFile($event)"
-          prepend-icon="mdi-camera"
-          hide-input
-          accept="image/png, image/jpeg"
-        />
-      </div>
-      <div>
+      <v-row no-gutters class="my-10 align-center">
+        <v-col v-if="previewImg" cols="3" class="text-center">
+          <div class="img-wrapper">
+            <img class="icon" :src="previewImg" width="200px" />
+          </div>
+          <v-btn
+            class="white--text font-weight-bold mt-2 text-caption"
+            tile
+            height="30px"
+            elevation="0"
+            color="black"
+            @click="previewImg = ''"
+            >削除する</v-btn
+          >
+        </v-col>
+        <v-col v-else cols="3" class="text-center">
+          <div class="img-wrapper mb-2">
+            <v-file-input
+              class="pa-0 file-input"
+              @change="uploadFile($event)"
+              prepend-icon="mdi-camera"
+              hide-input
+              accept="image/png, image/jpeg"
+            />
+          </div>
+          <p class="grey--text">プロフィール画像を追加</p>
+        </v-col>
+        <v-col class="ml-8">
+          <v-text-field
+            v-model="userInput.username"
+            class="mb-2"
+            color="rgb(158, 113, 72)"
+            outlined
+            label="username"
+          />
+          <v-text-field
+            v-model="userInput.password"
+            outlined
+            color="rgb(158, 113, 72)"
+            class="mt-2"
+            label="password"
+          />
+        </v-col>
+      </v-row>
+      <div class="text-center">
         <v-btn
-          text
-          color="#0095f6"
-          class="text-body-1 font-weight-bold"
           :loading="isLoading"
+          class="white--text font-weight-bold mr-2"
+          width="200px"
+          height="40px"
+          tile
+          elevation="0"
+          color="black"
+          @click="createUser"
+        >
+          登録する
+        </v-btn>
+        <v-btn
+          :loading="isLoading"
+          class="white--text font-weight-bold mx-2"
+          width="200px"
+          height="40px"
+          tile
+          elevation="0"
+          color="black"
+          @click="$emit('update:isOpened', false)"
+        >
+          キャンセル
+        </v-btn>
+        <v-btn
+          :loading="isLoading"
+          class="white--text font-weight-bold ml-2"
+          width="200px"
+          height="40px"
+          tile
+          elevation="0"
+          color="rgb(158, 113, 72)"
           @click="guestLogin"
         >
           ゲストユーザーでログイン
-        </v-btn>
-      </div>
-      <div class="text-center">
-        <v-btn class="mr-2" text :loading="isLoading" @click="createUser">
-          SIGN UP
-        </v-btn>
-        <v-btn
-          class="ml-2"
-          text
-          :loading="isLoading"
-          @click="$emit('update:isOpened', false)"
-        >
-          Cancel
         </v-btn>
       </div>
     </v-card>
@@ -67,7 +97,7 @@
 <script lang="ts">
 import { computed, defineComponent, ref, watch } from 'nuxt-composition-api'
 import { Storage } from 'aws-amplify'
-import { listUsersGql } from '~/appsync/queries'
+import { getUserGql, listUsersGql } from '~/appsync/queries'
 import { User } from '~/types/schema'
 import { createUserGql } from '../appsync/mutations'
 export default defineComponent({
@@ -85,7 +115,7 @@ export default defineComponent({
   setup(props, { root, emit }) {
     const isLoading = ref(false)
     const isShowPassword = ref(false)
-    const previewImgs = ref<string | Object>()
+    const previewImg = ref<string | Object>()
     const allUsers = ref<User[]>([])
     const inputType = computed(() => {
       return isShowPassword.value ? 'text' : 'password'
@@ -105,8 +135,8 @@ export default defineComponent({
       }
       isLoading.value = true
       try {
-        await root.$store.dispatch('user/signIn', id)
-        emit('update', root.$store.state.user.loginUser)
+        const guest = await getUserGql(id)
+        emit('update', guest)
         emit('snackbar', 'ゲストユーザーでログインしました')
       } catch (e) {
         console.error(e)
@@ -126,7 +156,7 @@ export default defineComponent({
         userInput.value.icon = filePath
         await Storage.put(filePath, file)
         const newImg = await Storage.get(filePath)
-        previewImgs.value = newImg
+        previewImg.value = newImg
       } catch (e) {
         console.error(e)
       }
@@ -164,8 +194,17 @@ export default defineComponent({
     watch(
       () => props.isOpened,
       async (event) => {
-        if (!event) return
-        allUsers.value = await listUsersGql()
+        if (event) {
+          allUsers.value = await listUsersGql()
+        } else {
+          previewImg.value = ''
+          userInput.value = {
+            username: '',
+            password: '',
+            icon: '',
+            createdAt: Date.now(),
+          }
+        }
       }
     )
     return {
@@ -178,7 +217,7 @@ export default defineComponent({
       guestLogin,
       uploadFile,
       createUser,
-      previewImgs,
+      previewImg,
     }
   },
 })
@@ -190,5 +229,34 @@ export default defineComponent({
 .input-wrapper {
   max-width: 300px;
   margin: 0 auto;
+}
+.img-wrapper {
+  height: 180px;
+  border-radius: 50%;
+  display: flex;
+  border: 5px solid rgb(158, 113, 72);
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+}
+.img-wrapper .icon {
+  height: 100%;
+  object-fit: cover;
+}
+.file-input {
+  justify-content: center;
+  width: 100%;
+}
+.file-input >>> .v-icon--link {
+  font-size: 50px;
+}
+.file-input >>> .v-icon--link:hover {
+  opacity: 0.7;
+}
+.file-input >>> .v-input__prepend-outer {
+  margin: 0;
+}
+.card-wrapper >>> .v-text-field__details {
+  display: none;
 }
 </style>

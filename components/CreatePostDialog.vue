@@ -1,6 +1,6 @@
 <template>
   <v-dialog v-model="isOpened" class="pa-4 login-dialog" width="800" persistent>
-    <v-card flat tile class="mx-auto pa-10" height="600">
+    <v-card flat tile class="mx-auto pa-10">
       <p class="text-center text-h3 font-weight-bold title-font">Post</p>
       <v-row no-gutters class="my-5">
         <!-- 画像 -->
@@ -26,6 +26,7 @@
         <v-textarea
           v-model="postContent"
           no-resize
+          color="rgb(158, 113, 72)"
           outlined
           label="テキストを追加"
         />
@@ -165,7 +166,7 @@ export default defineComponent({
   justify-content: center;
   align-items: center;
   overflow: hidden;
-  border: 1px solid #ddd;
+  border: 1px solid #aaa;
 }
 .file-input {
   justify-content: center;
@@ -177,4 +178,11 @@ export default defineComponent({
 .file-input >>> .v-icon--link:hover {
   opacity: 0.7;
 }
+.file-input >>> .v-input__prepend-outer {
+  margin: 0;
+}
+.v-textarea >>> .v-input__slot {
+  border-radius: 0;
+}
+
 </style>

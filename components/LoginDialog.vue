@@ -7,12 +7,13 @@
     @input="$emit('toggle', $event)"
   >
     <v-card class="pa-8">
-      <p class="text-center text-h3 font-weight-bold title-font">Login</p>
+      <p class="text-center text-h3 font-weight-bold title-font pb-4">Login</p>
       <div class="input-wrapper">
         <v-text-field
           v-model="userInput.username"
           label="username"
-          prepend-inner-icon="mdi-account-circle"
+          outlined
+          color="rgb(158, 113, 72)"
         />
       </div>
       <div class="input-wrapper">
@@ -21,32 +22,46 @@
           :type="inputType"
           :append-icon="passwordIcon"
           label="password"
-          prepend-inner-icon="mdi-lock"
+          color="rgb(158, 113, 72)"
+          outlined
           @click:append="isShowPassword = !isShowPassword"
         />
       </div>
       <div>
         <v-btn
-          text
-          color="#0095f6"
-          class="text-body-1 font-weight-bold"
           :loading="isLoading"
+          text
+          class="text-body-1 font-weight-bold mb-2"
+          color="rgb(158, 113, 72)"
           @click="guestLogin"
         >
           ゲストユーザーでログイン
         </v-btn>
       </div>
       <div class="text-center">
-        <v-btn class="mr-2" text :loading="isLoading" @click="login">
-          Login
+        <v-btn
+          :loading="isLoading"
+          class="white--text font-weight-bold mr-2"
+          width="150px"
+          height="40px"
+          tile
+          elevation="0"
+          color="black"
+          @click="login"
+        >
+          ログイン
         </v-btn>
         <v-btn
-          class="ml-2"
-          text
           :loading="isLoading"
+          class="white--text font-weight-bold ml-2"
+          width="150px"
+          height="40px"
+          tile
+          elevation="0"
+          color="black"
           @click="$emit('update:isOpened', false)"
         >
-          Cancel
+          キャンセル
         </v-btn>
       </div>
     </v-card>
@@ -55,7 +70,11 @@
 
 <script lang="ts">
 import { computed, defineComponent, ref, watch } from 'nuxt-composition-api'
-import { getUserByUsernameGql, listUsersGql } from '~/appsync/queries'
+import {
+  getUserByUsernameGql,
+  getUserGql,
+  listUsersGql,
+} from '~/appsync/queries'
 import { getUserByUsername } from '~/gql/queries'
 import { User } from '~/types/schema'
 export default defineComponent({
@@ -90,8 +109,8 @@ export default defineComponent({
       }
       isLoading.value = true
       try {
-        await root.$store.dispatch('user/signIn', id)
-        emit('update', root.$store.state.user.loginUser)
+        const guest = await getUserGql(id)
+        emit('update', guest)
         emit('snackbar', 'ゲストユーザーでログインしました')
       } catch (e) {
         console.error(e)
@@ -115,8 +134,8 @@ export default defineComponent({
             const input = {
               id: findedUser.id,
             }
-            await root.$store.dispatch('user/signIn', input)
-            emit('update', root.$store.state.user.loginUser)
+            const user = await getUserGql(input)
+            emit('update', user)
             emit('snackbar', 'ログインしました')
             emit('update:isOpened', false)
             userInput.value = {
@@ -140,8 +159,14 @@ export default defineComponent({
     watch(
       () => props.isOpened,
       async (event) => {
-        if (!event) return
-        allUsers.value = await listUsersGql()
+        if (event) {
+          allUsers.value = await listUsersGql()
+        } else {
+          userInput.value = {
+            username: '',
+            password: '',
+          }
+        }
       }
     )
     return {
@@ -164,5 +189,8 @@ export default defineComponent({
 .input-wrapper {
   max-width: 300px;
   margin: 0 auto;
+}
+.input-wrapper >>> .v-text-field__details {
+  display: none;
 }
 </style>

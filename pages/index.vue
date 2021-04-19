@@ -14,9 +14,6 @@
       v-model="isOpenedPostDetailDialog"
       :login-user="loginUser"
       :post.sync="selectedPost"
-      :post-image="selectedPostImage"
-      :loginUser="loginUser"
-      :icon="selectedPostIcon"
       @update="updateAll"
       @snackbar="updateSnackbar"
     />
@@ -24,7 +21,7 @@
     <CreatePostDialog
       v-model="isOpenedCreatePostDialog"
       :login-user="loginUser"
-      @create="createPosts"
+      @create="updateAll"
       @snackbar="updateSnackbar"
     />
     <EditUserDialog
@@ -102,16 +99,30 @@
         <!-- プロフィール -->
         <v-row class="post-nav py-2 px-3 justify-space-between" no-gutters>
           <v-col class="d-flex align-center font-weight-bold">
-            <div v-if="postIconList[postIndex]" class="icon-wrapper">
-              <img :src="postIconList[postIndex]" alt="アイコン" width="100%" />
+            <div class="icon-wrapper">
+              <img
+                v-if="postIconList[postIndex]"
+                class="icon"
+                :src="postIconList[postIndex]"
+                alt="アイコン"
+                width="100%"
+              />
+              <img
+                v-else
+                class="icon"
+                src="~/assets/image/icon.jpg"
+                alt="アイコン"
+                width="100%"
+              />
             </div>
-            <v-icon v-else size="55"> mdi-account-circle </v-icon>
             <p class="mb-0 ml-2">{{ post.author.username }}</p>
           </v-col>
-          <v-col align-self="center" class="text-right">
-            <v-btn text icon>
-              <v-icon>mdi-dots-horizontal</v-icon>
-            </v-btn>
+          <v-col
+            v-if="isMineThePost(post)"
+            align-self="center"
+            class="text-right"
+          >
+            <span class="text-body-2 grey--text">あなたの投稿です</span>
           </v-col>
         </v-row>
         <!-- 画像 -->
@@ -156,6 +167,7 @@
               v-if="isMineThePost(post)"
               text
               icon
+              :loading="isLoading"
               @click="deletePost(post)"
             >
               <v-icon large>mdi-trash-can-outline</v-icon>
@@ -232,9 +244,20 @@ import {
   PostLike,
   User,
 } from '~/types/schema'
+const DEFAULT_USER: User = {
+  __typename: 'User',
+  id: '',
+  username: '',
+  password: '',
+  icon: '',
+  posts: { items: [] },
+  createdAt: 0,
+  updatedAt: 0,
+}
 export default defineComponent({
   setup(_, { root }) {
     /** data ***********************************************************/
+    const isOpenedComfirmDialog = ref(false)
     const isOpenedLoginDialog = ref(false)
     const isOpenedCreateUserDialog = ref(false)
     const isOpenedPostDetailDialog = ref(false)
@@ -242,70 +265,68 @@ export default defineComponent({
     const isOpenedEditUserDialog = ref(false)
     const isOpenedSnackbar = ref(false)
     const snackbarText = ref('')
-    const isLogined = ref(true)
     const isLikePost = ref(false)
     const isLoading = ref(false)
     const isMarkedPost = ref(false)
     const selectedPost = ref<Post>()
-    const selectedPostImage = ref<any>()
-    const selectedPostIcon = ref<any>()
     const allPosts = ref<Post[]>([])
     const postImageList = ref<any>([])
     const postIconList = ref<any>('')
-    const loginUser = ref<User>({
-      __typename: 'User',
-      id: '',
-      username: '',
-      password: '',
-      icon: '',
-      posts: { items: [] },
-      createdAt: 0,
-      updatedAt: 0,
-    })
+    const loginUser = ref<User>(DEFAULT_USER)
     /** computed ***********************************************************/
+    const isLogined = computed(() => {
+      return loginUser.value.id !== ''
+    })
+
     const sortedAllPosts = computed(() => {
       return allPosts.value.sort(function (a, b) {
-        if (a.createdAt < b.createdAt) return -1
-        if (a.createdAt > b.createdAt) return 1
+        if (Number(a.createdAt) < Number(b.createdAt)) return 1
+        if (Number(a.createdAt) > Number(b.createdAt)) return -1
         return 0
       })
     })
     /** method ***********************************************************/
     const logout = () => {
-      isLogined.value = false
+      loginUser.value = DEFAULT_USER
       updateSnackbar('ログアウトしました')
     }
 
     const updateLoginUser = (user: User) => {
       if (!user) return
-      isLogined.value = true
+      loginUser.value = user
+      updateAll()
     }
     const updateSnackbar = (text: string) => {
       snackbarText.value = text
       isOpenedSnackbar.value = true
     }
 
-    const openPostDetailDialog = (post: Post, index: number) => {
+    const openPostDetailDialog = (post: Post) => {
       selectedPost.value = post
-      selectedPostImage.value = postImageList[index]
-      selectedPostIcon.value = postIconList[index]
       isOpenedPostDetailDialog.value = true
     }
     const openCreatePostDialog = (post: Post) => {
-      isOpenedCreatePostDialog.value = true
+      if (isLogined.value) {
+        isOpenedCreatePostDialog.value = true
+      } else {
+        updateSnackbar('ログインしてください')
+      }
     }
     // ダイアログでの変更反映
     const updateAll = async () => {
-      const id = {
-        id: loginUser.value.id,
+      if (isLogined.value) {
+        const id = {
+          id: loginUser.value.id,
+        }
+        loginUser.value = await getUserGql(id)
       }
-      loginUser.value = await getUserGql(id)
       allPosts.value = await listPostsGql()
       await getPostIconList()
       await getPostImageList()
     }
 
     const getPostImageList = async () => {
+      postImageList.value = []
       const getPostImage = async (post: Post) => {
         const getOnePostImages = post.postImage.map(async (image) => {
           return await Storage.get(image)
@@ -318,9 +339,9 @@ export default defineComponent({
             console.error(e)
           })
       }
-      for (const post in allPosts.value) {
+      for (const post in sortedAllPosts.value) {
         try {
-          const images = await getPostImage(allPosts.value[post])
+          const images = await getPostImage(sortedAllPosts.value[post])
           postImageList.value.push(images)
         } catch (e) {
           console.error(e)
@@ -328,7 +349,7 @@ export default defineComponent({
       }
     }
     const getPostIconList = async () => {
-      const getPostIcons = allPosts.value.map(async (post) => {
+      const getPostIcons = sortedAllPosts.value.map(async (post) => {
         if (post.author.icon) {
           return await Storage.get(post.author.icon)
         } else {
@@ -362,51 +383,57 @@ export default defineComponent({
     // postLikeのtoggle
     const togglePostLike = async (post: Post) => {
       isLoading.value = true
-      if (isLikedThePost(post)) {
-        const likesItems = post.likes.items
-        const findItem = likesItems?.find((item: PostLike | null) => {
-          return item?.userId === loginUser.value?.id
-        })
-        const input: DeletePostLikeInput = {
-          id: findItem?.id!,
-        }
-        try {
-          await deletePostLikeGql(input)
-          allPosts.value = await listPostsGql()
-          updateSnackbar('いいねを取り消しました')
-        } catch (e) {
-          console.error(e)
-          updateSnackbar('いいねを取り消せませんでした')
+      if (isLogined.value) {
+        if (isLikedThePost(post)) {
+          const likesItems = post.likes.items
+          const findItem = likesItems?.find((item: PostLike | null) => {
+            return item?.userId === loginUser.value?.id
+          })
+          const input: DeletePostLikeInput = {
+            id: findItem?.id!,
+          }
+          try {
+            await deletePostLikeGql(input)
+            allPosts.value = await listPostsGql()
+            updateSnackbar('いいねを取り消しました')
+          } catch (e) {
+            console.error(e)
+            updateSnackbar('いいねを取り消せませんでした')
+          }
+        } else {
+          const input: CreatePostLikeInput = {
+            postId: post.id!,
+            userId: loginUser.value?.id!,
+          }
+          try {
+            await createPostLikeGql(input)
+            allPosts.value = await listPostsGql()
+            updateSnackbar('いいねしました')
+          } catch (e) {
+            console.error(e)
+            updateSnackbar('いいねできませんでした')
+          }
         }
       } else {
-        const input: CreatePostLikeInput = {
-          postId: post.id!,
-          userId: loginUser.value?.id!,
-        }
-        try {
-          await createPostLikeGql(input)
-          allPosts.value = await listPostsGql()
-          updateSnackbar('いいねしました')
-        } catch (e) {
-          console.error(e)
-          updateSnackbar('いいねできませんでした')
-        }
+        updateSnackbar('ログインしてください')
       }
       isLoading.value = false
     }
-    const createPosts = async (post: Post) => {
-      allPosts.value.push(post)
-      await getPostImageList()
-    }
+
     const deletePost = async (post: Post) => {
+      isLoading.value = true
       try {
         const input = {
           id: post.id,
         }
-        const deletedPost = await deletePostGql(input)
-        allPosts.value = await listPostsGql()
+        await deletePostGql(input)
+        await updateAll()
+        updateSnackbar('投稿を削除しました')
       } catch (e) {
         console.error(e)
+        updateSnackbar('投稿を削除できませんでした')
+      } finally {
+        isLoading.value = false
       }
     }
     /** init */
@@ -450,8 +477,6 @@ export default defineComponent({
       isLikePost,
       isMarkedPost,
       selectedPost,
-      selectedPostImage,
-      selectedPostIcon,
       allPosts,
       postImageList,
       postIconList,
@@ -467,7 +492,6 @@ export default defineComponent({
       openCreatePostDialog,
       updateAll,
       togglePostLike,
-      createPosts,
       isMineThePost,
       isLikedThePost,
       deletePost,
@@ -492,9 +516,16 @@ export default defineComponent({
 .icon-wrapper {
   width: 50px;
   height: 50px;
-  border: 1px solid #ddd;
   border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
   overflow: hidden;
+  border: 2px solid rgb(158, 113, 72);
+}
+.icon-wrapper .icon {
+  height: 100%;
+  object-fit: cover;
 }
 /* カルーセル */
 .v-window.v-carousel {
@@ -517,7 +548,7 @@ export default defineComponent({
   opacity: 1;
 }
 .v-carousel >>> .v-btn--icon.v-btn--active .v-icon {
-  color: #0095f6;
+  color: rgb(158, 113, 72);
 }
 .post-icon-row >>> .v-btn--icon {
   z-index: 2;

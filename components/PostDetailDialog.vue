@@ -9,13 +9,16 @@
     <v-card flat tile class="mx-auto" height="600">
       <v-row no-gutters>
         <!-- 画像 -->
-        <v-col cols="7">
+        <v-col cols="7" class="image-wrapper">
           <v-carousel
             delimiter-icon="mdi-circle-small"
             :continuous="false"
             height="600"
           >
-            <v-carousel-item v-for="image in postImage" :key="image">
+            <v-carousel-item
+              v-for="(image, index) in postImageList"
+              :key="index"
+            >
               <v-sheet height="100%" tile>
                 <v-row
                   class="fill-height"
@@ -23,7 +26,7 @@
                   justify="center"
                   no-gutters
                 >
-                  <img :src="image" />
+                  <img class="post-image" :src="image" />
                 </v-row>
               </v-sheet>
             </v-carousel-item>
@@ -33,10 +36,22 @@
           <!-- プロフィール -->
           <v-row class="post-nav py-4 px-3 justify-space-between" no-gutters>
             <v-col class="d-flex align-center font-weight-bold">
-              <div v-if="icon" class="icon-wrapper">
-                <img :src="icon" alt="アイコン" width="100%" />
+              <div class="icon-wrapper">
+                <img
+                  v-if="userIcon"
+                  class="icon"
+                  :src="userIcon"
+                  alt="アイコン"
+                  width="100%"
+                />
+                <img
+                  v-else
+                  class="icon"
+                  src="~/assets/image/icon.jpg"
+                  alt="アイコン"
+                  width="100%"
+                />
               </div>
-              <v-icon v-else size="55"> mdi-account-circle </v-icon>
               <p class="mb-0 ml-2">{{ post.author.username }}</p>
             </v-col>
             <v-col align-self="center" class="text-right">
@@ -60,13 +75,14 @@
             <v-col
               cols="auto"
               class="mb-1"
-              v-for="(comment, index) in sortedAllPosts"
+              v-for="(comment, index) in sortedAllComments"
               :key="index"
             >
               <p class="mb-0">
-                <span class="font-weight-bold">{{
+                <span v-if="comment.commenter" class="font-weight-bold">{{
                   comment.commenter.username
                 }}</span>
+                <span v-else class="font-weight-bold">unknown</span>
                 <span>{{ comment.text }} </span>
               </p>
               <p class="mb-0 pl-1 comment-date grey--text">
@@ -122,6 +138,7 @@
                 v-model="newCommentText"
                 placeholder="コメントを追加"
                 dense
+                color="rgb(158, 113, 72)"
                 flat
                 @keypress.enter="createComment(post)"
               />
@@ -129,7 +146,7 @@
             <v-col cols="3" class="align-self-center pl-2">
               <v-btn
                 class="font-weight-bold"
-                color="#0095f6"
+                color="rgb(158, 113, 72)"
                 text
                 :loading="isLoading"
                 :disabled="!newCommentText.trim()"
@@ -152,6 +169,7 @@ import {
   PropType,
   useFetch,
   computed,
+  watch,
 } from 'nuxt-composition-api'
 import {
   createCommentGql,
@@ -159,6 +177,7 @@ import {
   deletePostLikeGql,
 } from '~/appsync/mutations'
 import { getPostGql } from '~/appsync/queries'
+import { Storage } from 'aws-amplify'
 import { getDate } from '~/modules/getDate'
 import {
   CreateCommentInput,
@@ -182,14 +201,6 @@ export default defineComponent({
     },
     post: {
       type: Object as PropType<Post>,
-      default: () => {},
-    },
-    postImage: {
-      type: Array,
-      default: () => [],
-    },
-    icon: {
-      type: String,
     },
     loginUser: {
       type: Object as PropType<User>,
@@ -200,8 +211,10 @@ export default defineComponent({
     /** data ***********************************************************/
     const newCommentText = ref('')
     const isLoading = ref(false)
+    const userIcon = ref('')
+    const postImageList = ref<any>([])
     /** computed ***********************************************************/
-    const sortedAllPosts = computed(() => {
+    const sortedAllComments = computed(() => {
       if (props.post)
         return props.post.comments.items.sort(function (a, b) {
           if (a.createdAt < b.createdAt) return -1
@@ -223,79 +236,127 @@ export default defineComponent({
     // postLikeのtoggle
     const togglePostLike = async (post: Post) => {
       isLoading.value = true
-      if (isLikedThePost(post)) {
-        const likesItems = post.likes.items
-        const findItem = likesItems?.find((item: PostLike | null) => {
-          return item?.userId === props.loginUser.id
-        })
-        const deletePostLikeInput: DeletePostLikeInput = {
-          id: findItem?.id!,
-        }
-        try {
-          await deletePostLikeGql(deletePostLikeInput)
-          const getPostInput: DeletePostLikeInput = {
-            id: post?.id!,
+      if (props.loginUser.id) {
+        if (isLikedThePost(post)) {
+          const likesItems = post.likes.items
+          const findItem = likesItems?.find((item: PostLike | null) => {
+            return item?.userId === props.loginUser.id
+          })
+          const deletePostLikeInput: DeletePostLikeInput = {
+            id: findItem?.id!,
           }
-          const updatedPost = await getPostGql(getPostInput)
-          emit('update:post', updatedPost)
-          emit('snackbar', 'いいねを取り消しました')
-        } catch (e) {
-          console.error(e)
-          emit('snackbar', 'いいねを取り消せませんでした')
+          try {
+            await deletePostLikeGql(deletePostLikeInput)
+            const getPostInput: DeletePostLikeInput = {
+              id: post?.id!,
+            }
+            const updatedPost = await getPostGql(getPostInput)
+            emit('update:post', updatedPost)
+            emit('snackbar', 'いいねを取り消しました')
+          } catch (e) {
+            console.error(e)
+            emit('snackbar', 'いいねを取り消せませんでした')
+          }
+        } else {
+          const createPostLikeInput: CreatePostLikeInput = {
+            postId: post.id!,
+            userId: props.loginUser?.id!,
+          }
+          try {
+            await createPostLikeGql(createPostLikeInput)
+            const getPostInput: DeletePostLikeInput = {
+              id: post?.id!,
+            }
+            const updatedPost = await getPostGql(getPostInput)
+            emit('update:post', updatedPost)
+            emit('snackbar', 'いいねしました')
+          } catch (e) {
+            console.error(e)
+            emit('snackbar', 'いいねできませんでした')
+          }
         }
       } else {
-        const createPostLikeInput: CreatePostLikeInput = {
-          postId: post.id!,
-          userId: props.loginUser?.id!,
-        }
-        try {
-          await createPostLikeGql(createPostLikeInput)
-          const getPostInput: DeletePostLikeInput = {
-            id: post?.id!,
-          }
-          const updatedPost = await getPostGql(getPostInput)
-          emit('update:post', updatedPost)
-          emit('snackbar', 'いいねしました')
-        } catch (e) {
-          console.error(e)
-          emit('snackbar', 'いいねできませんでした')
-        }
+        emit('snackbar', 'ログインしてください')
       }
       isLoading.value = false
     }
 
     const createComment = async (post: Post) => {
-      if (!newCommentText.value.trim()) return
-      isLoading.value = true
-      const input: CreateCommentInput = {
-        postId: post.id!,
-        authorId: post.authorId!,
-        commenterId: props.loginUser.id!,
-        text: newCommentText.value,
-        createdAt: String(Date.now()),
-      }
-      try {
-        const createdReturn = await createCommentGql(input)
-        const getPostInput: GetPostInput = {
-          id: createdReturn?.postId!,
+      if (props.loginUser.id) {
+        if (!newCommentText.value.trim()) return
+        isLoading.value = true
+        const input: CreateCommentInput = {
+          postId: post.id!,
+          authorId: post.authorId!,
+          commenterId: props.loginUser.id!,
+          text: newCommentText.value,
+          createdAt: String(Date.now()),
         }
-        const updatedPost = await getPostGql(getPostInput)
-        emit('update:post', updatedPost)
-        emit('snackbar', 'コメントしました')
-      } catch (e) {
-        emit('snackbar', 'コメントできませんでした')
-        console.error(e)
-      } finally {
-        newCommentText.value = ''
+        try {
+          const createdReturn = await createCommentGql(input)
+          const getPostInput: GetPostInput = {
+            id: createdReturn?.postId!,
+          }
+          const updatedPost = await getPostGql(getPostInput)
+          emit('update:post', updatedPost)
+          emit('snackbar', 'コメントしました')
+        } catch (e) {
+          emit('snackbar', 'コメントできませんでした')
+          console.error(e)
+        } finally {
+          newCommentText.value = ''
+        }
+        isLoading.value = false
+      } else {
+        emit('snackbar', 'ログインしてください')
       }
-      isLoading.value = false
     }
+
+    /** init */
+    const getPostImage = async () => {
+      if (!props.post) return
+      const getOnePostImages = props.post.postImage.map(async (image) => {
+        return await Storage.get(image)
+      })
+      return await Promise.all(getOnePostImages)
+        .then((result) => {
+          return result
+        })
+        .catch((e) => {
+          console.error(e)
+        })
+    }
+
+    watch(
+      () => props.isOpened,
+      async (arg) => {
+        if (arg) {
+          try {
+            if (userIcon.value) {
+              userIcon.value = (await Storage.get(
+                props.post?.author.icon!
+              )) as string
+            }
+            const images = await getPostImage()
+            postImageList.value = images
+          } catch (e) {
+            console.error(e)
+          }
+        } else {
+          postImageList.value = []
+          emit('update')
+        }
+      }
+    )
+
     return {
       /** data */
       newCommentText,
       isLoading,
+      userIcon,
+      postImageList,
       /** computed */
-      sortedAllPosts,
+      sortedAllComments,
       /** method */
       isLikedThePost,
       togglePostLike,
@@ -312,11 +373,14 @@ export default defineComponent({
 .icon-wrapper {
   width: 50px;
   height: 50px;
-  border: 1px solid #ddd;
   border-radius: 50%;
   overflow: hidden;
+  border: 3px solid rgb(158, 113, 72);
 }
-
+.icon-wrapper .icon {
+  height: 100%;
+  object-fit: cover;
+}
 .v-window.v-carousel {
   overflow: visible;
 }
@@ -335,7 +399,10 @@ export default defineComponent({
   opacity: 1;
 }
 .v-carousel >>> .v-btn--icon.v-btn--active .v-icon {
-  color: #0095f6;
+  color: rgb(158, 113, 72);
+}
+.v-carousel >>> .v-btn--icon.v-btn--active::before {
+  display: none;
 }
 .post-row {
   height: 349px;
@@ -343,6 +410,12 @@ export default defineComponent({
 }
 .post-nav {
   border-bottom: 1px solid #ddd;
+}
+.image-wrapper {
+  border-right: 1px solid #ddd;
+}
+.post-image {
+  width: 100%;
 }
 .post-icon-row,
 .comment-row {

@@ -6,9 +6,17 @@
         <!-- 画像 -->
         <v-col v-if="previewImg" cols="3" class="text-center">
           <div class="img-wrapper">
-            <img :src="previewImg" width="200px" />
+            <img class="icon" :src="previewImg" width="200px" />
           </div>
-          <v-btn @click="previewImg = ''">削除する</v-btn>
+          <v-btn
+            class="white--text font-weight-bold mt-2 text-caption"
+            tile
+            height="30px"
+            elevation="0"
+            color="black"
+            @click="previewImg = ''"
+            >削除する</v-btn
+          >
         </v-col>
         <v-col v-else cols="3" class="text-center">
           <div class="img-wrapper mb-2">
@@ -26,6 +34,7 @@
           <v-text-field
             v-model="userInfo.username"
             class="mb-2"
+            color="rgb(158, 113, 72)"
             outlined
             label="username"
           />
@@ -33,6 +42,7 @@
             v-model="userInfo.password"
             outlined
             class="mt-2"
+            color="rgb(158, 113, 72)"
             label="password"
           />
         </v-col>
@@ -47,8 +57,9 @@
           elevation="0"
           color="black"
           @click="updateUser"
-          >変更する</v-btn
         >
+          変更する
+        </v-btn>
         <v-btn
           :loading="isLoading"
           class="white--text font-weight-bold ml-2"
@@ -150,11 +161,13 @@ export default defineComponent({
     watch(
       () => props.isOpened,
       async () => {
-          userInfo.value.id = props.loginUser.id
-          userInfo.value.username = props.loginUser.username
-          userInfo.value.password = props.loginUser.password
-          userInfo.value.icon = props.loginUser.icon
+        userInfo.value.id = props.loginUser.id
+        userInfo.value.username = props.loginUser.username
+        userInfo.value.password = props.loginUser.password
+        userInfo.value.icon = props.loginUser.icon
+        if (props.loginUser.icon) {
           previewImg.value = (await Storage.get(props.loginUser.icon)) as string
+        }
       }
     )
     return {
@@ -178,10 +191,14 @@ export default defineComponent({
   height: 180px;
   border-radius: 50%;
   display: flex;
+  border: 5px solid rgb(158, 113, 72);
   justify-content: center;
   align-items: center;
   overflow: hidden;
-  border: 1px solid #ddd;
+}
+.img-wrapper .icon {
+  height: 100%;
+  object-fit: cover;
 }
 .file-input {
   justify-content: center;
@@ -193,6 +210,10 @@ export default defineComponent({
 .file-input >>> .v-icon--link:hover {
   opacity: 0.7;
 }
+.file-input >>> .v-input__prepend-outer {
+  margin: 0;
+}
+
 .card-wrapper >>> .v-text-field__details {
   display: none;
 }
