@@ -4,7 +4,7 @@ export default {
 
   // Global page headers: https://go.nuxtjs.dev/config-head
   head: {
-    titleTemplate: '%s - o-gram',
+    titleTemplate: '%s',
     title: 'o-gram',
     htmlAttrs: {
       lang: 'en',
