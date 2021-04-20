@@ -478,10 +478,6 @@ export default defineComponent({
         await getPostIconList()
       } catch (e) {
         console.error(e)
-      } finally {
-        // console.debug('allpost', allPosts.value)
-        // console.debug('loginUser', loginUser.value)
-        // console.debug('postImage', postImageList.value)
       }
     })
     return {
