@@ -137,6 +137,7 @@ export default defineComponent({
       try {
         const guest = await getUserGql(id)
         emit('update', guest)
+        window.localStorage.setItem('loginUser', guest.id)
         emit('snackbar', 'ゲストユーザーでログインしました')
       } catch (e) {
         console.error(e)
@@ -148,6 +149,7 @@ export default defineComponent({
     }
 
     const uploadFile = async (file: File) => {
+      isLoading.value = true
       try {
         // ストレージにアップロード
         const filePath = `${userInput.value.username}/icon/${
@@ -159,6 +161,8 @@ export default defineComponent({
         previewImg.value = newImg
       } catch (e) {
         console.error(e)
+      }finally {
+        isLoading.value = false
       }
     }
 

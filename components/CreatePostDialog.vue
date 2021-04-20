@@ -61,7 +61,13 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, computed, watch, PropType } from 'nuxt-composition-api'
+import {
+  defineComponent,
+  ref,
+  computed,
+  watch,
+  PropType,
+} from 'nuxt-composition-api'
 import { Storage } from 'aws-amplify'
 import { createPostGql } from '../appsync/mutations'
 import { CreatePostInput, User } from '~/types/schema'
@@ -78,7 +84,7 @@ export default defineComponent({
     },
     loginUser: {
       type: Object as PropType<User>,
-      required: true
+      required: true,
     },
   },
   setup(props, { root, emit }) {
@@ -90,6 +96,7 @@ export default defineComponent({
     /** computed ***********************************************************/
     /** method ***********`************************************************/
     const uploadFile = async (file: File) => {
+      isLoading.value = true
       try {
         // ストレージにアップロード
         const filePath = `${props.loginUser.username}/post/${
@@ -101,6 +108,8 @@ export default defineComponent({
         postImgs.value.push(filePath)
       } catch (e) {
         console.error(e)
+      } finally {
+        isLoading.value = false
       }
     }
     const createPost = async () => {
@@ -184,5 +193,4 @@ export default defineComponent({
 .v-textarea >>> .v-input__slot {
   border-radius: 0;
 }
-
 </style>

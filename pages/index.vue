@@ -10,11 +10,17 @@
       @update="updateLoginUser"
       @snackbar="updateSnackbar"
     />
+    <ComfirmDialog
+      :is-opened.sync="isOpenedComfirmDialog"
+      :post="selectedPost"
+      @delete="deletePost"
+    />
     <PostDetailDialog
       v-model="isOpenedPostDetailDialog"
       :login-user="loginUser"
       :post.sync="selectedPost"
       @update="updateAll"
+      @comfirm-delete="openComfirmDialog"
       @snackbar="updateSnackbar"
     />
 
@@ -36,15 +42,15 @@
         <v-col v-if="isLogined && loginUser" class="d-flex">
           <v-spacer />
           <v-btn
-            class="d-block white--text text-body-1 font-weight-bold mr-4"
+            class="d-block white--text text-body-1 font-weight-bold mr-2 px-2"
             text
-            @click="isOpenedEditUserDialog = true"
+            @click="openEditUserDialog"
           >
             <v-icon>mdi-account-outline</v-icon>
             {{ loginUser.username }}
           </v-btn>
           <v-btn
-            class="d-block white--text text-body-1 font-weight-bold"
+            class="d-block white--text text-body-1 font-weight-bold px-2"
             text
             @click="logout"
           >
@@ -56,7 +62,7 @@
         <v-col v-else class="d-flex">
           <v-spacer />
           <v-btn
-            class="d-block white--text text-body-1 font-weight-bold mr-4"
+            class="d-block white--text text-body-1 font-weight-bold px-2"
             text
             @click="isOpenedLoginDialog = true"
           >
@@ -64,7 +70,7 @@
             ログイン
           </v-btn>
           <v-btn
-            class="d-block white--text text-body-1 font-weight-bold"
+            class="d-block white--text text-body-1 font-weight-bold px-2"
             text
             @click="isOpenedCreateUserDialog = true"
           >
@@ -168,7 +174,7 @@
               text
               icon
               :loading="isLoading"
-              @click="deletePost(post)"
+              @click="openComfirmDialog(post)"
             >
               <v-icon large>mdi-trash-can-outline</v-icon>
             </v-btn>
@@ -287,10 +293,10 @@ export default defineComponent({
     })
     /** method ***********************************************************/
     const logout = () => {
+      window.localStorage.removeItem('loginUser')
       loginUser.value = DEFAULT_USER
       updateSnackbar('ログアウトしました')
     }
-
     const updateLoginUser = (user: User) => {
       if (!user) return
       loginUser.value = user
@@ -304,6 +310,17 @@ export default defineComponent({
     const openPostDetailDialog = (post: Post) => {
       selectedPost.value = post
       isOpenedPostDetailDialog.value = true
+    }
+    const openComfirmDialog = (post: Post) => {
+      selectedPost.value = post
+      isOpenedComfirmDialog.value = true
+    }
+    const openEditUserDialog = () => {
+      if (loginUser.value.id !== '589dfc63-f336-4b89-833d-f7e0aeb7e728') {
+        isOpenedEditUserDialog.value = true
+      } else {
+        updateSnackbar('ゲストユーザーの情報は変更できません')
+      }
     }
     const openCreatePostDialog = (post: Post) => {
       if (isLogined.value) {
@@ -422,6 +439,8 @@ export default defineComponent({
 
     const deletePost = async (post: Post) => {
       isLoading.value = true
+      isOpenedComfirmDialog.value = false
+      isOpenedPostDetailDialog.value = false
       try {
         const input = {
           id: post.id,
@@ -447,25 +466,28 @@ export default defineComponent({
     )
     useFetch(async () => {
       try {
-        // TODO: ログイン情報保持期間
-        const id = {
-          id: 'cc41ac84-67e1-448c-ad0a-40624bc9144a',
+        const localUser = window.localStorage.getItem('loginUser')
+        if (localUser) {
+          const id = {
+            id: localUser,
+          }
+          loginUser.value = await getUserGql(id)
         }
-        loginUser.value = await getUserGql(id)
         allPosts.value = await listPostsGql()
         await getPostImageList()
         await getPostIconList()
       } catch (e) {
         console.error(e)
       } finally {
-        console.debug('allpost', allPosts.value)
-        console.debug('loginUser', loginUser.value)
-        console.debug('postImage', postImageList.value)
+        // console.debug('allpost', allPosts.value)
+        // console.debug('loginUser', loginUser.value)
+        // console.debug('postImage', postImageList.value)
       }
     })
     return {
       /** data */
       loginUser,
+      isOpenedComfirmDialog,
       isOpenedLoginDialog,
       isOpenedCreateUserDialog,
       isOpenedPostDetailDialog,
@@ -488,7 +510,9 @@ export default defineComponent({
       updateSnackbar,
       logout,
       getDate,
+      openComfirmDialog,
       openPostDetailDialog,
+      openEditUserDialog,
       openCreatePostDialog,
       updateAll,
       togglePostLike,

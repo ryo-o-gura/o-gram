@@ -23,7 +23,7 @@ export default defineComponent({
         // 自動サインイン（仮）
         await Auth.signIn('admin0000', 'admin-pass')
       } catch (e) {
-        console.debug(e)
+        console.error(e)
       }
     })
   },

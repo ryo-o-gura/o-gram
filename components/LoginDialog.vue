@@ -111,6 +111,7 @@ export default defineComponent({
       try {
         const guest = await getUserGql(id)
         emit('update', guest)
+        window.localStorage.setItem('loginUser', guest.id)
         emit('snackbar', 'ゲストユーザーでログインしました')
       } catch (e) {
         console.error(e)
@@ -136,6 +137,8 @@ export default defineComponent({
             }
             const user = await getUserGql(input)
             emit('update', user)
+            // ローカルストレージにセット
+            window.localStorage.setItem('loginUser', user.id)
             emit('snackbar', 'ログインしました')
             emit('update:isOpened', false)
             userInput.value = {

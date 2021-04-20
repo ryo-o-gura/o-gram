@@ -118,6 +118,7 @@ export default defineComponent({
     /** computed ***********************************************************/
     /** method ***********`************************************************/
     const uploadFile = async (file: File) => {
+      isLoading.value = true
       try {
         // ストレージにアップロード
         const filePath = `${props.loginUser.username}/post/${
@@ -129,12 +130,12 @@ export default defineComponent({
         previewImg.value = newImg as string
       } catch (e) {
         console.error(e)
+      } finally {
+        isLoading.value = false
       }
     }
     const updateUser = async () => {
       isLoading.value = true
-      console.debug(props.loginUser)
-      console.debug(userInfo.value)
       if (!previewImg.value) {
         userInfo.value.icon = ''
       }
@@ -147,6 +148,7 @@ export default defineComponent({
           password: '',
           updatedAt: Date.now(),
         }
+        previewImg.value = ''
         emit('snackbar', 'アカウント情報を更新しました！')
         emit('update')
         emit('close', false)
@@ -160,13 +162,26 @@ export default defineComponent({
     /** init */
     watch(
       () => props.isOpened,
-      async () => {
-        userInfo.value.id = props.loginUser.id
-        userInfo.value.username = props.loginUser.username
-        userInfo.value.password = props.loginUser.password
-        userInfo.value.icon = props.loginUser.icon
-        if (props.loginUser.icon) {
-          previewImg.value = (await Storage.get(props.loginUser.icon)) as string
+      async (arg) => {
+        if (arg) {
+          userInfo.value.id = props.loginUser.id
+          userInfo.value.username = props.loginUser.username
+          userInfo.value.password = props.loginUser.password
+          userInfo.value.icon = props.loginUser.icon
+          if (props.loginUser.icon) {
+            previewImg.value = (await Storage.get(
+              props.loginUser.icon
+            )) as string
+          }
+        } else {
+          userInfo.value = {
+            id: '',
+            username: '',
+            icon: '',
+            password: '',
+            updatedAt: Date.now(),
+          }
+          previewImg.value = ''
         }
       }
     )

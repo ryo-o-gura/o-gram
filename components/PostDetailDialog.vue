@@ -54,8 +54,12 @@
               </div>
               <p class="mb-0 ml-2">{{ post.author.username }}</p>
             </v-col>
-            <v-col align-self="center" class="text-right">
-              <v-btn text icon><v-icon>mdi-dots-horizontal</v-icon></v-btn>
+            <v-col
+              v-if="isMineThePost(post)"
+              align-self="center"
+              class="text-right"
+            >
+              <span class="text-body-2 grey--text">あなたの投稿です</span>
             </v-col>
           </v-row>
           <v-row
@@ -63,13 +67,17 @@
             class="post-row px-4 flex-column flex-start flex-nowrap"
           >
             <!-- 投稿テキスト -->
-            <v-col cols="auto" class="pb-10">
-              <p class="mb-0">
+            <v-col cols="auto">
+              <p class="mb-10 mt-3">
                 <span class="font-weight-bold text-h6">{{
                   post.author.username
                 }}</span>
                 <span style="white-space: pre-wrap">{{ post.content }} </span>
               </p>
+              <div class="d-flex align-center">
+                <p class="grey--text mb-0 mr-1 text-caption">コメント</p>
+                <v-divider />
+              </div>
             </v-col>
             <!-- コメント -->
             <v-col
@@ -111,9 +119,13 @@
               </span>
             </v-col>
             <v-col class="text-right">
-              <v-btn text icon>
-                <v-icon v-if="post.bookmarkFlag" large>mdi-bookmark</v-icon>
-                <v-icon v-else large>mdi-bookmark-outline</v-icon>
+              <v-btn
+                v-if="isMineThePost(post)"
+                text
+                icon
+                @click="$emit('comfirm-delete', post)"
+              >
+                <v-icon large>mdi-trash-can-outline</v-icon>
               </v-btn>
             </v-col>
           </v-row>
@@ -224,6 +236,14 @@ export default defineComponent({
     })
 
     /** method ***********************************************************/
+
+    // 自分の投稿かのチェック
+    const isMineThePost = (post: Post) => {
+      const author = post.authorId
+      if (!props.loginUser) return
+      return author === props.loginUser.id
+    }
+
     // 自分がいいねしているかのチェック
     const isLikedThePost = (post: Post) => {
       const likesItems = post.likes?.items
@@ -358,6 +378,7 @@ export default defineComponent({
       /** computed */
       sortedAllComments,
       /** method */
+      isMineThePost,
       isLikedThePost,
       togglePostLike,
       getDate,
