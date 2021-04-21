@@ -1,18 +1,19 @@
 <template>
   <v-dialog v-model="isOpened" class="pa-4 login-dialog" width="800" persistent>
-    <v-card flat tile class="mx-auto pa-10">
+    <v-card flat tile class="mx-auto pa-6 pa-sm-10">
       <p class="text-center text-h3 font-weight-bold title-font">Post</p>
       <v-row no-gutters class="my-5">
         <!-- 画像 -->
         <v-col
-          cols="3"
+          cols="6"
+          sm="3"
           v-for="(img, index) in previewImgs"
           :key="index"
           class="img-wrapper"
         >
           <img :src="img" width="200px" />
         </v-col>
-        <v-col cols="3" class="img-wrapper">
+        <v-col cols="6" sm="3" class="img-wrapper">
           <v-file-input
             class="pa-0 file-input"
             @change="uploadFile($event)"
@@ -36,6 +37,7 @@
           :loading="isLoading"
           class="white--text font-weight-bold mr-2"
           width="200px"
+          max-width="45%"
           height="40px"
           tile
           elevation="0"
@@ -47,6 +49,7 @@
           :loading="isLoading"
           class="white--text font-weight-bold ml-2"
           width="200px"
+          max-width="45%"
           height="40px"
           tile
           elevation="0"
@@ -177,6 +180,7 @@ export default defineComponent({
   overflow: hidden;
   border: 1px solid #aaa;
 }
+
 .file-input {
   justify-content: center;
   width: 100%;
@@ -192,5 +196,15 @@ export default defineComponent({
 }
 .v-textarea >>> .v-input__slot {
   border-radius: 0;
+}
+
+/* xsの時 */
+@media screen and (max-width: 599px) {
+  .img-wrapper {
+    height: 120px;
+  }
+  .file-input >>> .v-icon--link {
+    font-size: 40px;
+  }
 }
 </style>

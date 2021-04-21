@@ -6,15 +6,15 @@
     width="800"
     @input="$emit('toggle', $event)"
   >
-    <v-card class="card-wrapper pa-10">
+    <v-card class="card-wrapper pa-6 pa-sm-10">
       <p class="text-center text-h3 font-weight-bold title-font">Sign Up</p>
-      <v-row no-gutters class="my-10 align-center">
-        <v-col v-if="previewImg" cols="3" class="text-center">
+      <v-row no-gutters class="my-sm-10 my-4 align-center">
+        <v-col v-if="previewImg" cols="12" sm="3" class="text-center">
           <div class="img-wrapper">
             <img class="icon" :src="previewImg" width="200px" />
           </div>
           <v-btn
-            class="white--text font-weight-bold mt-2 text-caption"
+            class="white--text font-weight-bold my-2 text-caption"
             tile
             height="30px"
             elevation="0"
@@ -23,7 +23,7 @@
             >削除する</v-btn
           >
         </v-col>
-        <v-col v-else cols="3" class="text-center">
+        <v-col v-else cols="12" sm="3" class="text-center">
           <div class="img-wrapper mb-2">
             <v-file-input
               class="pa-0 file-input"
@@ -35,7 +35,7 @@
           </div>
           <p class="grey--text">プロフィール画像を追加</p>
         </v-col>
-        <v-col class="ml-8">
+        <v-col class="ml-sm-8">
           <v-text-field
             v-model="userInput.username"
             class="mb-2"
@@ -52,44 +52,50 @@
           />
         </v-col>
       </v-row>
-      <div class="text-center">
-        <v-btn
-          :loading="isLoading"
-          class="white--text font-weight-bold mr-2"
-          width="200px"
-          height="40px"
-          tile
-          elevation="0"
-          color="black"
-          @click="createUser"
-        >
-          登録する
-        </v-btn>
-        <v-btn
-          :loading="isLoading"
-          class="white--text font-weight-bold mx-2"
-          width="200px"
-          height="40px"
-          tile
-          elevation="0"
-          color="black"
-          @click="$emit('update:isOpened', false)"
-        >
-          キャンセル
-        </v-btn>
-        <v-btn
-          :loading="isLoading"
-          class="white--text font-weight-bold ml-2"
-          width="200px"
-          height="40px"
-          tile
-          elevation="0"
-          color="rgb(158, 113, 72)"
-          @click="guestLogin"
-        >
-          ゲストユーザーでログイン
-        </v-btn>
-      </div>
+      <v-row no-gutters>
+        <v-col cols="6" sm="4" class="pr-2">
+          <v-btn
+            :loading="isLoading"
+            class="white--text font-weight-bold"
+            width="100%"
+            height="40px"
+            tile
+            elevation="0"
+            color="black"
+            @click="createUser"
+          >
+            登録する
+          </v-btn>
+        </v-col>
+        <v-col cols="6" sm="4" class="pr-sm-2 pl-2">
+          <v-btn
+            :loading="isLoading"
+            class="white--text font-weight-bold"
+            width="100%"
+            height="40px"
+            tile
+            elevation="0"
+            color="black"
+            @click="$emit('update:isOpened', false)"
+          >
+            キャンセル
+          </v-btn>
+        </v-col>
+        <v-col cols="12" sm="4" class="pl-sm-2 mt-2 mt-sm-0">
+          <v-btn
+            :loading="isLoading"
+            class="white--text font-weight-bold"
+            width="100%"
+            height="40px"
+            tile
+            elevation="0"
+            color="rgb(158, 113, 72)"
+            @click="guestLogin"
+          >
+            ゲストユーザーでログイン
+          </v-btn>
+        </v-col>
+      </v-row>
     </v-card>
   </v-dialog>
 </template>
@@ -161,7 +167,7 @@ export default defineComponent({
         previewImg.value = newImg
       } catch (e) {
         console.error(e)
-      }finally {
+      } finally {
         isLoading.value = false
       }
     }
@@ -262,5 +268,17 @@ export default defineComponent({
 }
 .card-wrapper >>> .v-text-field__details {
   display: none;
+}
+
+/* xsの時 */
+@media screen and (max-width: 599px) {
+  .img-wrapper {
+    margin: 0 auto;
+    width: 150px;
+    height: 150px;
+  }
+  .file-input >>> .v-icon--link {
+    font-size: 40px;
+  }
 }
 </style>

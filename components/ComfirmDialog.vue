@@ -6,12 +6,13 @@
     width="400"
     @input="$emit('toggle', $event)"
   >
-    <v-card class="card-wrapper pa-10">
+    <v-card class="card-wrapper pa-6 pa-sm-10">
       <p class="text-center text-h3 font-weight-bold title-font pb-4">Warning</p>
       <p class="my-10 px-2">投稿を削除します。よろしいですか？</p>
       <v-btn
         class="white--text font-weight-bold mr-2"
         width="150px"
+        max-width="45%"
         height="40px"
         tile
         elevation="0"
@@ -22,6 +23,7 @@
       <v-btn
         class="white--text font-weight-bold ml-2"
         width="150px"
+        max-width="45%"
         height="40px"
         tile
         elevation="0"

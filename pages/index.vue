@@ -37,12 +37,14 @@
       @snackbar="updateSnackbar"
     />
     <v-app-bar fixed dark color="black" height="80px">
-      <v-row class="mx-10">
-        <v-col class="text-h3 font-weight-bold title-font"> O-gram </v-col>
+      <v-row class="mx-sm-10">
+        <v-col class="text-sm-h3 text-h4 font-weight-bold title-font">
+          O-gram
+        </v-col>
         <v-col v-if="isLogined && loginUser" class="d-flex">
           <v-spacer />
           <v-btn
-            class="d-block white--text text-body-1 font-weight-bold mr-2 px-2"
+            class="d-block white--text text-sm-body-1 font-weight-bold mr-2 px-sm-2"
             text
             @click="openEditUserDialog"
           >
@@ -50,7 +52,7 @@
             {{ loginUser.username }}
           </v-btn>
           <v-btn
-            class="d-block white--text text-body-1 font-weight-bold px-2"
+            class="d-block white--text text-sm-body-1 font-weight-bold px-sm-2"
             text
             @click="logout"
           >
@@ -62,7 +64,7 @@
         <v-col v-else class="d-flex">
           <v-spacer />
           <v-btn
-            class="d-block white--text text-body-1 font-weight-bold px-2"
+            class="d-block white--text text-sm-body-1 font-weight-bold mr-2 px-sm-2"
             text
             @click="isOpenedLoginDialog = true"
           >
@@ -70,7 +72,7 @@
             ログイン
           </v-btn>
           <v-btn
-            class="d-block white--text text-body-1 font-weight-bold px-2"
+            class="d-block white--text text-sm-body-1 font-weight-bold px-sm-2"
             text
             @click="isOpenedCreateUserDialog = true"
           >
@@ -87,6 +89,7 @@
         tile
         class="d-block mx-auto font-weight-bold"
         width="600px"
+        max-width="100%"
         elevation="10"
         height="40px"
         @click="openCreatePostDialog"
@@ -132,14 +135,18 @@
           </v-col>
         </v-row>
         <!-- 画像 -->
-        <v-carousel delimiter-icon="mdi-circle-small" :continuous="false">
+        <v-carousel
+          :height="carouselHeight"
+          delimiter-icon="mdi-circle-small"
+          :continuous="false"
+        >
           <v-carousel-item
             v-for="(image, imageIndex) in postImageList[postIndex]"
             :key="imageIndex"
           >
             <v-sheet height="100%" tile>
               <v-row class="fill-height" align="center" justify="center">
-                <img :src="image" />
+                <img class="post-image" :src="image" />
               </v-row>
             </v-sheet>
           </v-carousel-item>
@@ -282,6 +289,10 @@ export default defineComponent({
     /** computed ***********************************************************/
     const isLogined = computed(() => {
       return loginUser.value.id !== ''
+    })
+
+    const carouselHeight = computed(() => {
+      return root.$vuetify.breakpoint.xs ? '300' : '600'
     })
 
     const sortedAllPosts = computed(() => {
@@ -492,6 +503,7 @@ export default defineComponent({
       isOpenedSnackbar,
       snackbarText,
       isLogined,
+      carouselHeight,
       isLikePost,
       isMarkedPost,
       selectedPost,
@@ -551,6 +563,13 @@ export default defineComponent({
 .v-window.v-carousel {
   overflow: visible;
 }
+/* カルーセル画像 */
+.v-carousel >>> .post-image {
+  object-fit: contain;
+  width: 100%;
+  height: 100%;
+}
+/* 何ページ目かのポッチ */
 .v-carousel >>> .v-carousel__controls {
   background: none;
   height: 20px;
@@ -581,11 +600,27 @@ export default defineComponent({
   min-width: 0;
   height: auto;
 }
+/* 白文字ボタンのホバー時 */
 .v-btn.white--text:hover {
   transition: 0.3s;
   background-color: rgb(61, 61, 61);
 }
 .v-btn.theme--light.v-btn.v-btn--has-bg {
   background-color: #fff;
+}
+
+/* xsの時 */
+@media screen and (max-width: 599px) {
+  /* 画像スライドボタン */
+  .v-carousel >>> .v-window__next,
+  .v-carousel >>> .v-window__prev {
+    margin: 0 8px;
+  }
+  .v-snack >>> .v-snack__wrapper {
+    width: 100%;
+    margin: 12px;
+    border: 8px solid rgb(158, 113, 72);
+    padding: 4px 8px;
+  }
 }
 </style>

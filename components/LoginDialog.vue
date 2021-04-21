@@ -43,6 +43,7 @@
           :loading="isLoading"
           class="white--text font-weight-bold mr-2"
           width="150px"
+          max-width="45%"
           height="40px"
           tile
           elevation="0"
@@ -55,6 +56,7 @@
           :loading="isLoading"
           class="white--text font-weight-bold ml-2"
           width="150px"
+          max-width="45%"
           height="40px"
           tile
           elevation="0"

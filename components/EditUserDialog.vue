@@ -1,15 +1,15 @@
 <template>
   <v-dialog v-model="isOpened" class="pa-4 login-dialog" width="800" persistent>
-    <v-card flat tile class="card-wrapper mx-auto pa-10">
-      <p class="text-center text-h3 font-weight-bold title-font">User Edit</p>
+    <v-card flat tile class="card-wrapper mx-auto pa-6 pa-sm-10">
+      <p class="text-center text-h3 mb-0 font-weight-bold title-font">User Edit</p>
       <v-row no-gutters class="my-10 align-center">
         <!-- 画像 -->
-        <v-col v-if="previewImg" cols="3" class="text-center">
+        <v-col v-if="previewImg" cols="12" sm="3" class="text-center mb-2 mb-sm-0">
           <div class="img-wrapper">
             <img class="icon" :src="previewImg" width="200px" />
           </div>
           <v-btn
-            class="white--text font-weight-bold mt-2 text-caption"
+            class="white--text font-weight-bold my-2 text-caption"
             tile
             height="30px"
             elevation="0"
@@ -18,7 +18,7 @@
             >削除する</v-btn
           >
         </v-col>
-        <v-col v-else cols="3" class="text-center">
+        <v-col v-else cols="12" sm="3" class="text-center mb-2 mb-sm-0">
           <div class="img-wrapper mb-2">
             <v-file-input
               class="pa-0 file-input"
@@ -30,7 +30,7 @@
           </div>
           <p class="grey--text">プロフィール画像を追加</p>
         </v-col>
-        <v-col class="ml-8">
+        <v-col class="ml-sm-8">
           <v-text-field
             v-model="userInfo.username"
             class="mb-2"
@@ -52,6 +52,7 @@
           :loading="isLoading"
           class="white--text font-weight-bold mr-2"
           width="200px"
+          max-width="45%"
           height="40px"
           tile
           elevation="0"
@@ -64,6 +65,7 @@
           :loading="isLoading"
           class="white--text font-weight-bold ml-2"
           width="200px"
+          max-width="45%"
           height="40px"
           tile
           elevation="0"
@@ -231,5 +233,17 @@ export default defineComponent({
 
 .card-wrapper >>> .v-text-field__details {
   display: none;
+}
+
+/* xsの時 */
+@media screen and (max-width: 599px) {
+  .img-wrapper {
+    margin: 0 auto;
+    width: 150px;
+    height: 150px;
+  }
+  .file-input >>> .v-icon--link {
+    font-size: 40px;
+  }
 }
 </style>

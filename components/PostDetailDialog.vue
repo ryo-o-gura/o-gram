@@ -2,14 +2,14 @@
   <v-dialog
     v-if="post"
     :value="isOpened"
-    class="pa-4 login-dialog"
+    class="login-dialog"
     width="800"
     @input="$emit('toggle', $event)"
   >
-    <v-card flat tile class="mx-auto" height="600">
-      <v-row no-gutters>
+    <v-card flat tile class="mx-auto" height="600" max-height="70vh">
+      <v-row no-gutters height="100%">
         <!-- 画像 -->
-        <v-col cols="7" class="image-wrapper">
+        <v-col v-if="$vuetify.breakpoint.name !== 'xs'" cols="7" class="image-wrapper">
           <v-carousel
             delimiter-icon="mdi-circle-small"
             :continuous="false"
@@ -32,7 +32,7 @@
             </v-carousel-item>
           </v-carousel>
         </v-col>
-        <v-col cols="5">
+        <v-col sm="5" height="100%">
           <!-- プロフィール -->
           <v-row class="post-nav py-4 px-3 justify-space-between" no-gutters>
             <v-col class="d-flex align-center font-weight-bold">
@@ -427,6 +427,7 @@ export default defineComponent({
 }
 .post-row {
   height: 349px;
+  max-height: calc(70vh - 251px);
   overflow-y: scroll;
 }
 .post-nav {
@@ -459,5 +460,9 @@ export default defineComponent({
   padding: 0;
   min-width: 0;
   height: auto;
+}
+
+.v-dialog__content  >>> .v-dialog--active {
+  margin: 24px 30px;
 }
 </style>
