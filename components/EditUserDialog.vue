@@ -105,7 +105,7 @@ import {
 } from 'nuxt-composition-api'
 import { Storage } from 'aws-amplify'
 import { User } from '~/types/schema'
-import { updateUserGql } from '~/appsync/mutations'
+import { updateUserGql } from '~/gql/appsync/mutations'
 export default defineComponent({
   name: 'PostDetailDialog',
   model: {

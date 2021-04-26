@@ -5,13 +5,13 @@ import {
   ListUsersQuery,
   ListPostsQuery,
   GetPostQuery,
-} from '../types/gqlResult'
+} from '../../types/gqlResult'
 import {
   GetPostInput,
   GetUserInput,
   GetUserByUsernameInput,
-} from '../types/schema'
-import { GetUserQuery } from '../types/gqlResult'
+} from '../../types/schema'
+import { GetUserQuery } from '../../types/gqlResult'
 export const listUsersGql = async () => {
   const { data } = (await API.graphql(
     graphqlOperation(gqlQueries.listUsers)

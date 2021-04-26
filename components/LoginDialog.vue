@@ -71,12 +71,13 @@
 </template>
 
 <script lang="ts">
+import Auth from '@aws-amplify/auth'
 import { computed, defineComponent, ref, watch } from 'nuxt-composition-api'
 import {
   getUserByUsernameGql,
   getUserGql,
   listUsersGql,
-} from '~/appsync/queries'
+} from '~/gql/appsync/queries'
 import { getUserByUsername } from '~/gql/queries'
 import { User } from '~/types/schema'
 export default defineComponent({
@@ -132,23 +133,19 @@ export default defineComponent({
           return user.username === userInput.value.username
         })
         if (findedUser) {
-          // パスワードが一致しているか
-          if (findedUser.password === userInput.value.password) {
-            const input = {
-              id: findedUser.id,
-            }
-            const user = await getUserGql(input)
-            emit('update', user)
-            // ローカルストレージにセット
-            window.localStorage.setItem('loginUser', user.id)
-            emit('snackbar', 'ログインしました')
-            emit('update:isOpened', false)
-            userInput.value = {
-              username: '',
-              password: '',
-            }
-          } else {
-            emit('snackbar', 'パスワードが違います')
+          const input = {
+            id: findedUser.id,
+          }
+          const gotUser = await getUserGql(input)
+          await Auth.signIn(gotUser.username, gotUser.password)
+          emit('update', gotUser)
+          // ローカルストレージにセット
+          window.localStorage.setItem('loginUser', gotUser.id)
+          emit('snackbar', 'ログインしました')
+          emit('update:isOpened', false)
+          userInput.value = {
+            username: '',
+            password: '',
           }
         } else {
           emit('snackbar', 'ユーザーネームが違います')

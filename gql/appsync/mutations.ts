@@ -9,7 +9,7 @@ import {
   DeletePostInput,
   CreateUserInput,
   UpdateUserInput,
-} from '../types/schema'
+} from '../../types/schema'
 import {
   CreatePostMutation,
   DeletePostMutation,
@@ -18,7 +18,7 @@ import {
   CreateCommentMutation,
   CreateUserMutation,
   UpdateUserMutation,
-} from '../types/gqlResult'
+} from '../../types/gqlResult'
 
 export const createUserGql = async (createUserInput: CreateUserInput) => {
   const { data } = (await API.graphql(

@@ -9,7 +9,11 @@
     <v-card flat tile class="mx-auto" height="600" max-height="70vh">
       <v-row no-gutters height="100%">
         <!-- 画像 -->
-        <v-col v-if="$vuetify.breakpoint.name !== 'xs'" cols="7" class="image-wrapper">
+        <v-col
+          v-if="$vuetify.breakpoint.name !== 'xs'"
+          cols="7"
+          class="image-wrapper"
+        >
           <v-carousel
             delimiter-icon="mdi-circle-small"
             :continuous="false"
@@ -187,8 +191,8 @@ import {
   createCommentGql,
   createPostLikeGql,
   deletePostLikeGql,
-} from '~/appsync/mutations'
-import { getPostGql } from '~/appsync/queries'
+} from '~/gql/appsync/mutations'
+import { getPostGql } from '~/gql/appsync/queries'
 import { Storage } from 'aws-amplify'
 import { getDate } from '~/modules/getDate'
 import {
@@ -364,6 +368,7 @@ export default defineComponent({
           }
         } else {
           postImageList.value = []
+          newCommentText.value = ''
           emit('update')
         }
       }
@@ -462,7 +467,7 @@ export default defineComponent({
   height: auto;
 }
 
-.v-dialog__content  >>> .v-dialog--active {
+.v-dialog__content >>> .v-dialog--active {
   margin: 24px 30px;
 }
 </style>

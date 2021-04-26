@@ -113,10 +113,10 @@
 
 <script lang="ts">
 import { computed, defineComponent, ref, watch } from 'nuxt-composition-api'
-import { Storage } from 'aws-amplify'
-import { getUserGql, listUsersGql } from '~/appsync/queries'
+import { Auth, Storage } from 'aws-amplify'
+import { getUserGql, listUsersGql } from '~/gql/appsync/queries'
 import { User } from '~/types/schema'
-import { createUserGql } from '../appsync/mutations'
+import { createUserGql } from '../gql/appsync/mutations'
 export default defineComponent({
   name: 'LoginDialog',
   model: {
@@ -211,7 +211,11 @@ export default defineComponent({
       if (!userInput.value.username || !userInput.value.password) return
       if (!findedUser) {
         try {
-          await createUserGql(userInput.value)
+          const createdUser = await createUserGql(userInput.value)
+          await Auth.signUp({
+            username: createdUser.username,
+            password: userInput.value.password,
+          })
           emit('snackbar', 'アカウントを作成しました！')
           userInput.value = {
             username: '',

@@ -72,7 +72,7 @@ import {
   PropType,
 } from 'nuxt-composition-api'
 import { Storage } from 'aws-amplify'
-import { createPostGql } from '../appsync/mutations'
+import { createPostGql } from '../gql/appsync/mutations'
 import { CreatePostInput, User } from '~/types/schema'
 export default defineComponent({
   name: 'PostDetailDialog',

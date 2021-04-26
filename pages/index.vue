@@ -242,14 +242,14 @@ import {
   useFetch,
   watch,
 } from 'nuxt-composition-api'
-import { getUserGql, listPostsGql } from '~/appsync/queries'
+import { getUserGql, listPostsGql } from '~/gql/appsync/queries'
 import { Storage } from 'aws-amplify'
 import { getDate } from '~/modules/getDate'
 import {
   deletePostLikeGql,
   deletePostGql,
   createPostLikeGql,
-} from '../appsync/mutations'
+} from '../gql/appsync/mutations'
 import {
   CreatePostLikeInput,
   DeletePostLikeInput,
