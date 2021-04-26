@@ -38,20 +38,24 @@
           <p class="grey--text">プロフィール画像を追加</p>
         </v-col>
         <v-col class="ml-sm-8">
-          <v-text-field
-            v-model="userInfo.username"
-            class="mb-2"
-            color="rgb(158, 113, 72)"
-            outlined
-            label="username"
-          />
-          <v-text-field
-            v-model="userInfo.password"
-            outlined
-            class="mt-2"
-            color="rgb(158, 113, 72)"
-            label="password"
-          />
+          <v-form ref="form">
+            <v-text-field
+              v-model="userInfo.username"
+              class="mt-2"
+              color="rgb(158, 113, 72)"
+              outlined
+              :rules="rules.username"
+              label="username"
+            />
+            <v-text-field
+              v-model="userInfo.password"
+              outlined
+              class="mt-2"
+              color="rgb(158, 113, 72)"
+              :rules="rules.password"
+              label="password"
+            />
+          </v-form>
           <p class="mb-0 red--text font-weight-bold d-inline-block">
             <v-icon class="red--text mb-1">mdi-alert-outline</v-icon>
             パスワードは普段使用していないもので作成してください
@@ -60,6 +64,7 @@
       </v-row>
       <v-row no-gutters class="justify-center">
         <v-btn
+          :disabled="validate"
           :loading="isLoading"
           class="white--text font-weight-bold mr-2"
           width="200px"
@@ -128,6 +133,26 @@ export default defineComponent({
       updatedAt: Date.now(),
     })
     const isLoading = ref(false)
+    const rules = {
+      username: [
+        (v: string) => !!v || '入力必須項目です',
+        (v: string) =>
+          (!!v && 30 >= v.length) || `３０文字以内で入力してください`,
+      ],
+      password: [
+        (v: string) => !!v || '入力必須項目です',
+        (v: string) => (!!v && 6 <= v.length) || `6文字以上で入力してください`,
+        (v: string) =>
+          (!!v && 30 >= v.length) || `３０文字以内で入力してください`,
+        (v: string) =>
+          /^[0-9a-zA-Z]*$/.test(v) || `半角英数字のみ入力してください`,
+      ],
+    }
+    const form = ref()
+    const validate = computed(() => {
+      return !form.value?.validate()
+    })
+
     /** computed ***********************************************************/
     /** method ***********`************************************************/
     const uploadFile = async (file: File) => {
@@ -201,6 +226,9 @@ export default defineComponent({
     return {
       /** data */
       isLoading,
+      rules,
+      form,
+      validate,
       uploadFile,
       userInfo,
       previewImg,
@@ -240,10 +268,6 @@ export default defineComponent({
 }
 .file-input >>> .v-input__prepend-outer {
   margin: 0;
-}
-
-.card-wrapper >>> .v-text-field__details {
-  display: none;
 }
 
 /* xsの時 */

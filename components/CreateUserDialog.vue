@@ -36,20 +36,26 @@
           <p class="grey--text">プロフィール画像を追加</p>
         </v-col>
         <v-col class="ml-sm-8">
-          <v-text-field
-            v-model="userInput.username"
-            class="mb-2"
-            color="rgb(158, 113, 72)"
-            outlined
-            label="username"
-          />
-          <v-text-field
-            v-model="userInput.password"
-            outlined
-            color="rgb(158, 113, 72)"
-            class="mt-2"
-            label="password"
-          />
+          <v-form ref="form">
+            <v-text-field
+              v-model="userInput.username"
+              class="mt-2"
+              color="rgb(158, 113, 72)"
+              outlined
+              counter="30"
+              :rules="rules.username"
+              label="username"
+            />
+            <v-text-field
+              v-model="userInput.password"
+              outlined
+              color="rgb(158, 113, 72)"
+              class="mt-2 password-input"
+              counter="30"
+              :rules="rules.password"
+              label="password"
+            />
+          </v-form>
           <p class="mb-0 red--text font-weight-bold d-inline-block">
             <v-icon class="red--text mb-1">mdi-alert-outline</v-icon>
             パスワードは普段使用していないもので作成してください
@@ -59,6 +65,7 @@
       <v-row no-gutters>
         <v-col cols="6" sm="4" class="pr-2">
           <v-btn
+            :disabled="validate"
             :loading="isLoading"
             class="white--text font-weight-bold"
             width="100%"
@@ -138,6 +145,25 @@ export default defineComponent({
       password: '',
       icon: '',
       createdAt: Date.now(),
+    })
+    const rules = {
+      username: [
+        (v: string) => !!v || '入力必須項目です',
+        (v: string) =>
+          (!!v && 30 >= v.length) || `３０文字以内で入力してください`,
+      ],
+      password: [
+        (v: string) => !!v || '入力必須項目です',
+        (v: string) => (!!v && 6 <= v.length) || `6文字以上で入力してください`,
+        (v: string) =>
+          (!!v && 30 >= v.length) || `３０文字以内で入力してください`,
+        (v: string) =>
+          /^[0-9a-zA-Z]*$/.test(v) || `半角英数字のみ入力してください`,
+      ],
+    }
+    const form = ref()
+    const validate = computed(() => {
+      return !form.value?.validate()
     })
     const guestLogin = async () => {
       const id = {
@@ -223,6 +249,9 @@ export default defineComponent({
     )
     return {
       isLoading,
+      rules,
+      form,
+      validate,
       isShowPassword,
       inputType,
       allUsers,
@@ -269,9 +298,6 @@ export default defineComponent({
 }
 .file-input >>> .v-input__prepend-outer {
   margin: 0;
-}
-.card-wrapper >>> .v-text-field__details {
-  display: none;
 }
 
 /* xsの時 */
