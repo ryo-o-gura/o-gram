@@ -50,6 +50,10 @@
             class="mt-2"
             label="password"
           />
+          <p class="mb-0 red--text font-weight-bold d-inline-block">
+            <v-icon class="red--text mb-1">mdi-alert-outline</v-icon>
+            パスワードは普段使用していないもので作成してください
+          </p>
         </v-col>
       </v-row>
       <v-row no-gutters>

@@ -1,10 +1,17 @@
 <template>
   <v-dialog v-model="isOpened" class="pa-4 login-dialog" width="800" persistent>
     <v-card flat tile class="card-wrapper mx-auto pa-6 pa-sm-10">
-      <p class="text-center text-h3 mb-0 font-weight-bold title-font">User Edit</p>
+      <p class="text-center text-h3 mb-0 font-weight-bold title-font">
+        User Edit
+      </p>
       <v-row no-gutters class="my-10 align-center">
         <!-- 画像 -->
-        <v-col v-if="previewImg" cols="12" sm="3" class="text-center mb-2 mb-sm-0">
+        <v-col
+          v-if="previewImg"
+          cols="12"
+          sm="3"
+          class="text-center mb-2 mb-sm-0"
+        >
           <div class="img-wrapper">
             <img class="icon" :src="previewImg" width="200px" />
           </div>
@@ -45,6 +52,10 @@
             color="rgb(158, 113, 72)"
             label="password"
           />
+          <p class="mb-0 red--text font-weight-bold d-inline-block">
+            <v-icon class="red--text mb-1">mdi-alert-outline</v-icon>
+            パスワードは普段使用していないもので作成してください
+          </p>
         </v-col>
       </v-row>
       <v-row no-gutters class="justify-center">
