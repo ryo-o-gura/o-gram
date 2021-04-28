@@ -141,7 +141,7 @@ export default defineComponent({
       ],
       password: [
         (v: string) => !!v || '入力必須項目です',
-        (v: string) => (!!v && 6 <= v.length) || `6文字以上で入力してください`,
+        (v: string) => (!!v && 8 <= v.length) || `8文字以上で入力してください`,
         (v: string) =>
           (!!v && 30 >= v.length) || `３０文字以内で入力してください`,
         (v: string) =>
@@ -204,7 +204,7 @@ export default defineComponent({
         if (arg) {
           userInfo.value.id = props.loginUser.id
           userInfo.value.username = props.loginUser.username
-          userInfo.value.password = props.loginUser.password
+          userInfo.value.password = props.loginUser.password!
           userInfo.value.icon = props.loginUser.icon
           if (props.loginUser.icon) {
             previewImg.value = (await Storage.get(

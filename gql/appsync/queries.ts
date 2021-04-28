@@ -11,7 +11,7 @@ import {
   GetUserInput,
   GetUserByUsernameInput,
 } from '../../types/schema'
-import { GetUserQuery } from '../../types/gqlResult'
+import { GetUserQuery, GetUserByUsernameQuery } from '../../types/gqlResult'
 export const listUsersGql = async () => {
   const { data } = (await API.graphql(
     graphqlOperation(gqlQueries.listUsers)
@@ -37,10 +37,10 @@ export const getUserGql = async (getUserInput: GetUserInput) => {
   return data?.getUser!
 }
 export const getUserByUsernameGql = async (
-  getUserInput: GetUserByUsernameInput
+  getUserByUsernameInput: GetUserByUsernameInput
 ) => {
   const { data } = (await API.graphql(
-    graphqlOperation(gqlQueries.getUserByUsername, getUserInput)
-  )) as GraphQLResult<GetUserQuery>
-  return data?.getUser!
+    graphqlOperation(gqlQueries.getUserByUsername, getUserByUsernameInput)
+  )) as GraphQLResult<GetUserByUsernameQuery>
+  return data?.getUserByUsername.items[0]!
 }

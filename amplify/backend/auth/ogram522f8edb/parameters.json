@@ -1,8 +1,8 @@
 {
-    "identityPoolName": "ogram1305088f_identitypool_1305088f",
-    "allowUnauthenticatedIdentities": true,
-    "resourceNameTruncated": "ogram1305088f",
-    "userPoolName": "ogram1305088f_userpool_1305088f",
+    "identityPoolName": "ogram522f8edb_identitypool_522f8edb",
+    "allowUnauthenticatedIdentities": false,
+    "resourceNameTruncated": "ogram522f8edb",
+    "userPoolName": "ogram522f8edb_userpool_522f8edb",
     "autoVerifiedAttributes": [
         "email"
     ],
@@ -28,10 +28,10 @@
     "userpoolClientReadAttributes": [
         "email"
     ],
-    "userpoolClientLambdaRole": "ogram11305088f_userpoolclient_lambda_role",
+    "userpoolClientLambdaRole": "ogram5522f8edb_userpoolclient_lambda_role",
     "userpoolClientSetAttributes": false,
-    "sharedId": "1305088f",
-    "resourceName": "ogram1305088f",
+    "sharedId": "522f8edb",
+    "resourceName": "ogram522f8edb",
     "authSelections": "identityPoolAndUserPool",
     "authRoleArn": {
         "Fn::GetAtt": [

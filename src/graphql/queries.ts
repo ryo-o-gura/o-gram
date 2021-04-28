@@ -7,7 +7,6 @@ export const getUser = /* GraphQL */ `
     getUser(id: $id) {
       id
       username
-      password
       icon
       posts {
         items {
@@ -43,7 +42,6 @@ export const listUsers = /* GraphQL */ `
       items {
         id
         username
-        password
         icon
         posts {
           nextToken
@@ -65,7 +63,6 @@ export const getPost = /* GraphQL */ `
       author {
         id
         username
-        password
         icon
         posts {
           nextToken
@@ -115,7 +112,6 @@ export const listPosts = /* GraphQL */ `
         author {
           id
           username
-          password
           icon
           updatedAt
           createdAt
@@ -144,7 +140,6 @@ export const getComment = /* GraphQL */ `
       author {
         id
         username
-        password
         icon
         posts {
           nextToken
@@ -160,7 +155,6 @@ export const getComment = /* GraphQL */ `
         author {
           id
           username
-          password
           icon
           updatedAt
           createdAt
@@ -177,7 +171,6 @@ export const getComment = /* GraphQL */ `
       commenter {
         id
         username
-        password
         icon
         posts {
           nextToken
@@ -206,7 +199,6 @@ export const listComments = /* GraphQL */ `
         author {
           id
           username
-          password
           icon
           updatedAt
           createdAt
@@ -222,7 +214,6 @@ export const listComments = /* GraphQL */ `
         commenter {
           id
           username
-          password
           icon
           updatedAt
           createdAt
@@ -243,7 +234,6 @@ export const getPostLike = /* GraphQL */ `
       user {
         id
         username
-        password
         icon
         posts {
           nextToken
@@ -259,7 +249,6 @@ export const getPostLike = /* GraphQL */ `
         author {
           id
           username
-          password
           icon
           updatedAt
           createdAt
@@ -292,7 +281,6 @@ export const listPostLikes = /* GraphQL */ `
         user {
           id
           username
-          password
           icon
           updatedAt
           createdAt
@@ -330,7 +318,6 @@ export const getUserByUsername = /* GraphQL */ `
       items {
         id
         username
-        password
         icon
         posts {
           nextToken
@@ -366,7 +353,6 @@ export const likesByUser = /* GraphQL */ `
         user {
           id
           username
-          password
           icon
           updatedAt
           createdAt

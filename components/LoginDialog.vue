@@ -113,6 +113,7 @@ export default defineComponent({
       isLoading.value = true
       try {
         const guest = await getUserGql(id)
+        if (!guest) return
         emit('update', guest)
         window.localStorage.setItem('loginUser', guest.id)
         emit('snackbar', 'ゲストユーザーでログインしました')
@@ -128,27 +129,20 @@ export default defineComponent({
       if (!userInput.value.username || !userInput.value.password) return
       isLoading.value = true
       try {
-        // 入力されたusernameのユーザがいるか
-        const findedUser = allUsers.value.find((user: User) => {
-          return user.username === userInput.value.username
-        })
-        if (findedUser) {
-          const input = {
-            id: findedUser.id,
-          }
-          const gotUser = await getUserGql(input)
-          await Auth.signIn(gotUser.username, gotUser.password)
-          emit('update', gotUser)
-          // ローカルストレージにセット
-          window.localStorage.setItem('loginUser', gotUser.id)
-          emit('snackbar', 'ログインしました')
-          emit('update:isOpened', false)
-          userInput.value = {
-            username: '',
-            password: '',
-          }
-        } else {
-          emit('snackbar', 'ユーザーネームが違います')
+        await Auth.signIn(userInput.value.username, userInput.value.password)
+        const input = {
+          username: userInput.value.username,
+        }
+        const gotUser = await getUserByUsernameGql(input)
+        if (!gotUser) return
+        emit('update', gotUser)
+        // ローカルストレージにセット
+        window.localStorage.setItem('loginUser', gotUser.id)
+        emit('snackbar', 'ログインしました')
+        emit('update:isOpened', false)
+        userInput.value = {
+          username: '',
+          password: '',
         }
       } catch (e) {
         console.error(e)
@@ -162,7 +156,11 @@ export default defineComponent({
       () => props.isOpened,
       async (event) => {
         if (event) {
-          allUsers.value = await listUsersGql()
+          try {
+            console.debug(allUsers.value)
+          } catch (e) {
+            console.error(e)
+          }
         } else {
           userInput.value = {
             username: '',
@@ -175,7 +173,6 @@ export default defineComponent({
       isLoading,
       isShowPassword,
       inputType,
-      allUsers,
       passwordIcon,
       userInput,
       guestLogin,

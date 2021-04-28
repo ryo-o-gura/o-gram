@@ -12,7 +12,6 @@ export const onCreatePost = /* GraphQL */ `
       author {
         id
         username
-        password
         icon
         posts {
           nextToken
@@ -57,7 +56,6 @@ export const onUpdatePost = /* GraphQL */ `
       author {
         id
         username
-        password
         icon
         posts {
           nextToken
@@ -102,7 +100,6 @@ export const onDeletePost = /* GraphQL */ `
       author {
         id
         username
-        password
         icon
         posts {
           nextToken
@@ -148,7 +145,6 @@ export const onCreateComment = /* GraphQL */ `
       author {
         id
         username
-        password
         icon
         posts {
           nextToken
@@ -164,7 +160,6 @@ export const onCreateComment = /* GraphQL */ `
         author {
           id
           username
-          password
           icon
           updatedAt
           createdAt
@@ -181,7 +176,6 @@ export const onCreateComment = /* GraphQL */ `
       commenter {
         id
         username
-        password
         icon
         posts {
           nextToken
@@ -205,7 +199,6 @@ export const onUpdateComment = /* GraphQL */ `
       author {
         id
         username
-        password
         icon
         posts {
           nextToken
@@ -221,7 +214,6 @@ export const onUpdateComment = /* GraphQL */ `
         author {
           id
           username
-          password
           icon
           updatedAt
           createdAt
@@ -238,7 +230,6 @@ export const onUpdateComment = /* GraphQL */ `
       commenter {
         id
         username
-        password
         icon
         posts {
           nextToken
@@ -262,7 +253,6 @@ export const onDeleteComment = /* GraphQL */ `
       author {
         id
         username
-        password
         icon
         posts {
           nextToken
@@ -278,7 +268,6 @@ export const onDeleteComment = /* GraphQL */ `
         author {
           id
           username
-          password
           icon
           updatedAt
           createdAt
@@ -295,7 +284,6 @@ export const onDeleteComment = /* GraphQL */ `
       commenter {
         id
         username
-        password
         icon
         posts {
           nextToken
@@ -317,7 +305,6 @@ export const onCreatePostLike = /* GraphQL */ `
       user {
         id
         username
-        password
         icon
         posts {
           nextToken
@@ -333,7 +320,6 @@ export const onCreatePostLike = /* GraphQL */ `
         author {
           id
           username
-          password
           icon
           updatedAt
           createdAt
@@ -361,7 +347,6 @@ export const onUpdatePostLike = /* GraphQL */ `
       user {
         id
         username
-        password
         icon
         posts {
           nextToken
@@ -377,7 +362,6 @@ export const onUpdatePostLike = /* GraphQL */ `
         author {
           id
           username
-          password
           icon
           updatedAt
           createdAt
@@ -405,7 +389,6 @@ export const onDeletePostLike = /* GraphQL */ `
       user {
         id
         username
-        password
         icon
         posts {
           nextToken
@@ -421,7 +404,6 @@ export const onDeletePostLike = /* GraphQL */ `
         author {
           id
           username
-          password
           icon
           updatedAt
           createdAt

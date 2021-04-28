@@ -3,7 +3,6 @@ export const createUser = /* GraphQL */ `
     createUser(input: $input) {
       id
       username
-      password
       icon
       posts {
         items {
@@ -26,7 +25,6 @@ export const updateUser = /* GraphQL */ `
     updateUser(input: $input) {
       id
       username
-      password
       icon
       posts {
         items {
@@ -49,7 +47,6 @@ export const deleteUser = /* GraphQL */ `
     deleteUser(input: $input) {
       id
       username
-      password
       icon
       posts {
         items {
@@ -77,7 +74,6 @@ export const createPost = /* GraphQL */ `
       author {
         id
         username
-        password
         icon
         posts {
           nextToken
@@ -122,7 +118,7 @@ export const updatePost = /* GraphQL */ `
       author {
         id
         username
-        password
+
         icon
         posts {
           nextToken
@@ -167,7 +163,6 @@ export const deletePost = /* GraphQL */ `
       author {
         id
         username
-        password
         icon
         posts {
           nextToken
@@ -213,7 +208,6 @@ export const createComment = /* GraphQL */ `
       author {
         id
         username
-        password
         icon
         posts {
           nextToken
@@ -229,7 +223,6 @@ export const createComment = /* GraphQL */ `
         author {
           id
           username
-          password
           icon
           createdAt
           updatedAt
@@ -246,7 +239,6 @@ export const createComment = /* GraphQL */ `
       commenter {
         id
         username
-        password
         icon
         posts {
           nextToken
@@ -270,7 +262,6 @@ export const updateComment = /* GraphQL */ `
       author {
         id
         username
-        password
         icon
         posts {
           nextToken
@@ -286,7 +277,6 @@ export const updateComment = /* GraphQL */ `
         author {
           id
           username
-          password
           icon
           createdAt
           updatedAt
@@ -303,7 +293,6 @@ export const updateComment = /* GraphQL */ `
       commenter {
         id
         username
-        password
         icon
         posts {
           nextToken
@@ -327,7 +316,6 @@ export const deleteComment = /* GraphQL */ `
       author {
         id
         username
-        password
         icon
         posts {
           nextToken
@@ -343,7 +331,6 @@ export const deleteComment = /* GraphQL */ `
         author {
           id
           username
-          password
           icon
           createdAt
           updatedAt
@@ -360,7 +347,6 @@ export const deleteComment = /* GraphQL */ `
       commenter {
         id
         username
-        password
         icon
         posts {
           nextToken
@@ -382,7 +368,6 @@ export const createPostLike = /* GraphQL */ `
       user {
         id
         username
-        password
         icon
         posts {
           nextToken
@@ -398,7 +383,7 @@ export const createPostLike = /* GraphQL */ `
         author {
           id
           username
-          password
+
           icon
           createdAt
           updatedAt
@@ -426,7 +411,6 @@ export const updatePostLike = /* GraphQL */ `
       user {
         id
         username
-        password
         icon
         posts {
           nextToken
@@ -442,7 +426,6 @@ export const updatePostLike = /* GraphQL */ `
         author {
           id
           username
-          password
           icon
           createdAt
           updatedAt
@@ -462,9 +445,7 @@ export const updatePostLike = /* GraphQL */ `
   }
 `
 export const deletePostLike = /* GraphQL */ `
-  mutation DeletePostLike(
-    $input: DeletePostLikeInput!
-  ) {
+  mutation DeletePostLike($input: DeletePostLikeInput!) {
     deletePostLike(input: $input) {
       id
       postId
@@ -472,7 +453,6 @@ export const deletePostLike = /* GraphQL */ `
       user {
         id
         username
-        password
         icon
         posts {
           nextToken
@@ -488,7 +468,6 @@ export const deletePostLike = /* GraphQL */ `
         author {
           id
           username
-          password
           icon
           createdAt
           updatedAt

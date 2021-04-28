@@ -243,7 +243,7 @@ import {
   watch,
 } from 'nuxt-composition-api'
 import { getUserGql, listPostsGql } from '~/gql/appsync/queries'
-import { Storage } from 'aws-amplify'
+import { Auth, Storage } from 'aws-amplify'
 import { getDate } from '~/modules/getDate'
 import {
   deletePostLikeGql,
@@ -303,7 +303,12 @@ export default defineComponent({
       })
     })
     /** method ***********************************************************/
-    const logout = () => {
+    const logout = async () => {
+      try {
+        await Auth.signOut()
+      } catch (e) {
+        console.error(e)
+      }
       window.localStorage.removeItem('loginUser')
       loginUser.value = DEFAULT_USER
       updateSnackbar('ログアウトしました')
@@ -482,7 +487,10 @@ export default defineComponent({
           const id = {
             id: localUser,
           }
-          loginUser.value = await getUserGql(id)
+          const gotUser = await getUserGql(id)
+          if (gotUser) {
+            loginUser.value = gotUser
+          }
         }
         allPosts.value = await listPostsGql()
         await getPostImageList()

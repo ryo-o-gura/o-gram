@@ -21,7 +21,9 @@ export default defineComponent({
     useFetch(async () => {
       try {
         // 自動サインイン（仮）
-        // await Auth.signIn('admin0000', 'admin-pass')
+        // await Auth.signIn('admin0000', 'adminpass')
+        // const a = await Auth.currentAuthenticatedUser()
+        // console.debug('user', a)
       } catch (e) {
         console.error(e)
       }

@@ -3,7 +3,6 @@ export const getUser = /* GraphQL */ `
     getUser(id: $id) {
       id
       username
-      password
       icon
       posts {
         items {
@@ -22,35 +21,35 @@ export const getUser = /* GraphQL */ `
   }
 `
 export const getUserByUsername = /* GraphQL */ `
-  query GetUserByUsername($id: ID!) {
-    getUser(id: $id) {
-      id
-      username
-      password
-      icon
-      posts {
-        items {
-          id
-          authorId
-          content
-          postImage
-          createdAt
-          updatedAt
+  query GetUserByUsername($username: ID) {
+    getUserByUsername(username: $username) {
+      items {
+        id
+        username
+        icon
+        posts {
+          items {
+            id
+            authorId
+            content
+            postImage
+            createdAt
+            updatedAt
+          }
+          nextToken
         }
-        nextToken
+        createdAt
+        updatedAt
       }
-      createdAt
-      updatedAt
     }
   }
 `
 export const listUsers = /* GraphQL */ `
   query ListUsers {
-    listUsers{
+    listUsers {
       items {
         id
         username
-        password
         icon
         posts {
           nextToken
@@ -72,7 +71,6 @@ export const getPost = /* GraphQL */ `
       author {
         id
         username
-        password
         icon
         posts {
           nextToken
@@ -90,7 +88,6 @@ export const getPost = /* GraphQL */ `
           commenter {
             id
             username
-            password
             icon
           }
           createdAt
@@ -124,7 +121,6 @@ export const listPosts = /* GraphQL */ `
         author {
           id
           username
-          password
           icon
           createdAt
           updatedAt
@@ -139,7 +135,6 @@ export const listPosts = /* GraphQL */ `
             commenter {
               id
               username
-              password
               icon
             }
             createdAt
@@ -175,7 +170,6 @@ export const getComment = /* GraphQL */ `
       author {
         id
         username
-        password
         icon
         posts {
           nextToken
@@ -191,7 +185,6 @@ export const getComment = /* GraphQL */ `
         author {
           id
           username
-          password
           icon
           createdAt
           updatedAt
@@ -208,7 +201,6 @@ export const getComment = /* GraphQL */ `
       commenter {
         id
         username
-        password
         icon
         posts {
           nextToken
@@ -233,7 +225,6 @@ export const listComments = /* GraphQL */ `
         author {
           id
           username
-          password
           icon
           createdAt
           updatedAt
@@ -249,7 +240,6 @@ export const listComments = /* GraphQL */ `
         commenter {
           id
           username
-          password
           icon
           createdAt
           updatedAt
@@ -270,7 +260,6 @@ export const getPostLike = /* GraphQL */ `
       user {
         id
         username
-        password
         icon
         posts {
           nextToken
@@ -286,7 +275,6 @@ export const getPostLike = /* GraphQL */ `
         author {
           id
           username
-          password
           icon
           createdAt
           updatedAt
@@ -315,7 +303,6 @@ export const listPostLikes = /* GraphQL */ `
         user {
           id
           username
-          password
           icon
           createdAt
           updatedAt
@@ -345,7 +332,6 @@ export const likesByUser = /* GraphQL */ `
         user {
           id
           username
-          password
           icon
           createdAt
           updatedAt

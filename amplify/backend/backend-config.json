@@ -1,6 +1,6 @@
 {
   "auth": {
-    "ogram1305088f": {
+    "ogram522f8edb": {
       "service": "Cognito",
       "providerPlugin": "awscloudformation",
       "dependsOn": [],
@@ -16,7 +16,7 @@
           "defaultAuthentication": {
             "authenticationType": "AMAZON_COGNITO_USER_POOLS",
             "userPoolConfig": {
-              "userPoolId": "authogram1305088f"
+              "userPoolId": "authogram522f8edb"
             }
           },
           "additionalAuthenticationProviders": []

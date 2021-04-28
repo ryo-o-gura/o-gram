@@ -2,7 +2,7 @@ export interface User {
   __typename: 'User'
   id: string
   username: string
-  password: string
+  password?: string
   icon: string
   posts: PostItems
   createdAt: number
@@ -11,7 +11,6 @@ export interface User {
 export interface UserItems {
   items: User[]
 }
-
 export interface Post {
   __typename: 'Post'
   id: string
@@ -60,14 +59,12 @@ export interface Comment {
 /* user系 *******************************************************************/
 export interface CreateUserInput {
   username: string
-  password: string
   icon?: string
   createdAt: number
 }
 export interface UpdateUserInput {
   id: string
   username: string
-  password: string
   icon?: string
   updatedAt: number
 }

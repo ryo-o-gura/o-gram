@@ -154,7 +154,7 @@ export default defineComponent({
       ],
       password: [
         (v: string) => !!v || '入力必須項目です',
-        (v: string) => (!!v && 6 <= v.length) || `6文字以上で入力してください`,
+        (v: string) => (!!v && 8 <= v.length) || `8文字以上で入力してください`,
         (v: string) =>
           (!!v && 30 >= v.length) || `３０文字以内で入力してください`,
         (v: string) =>
@@ -211,11 +211,19 @@ export default defineComponent({
       if (!userInput.value.username || !userInput.value.password) return
       if (!findedUser) {
         try {
-          const createdUser = await createUserGql(userInput.value)
+          const input = {
+            username: userInput.value.username,
+            icon: userInput.value.icon,
+            createdAt: userInput.value.createdAt,
+          }
           await Auth.signUp({
-            username: createdUser.username,
+            username: userInput.value.username,
             password: userInput.value.password,
+            attributes: {
+              email: 'ryo.ogura.1022@gmail.com',
+            },
           })
+          await createUserGql(input)
           emit('snackbar', 'アカウントを作成しました！')
           userInput.value = {
             username: '',
@@ -223,11 +231,11 @@ export default defineComponent({
             icon: '',
             createdAt: Date.now(),
           }
+          emit('update:isOpened', false)
         } catch (e) {
           console.error(e)
           emit('snackbar', 'アカウントを作成できませんでした')
         } finally {
-          emit('update:isOpened', false)
           isLoading.value = false
         }
       } else {
@@ -239,7 +247,11 @@ export default defineComponent({
       () => props.isOpened,
       async (event) => {
         if (event) {
-          allUsers.value = await listUsersGql()
+          try {
+            allUsers.value = await listUsersGql()
+          } catch (e) {
+            console.error(e)
+          }
         } else {
           previewImg.value = ''
           userInput.value = {
