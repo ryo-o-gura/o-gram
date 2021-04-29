@@ -3,10 +3,17 @@
     <LoginDialog
       :is-opened.sync="isOpenedLoginDialog"
       @update="updateLoginUser"
+      @comfirm="openUserComfirmDialog"
+      @snackbar="updateSnackbar"
+    />
+    <UserComfirmDialog
+      :is-opened.sync="isOpenedUserComfirmDialog"
+      :username="comfirmUsername"
       @snackbar="updateSnackbar"
     />
     <CreateUserDialog
       :is-opened.sync="isOpenedCreateUserDialog"
+      @comfirm="openUserComfirmDialog"
       @update="updateLoginUser"
       @snackbar="updateSnackbar"
     />
@@ -245,6 +252,7 @@ import {
 import { getUserGql, listPostsGql } from '~/gql/appsync/queries'
 import { Auth, Storage } from 'aws-amplify'
 import { getDate } from '~/modules/getDate'
+import { getUserByUsernameGql } from '../gql/appsync/queries'
 import {
   deletePostLikeGql,
   deletePostGql,
@@ -272,6 +280,8 @@ export default defineComponent({
     /** data ***********************************************************/
     const isOpenedComfirmDialog = ref(false)
     const isOpenedLoginDialog = ref(false)
+    const isOpenedUserComfirmDialog = ref(false)
+    const comfirmUsername = ref('')
     const isOpenedCreateUserDialog = ref(false)
     const isOpenedPostDetailDialog = ref(false)
     const isOpenedCreatePostDialog = ref(false)
@@ -309,7 +319,6 @@ export default defineComponent({
       } catch (e) {
         console.error(e)
       }
-      window.localStorage.removeItem('loginUser')
       loginUser.value = DEFAULT_USER
       updateSnackbar('ログアウトしました')
     }
@@ -327,12 +336,16 @@ export default defineComponent({
       selectedPost.value = post
       isOpenedPostDetailDialog.value = true
     }
+    const openUserComfirmDialog = (username: string) => {
+      comfirmUsername.value = username
+      isOpenedUserComfirmDialog.value = true
+    }
     const openComfirmDialog = (post: Post) => {
       selectedPost.value = post
       isOpenedComfirmDialog.value = true
     }
     const openEditUserDialog = () => {
-      if (loginUser.value.id !== '589dfc63-f336-4b89-833d-f7e0aeb7e728') {
+      if (loginUser.value.id !== '1bad7450-ebe7-4a72-852c-8752fa5978b7') {
         isOpenedEditUserDialog.value = true
       } else {
         updateSnackbar('ゲストユーザーの情報は変更できません')
@@ -482,14 +495,18 @@ export default defineComponent({
     )
     useFetch(async () => {
       try {
-        const localUser = window.localStorage.getItem('loginUser')
-        if (localUser) {
-          const id = {
-            id: localUser,
+        const authUser = await Auth.currentAuthenticatedUser()
+        if (authUser) {
+          console.debug('authUser', authUser)
+          const input = {
+            username: authUser.username,
           }
-          const gotUser = await getUserGql(id)
+          const gotUser = await getUserByUsernameGql(input)
           if (gotUser) {
             loginUser.value = gotUser
+            console.debug('loginUser', loginUser.value)
+          } else {
+            await Auth.signOut()
           }
         }
         allPosts.value = await listPostsGql()
@@ -504,6 +521,8 @@ export default defineComponent({
       loginUser,
       isOpenedComfirmDialog,
       isOpenedLoginDialog,
+      isOpenedUserComfirmDialog,
+      comfirmUsername,
       isOpenedCreateUserDialog,
       isOpenedPostDetailDialog,
       isOpenedCreatePostDialog,
@@ -527,6 +546,7 @@ export default defineComponent({
       logout,
       getDate,
       openComfirmDialog,
+      openUserComfirmDialog,
       openPostDetailDialog,
       openEditUserDialog,
       openCreatePostDialog,

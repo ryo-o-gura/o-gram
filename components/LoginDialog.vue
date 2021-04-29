@@ -108,14 +108,14 @@ export default defineComponent({
     })
     const guestLogin = async () => {
       const id = {
-        id: '589dfc63-f336-4b89-833d-f7e0aeb7e728',
+        id: '1bad7450-ebe7-4a72-852c-8752fa5978b7',
       }
       isLoading.value = true
       try {
+        await Auth.signIn('ゲストユーザー', 'guestpass')
         const guest = await getUserGql(id)
         if (!guest) return
         emit('update', guest)
-        window.localStorage.setItem('loginUser', guest.id)
         emit('snackbar', 'ゲストユーザーでログインしました')
       } catch (e) {
         console.error(e)
@@ -134,19 +134,21 @@ export default defineComponent({
           username: userInput.value.username,
         }
         const gotUser = await getUserByUsernameGql(input)
-        if (!gotUser) return
-        emit('update', gotUser)
-        // ローカルストレージにセット
-        window.localStorage.setItem('loginUser', gotUser.id)
-        emit('snackbar', 'ログインしました')
-        emit('update:isOpened', false)
-        userInput.value = {
-          username: '',
-          password: '',
+        if (gotUser) {
+          emit('update', gotUser)
+          emit('snackbar', 'ログインしました')
+          emit('update:isOpened', false)
+        } else {
+          emit('snackbar', 'ログインできませんでした')
         }
       } catch (e) {
-        console.error(e)
-        emit('snackbar', 'ログインできませんでした')
+        if (e.name === 'UserNotConfirmedException') {
+          await Auth.resendSignUp(userInput.value.username)
+          emit('comfirm', userInput.value.username)
+        } else {
+          console.error(e)
+          emit('snackbar', 'ログインできませんでした')
+        }
       } finally {
         isLoading.value = false
       }

@@ -38,6 +38,16 @@
         <v-col class="ml-sm-8">
           <v-form ref="form">
             <v-text-field
+              v-model="userInput.email"
+              class="mt-2"
+              color="rgb(158, 113, 72)"
+              outlined
+              counter="30"
+              :rules="rules.email"
+              type="email"
+              label="email"
+            />
+            <v-text-field
               v-model="userInput.username"
               class="mt-2"
               color="rgb(158, 113, 72)"
@@ -143,12 +153,20 @@ export default defineComponent({
     const userInput = ref({
       username: '',
       password: '',
+      email: '',
       icon: '',
       createdAt: Date.now(),
     })
     const rules = {
+      email: [
+        (v: string) => !!v.trim() || '入力必須項目です',
+        (v: string) =>
+          /^[a-zA-Z0-9.!#$%&'*+\/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/.test(
+            v
+          ) || `形式に不備があります`,
+      ],
       username: [
-        (v: string) => !!v || '入力必須項目です',
+        (v: string) => !!v.trim() || '入力必須項目です',
         (v: string) =>
           (!!v && 30 >= v.length) || `３０文字以内で入力してください`,
       ],
@@ -167,13 +185,13 @@ export default defineComponent({
     })
     const guestLogin = async () => {
       const id = {
-        id: '589dfc63-f336-4b89-833d-f7e0aeb7e728',
+        id: '1bad7450-ebe7-4a72-852c-8752fa5978b7',
       }
       isLoading.value = true
       try {
+        await Auth.signIn('ゲストユーザー', 'guestpass')
         const guest = await getUserGql(id)
         emit('update', guest)
-        window.localStorage.setItem('loginUser', guest.id)
         emit('snackbar', 'ゲストユーザーでログインしました')
       } catch (e) {
         console.error(e)
@@ -207,8 +225,7 @@ export default defineComponent({
       const findedUser = allUsers.value.find((user: User) => {
         return user.username === userInput.value.username
       })
-      isLoading.value = false
-      if (!userInput.value.username || !userInput.value.password) return
+      isLoading.value = true
       if (!findedUser) {
         try {
           const input = {
@@ -220,22 +237,17 @@ export default defineComponent({
             username: userInput.value.username,
             password: userInput.value.password,
             attributes: {
-              email: 'ryo.ogura.1022@gmail.com',
+              email: userInput.value.email,
             },
           })
+          await Auth.signIn('admin', 'adminpass')
           await createUserGql(input)
           emit('snackbar', 'アカウントを作成しました！')
-          userInput.value = {
-            username: '',
-            password: '',
-            icon: '',
-            createdAt: Date.now(),
-          }
           emit('update:isOpened', false)
         } catch (e) {
-          console.error(e)
-          emit('snackbar', 'アカウントを作成できませんでした')
+          emit('snackbar', '作成できませんでした')
         } finally {
+          await Auth.signOut()
           isLoading.value = false
         }
       } else {
@@ -257,6 +269,7 @@ export default defineComponent({
           userInput.value = {
             username: '',
             password: '',
+            email: '',
             icon: '',
             createdAt: Date.now(),
           }
