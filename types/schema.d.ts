@@ -64,7 +64,6 @@ export interface CreateUserInput {
 }
 export interface UpdateUserInput {
   id: string
-  username: string
   icon?: string
   updatedAt: number
 }

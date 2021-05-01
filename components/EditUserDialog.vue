@@ -38,22 +38,27 @@
           <p class="grey--text">プロフィール画像を追加</p>
         </v-col>
         <v-col class="ml-sm-8">
+          <p class="ml-2 font-weight-bold text-h5">
+            {{ loginUser.username }}さん
+          </p>
           <v-form ref="form">
             <v-text-field
-              v-model="userInfo.username"
-              class="mt-2"
-              color="rgb(158, 113, 72)"
+              v-model="passwordInput.nowPassword"
               outlined
-              :rules="rules.username"
-              label="username"
-            />
-            <v-text-field
-              v-model="userInfo.password"
-              outlined
-              class="mt-2"
+              class="mb-1"
+              dense
               color="rgb(158, 113, 72)"
               :rules="rules.password"
-              label="password"
+              label="現在のpassword"
+            />
+            <v-text-field
+              v-model="passwordInput.newPassword"
+              outlined
+              dense
+              class="mt-1"
+              color="rgb(158, 113, 72)"
+              :rules="rules.password"
+              label="新しいpassword"
             />
           </v-form>
           <p class="mb-0 red--text font-weight-bold d-inline-block">
@@ -103,7 +108,7 @@ import {
   watch,
   PropType,
 } from 'nuxt-composition-api'
-import { Storage } from 'aws-amplify'
+import { Auth, Storage } from 'aws-amplify'
 import { User } from '~/types/schema'
 import { updateUserGql } from '~/gql/appsync/mutations'
 export default defineComponent({
@@ -127,18 +132,15 @@ export default defineComponent({
     const previewImg = ref('')
     const userInfo = ref({
       id: '',
-      username: '',
       icon: '',
-      password: '',
       updatedAt: Date.now(),
+    })
+    const passwordInput = ref({
+      nowPassword: '',
+      newPassword: '',
     })
     const isLoading = ref(false)
     const rules = {
-      username: [
-        (v: string) => !!v || '入力必須項目です',
-        (v: string) =>
-          (!!v && 30 >= v.length) || `３０文字以内で入力してください`,
-      ],
       password: [
         (v: string) => !!v || '入力必須項目です',
         (v: string) => (!!v && 8 <= v.length) || `8文字以上で入力してください`,
@@ -178,15 +180,16 @@ export default defineComponent({
         userInfo.value.icon = ''
       }
       try {
-        await updateUserGql(userInfo.value)
-        userInfo.value = {
-          id: '',
-          username: '',
-          icon: '',
-          password: '',
-          updatedAt: Date.now(),
+        // iconの変更があれば変更処理
+        if (userInfo.value.icon !== props.loginUser.icon) {
+          await updateUserGql(userInfo.value)
         }
-        previewImg.value = ''
+        const user = await Auth.currentAuthenticatedUser() 
+        await Auth.changePassword(
+          user,
+          passwordInput.value.nowPassword,
+          passwordInput.value.newPassword
+        )
         emit('snackbar', 'アカウント情報を更新しました！')
         emit('update')
         emit('close', false)
@@ -203,8 +206,6 @@ export default defineComponent({
       async (arg) => {
         if (arg) {
           userInfo.value.id = props.loginUser.id
-          userInfo.value.username = props.loginUser.username
-          userInfo.value.password = props.loginUser.password!
           userInfo.value.icon = props.loginUser.icon
           if (props.loginUser.icon) {
             previewImg.value = (await Storage.get(
@@ -214,10 +215,12 @@ export default defineComponent({
         } else {
           userInfo.value = {
             id: '',
-            username: '',
             icon: '',
-            password: '',
             updatedAt: Date.now(),
+          }
+          passwordInput.value = {
+            nowPassword: '',
+            newPassword: '',
           }
           previewImg.value = ''
         }
@@ -231,6 +234,7 @@ export default defineComponent({
       validate,
       uploadFile,
       userInfo,
+      passwordInput,
       previewImg,
       /** computed */
       updateUser,
