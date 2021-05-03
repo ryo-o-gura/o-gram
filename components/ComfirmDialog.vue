@@ -7,9 +7,7 @@
     @input="$emit('toggle', $event)"
   >
     <v-card class="card-wrapper pa-6 pa-sm-10">
-      <p class="text-center text-h3 font-weight-bold title-font pb-4">
-        Warning
-      </p>
+      <p class="text-center font-weight-bold title-font pb-4">Warning</p>
       <p class="text-center my-10 px-2">投稿を削除します。よろしいですか？</p>
       <v-btn
         class="white--text font-weight-bold mr-2"
@@ -60,5 +58,9 @@ export default defineComponent({
 <style scoped>
 .title-font {
   font-family: 'Londrina Solid', cursive !important;
+  font-size: 3rem !important;
+  font-weight: 400;
+  line-height: 3.125rem;
+  letter-spacing: normal !important;
 }
 </style>

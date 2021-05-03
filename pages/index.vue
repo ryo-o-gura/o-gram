@@ -77,10 +77,10 @@
             </v-col>
           </v-row>
         </v-col>
-        <v-col v-else>
-          <v-spacer />
-          <v-row no-gutters class="justify-center justify-sm-right">
-            <v-col>
+        <v-col v-else class="px-0">
+          <v-spacer class="d-none d-sm-block" />
+          <v-row no-gutters class="justify-center justify-sm-end">
+            <v-col cols="6" sm="auto">
               <v-btn
                 class="d-block white--text text-sm-body-1 font-weight-bold px-2 mx-auto"
                 text
@@ -90,7 +90,7 @@
                 ログイン
               </v-btn>
             </v-col>
-            <v-col>
+            <v-col cols="6" sm="auto">
               <v-btn
                 class="d-block white--text text-sm-body-1 font-weight-bold px-2 mx-auto"
                 text
