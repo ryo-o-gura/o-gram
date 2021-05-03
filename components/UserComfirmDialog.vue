@@ -16,13 +16,23 @@
       <div class="input-wrapper">
         <v-text-field
           v-model="userInput"
-          :rules="rules"
           label="確認コード"
           outlined
           color="rgb(158, 113, 72)"
         />
       </div>
-      <div class="text-center">
+      <div>
+        <v-btn
+          :loading="isLoading"
+          text
+          class="text-body-1 font-weight-bold ml-1"
+          color="rgb(158, 113, 72)"
+          @click="resend"
+        >
+          コードを再送する
+        </v-btn>
+      </div>
+      <div class="text-center mt-4">
         <v-btn
           :loading="isLoading"
           class="white--text font-weight-bold mr-2"
@@ -76,21 +86,29 @@ export default defineComponent({
   setup(props, { root, emit }) {
     const isLoading = ref(false)
     const userInput = ref('')
-    const rules = [
-      (v: string) =>
-        /^[0-9a-zA-Z]*$/.test(v) || `半角英数字のみ入力してください`,
-    ]
+    const resend = async () => {
+      try {
+        isLoading.value = true
+        await Auth.resendSignUp(props.username)
+        emit('snackbar', 'コードを再送しました')
+      } catch (e) {
+        console.error(e)
+        emit('snackbar', '再送できませんでした')
+      } finally {
+        isLoading.value = false
+      }
+    }
     const comfirm = async () => {
       try {
         isLoading.value = true
         await Auth.confirmSignUp(props.username, userInput.value)
         emit('snackbar', '確認が完了しました！')
+        emit('update:isOpened', false)
       } catch (e) {
         console.error(e)
         emit('snackbar', '確認できませんでした')
       } finally {
-        isLoading.value = true
-        emit('update:isOpened', false)
+        isLoading.value = false
       }
     }
     /** init */
@@ -106,7 +124,7 @@ export default defineComponent({
     return {
       isLoading,
       userInput,
-      rules,
+      resend,
       comfirm,
     }
   },
@@ -118,6 +136,12 @@ export default defineComponent({
 }
 .input-wrapper {
   max-width: 300px;
-  margin: 0 auto;
+  margin: 20px auto 0;
+}
+.input-wrapper >>> .v-input__slot {
+  margin-bottom: 0;
+}
+.input-wrapper >>> .v-text-field__details {
+  display: none;
 }
 </style>

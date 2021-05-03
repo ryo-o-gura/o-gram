@@ -61,8 +61,8 @@
               label="新しいpassword"
             />
           </v-form>
-          <p class="mb-0 red--text font-weight-bold d-inline-block">
-            <v-icon class="red--text mb-1">mdi-alert-outline</v-icon>
+          <p class="mb-0 font-weight-bold d-inline-block">
+            <v-icon class="mb-1 text-h6">mdi-alert-outline</v-icon>
             パスワードは普段使用していないもので作成してください
           </p>
         </v-col>
@@ -184,7 +184,7 @@ export default defineComponent({
         if (userInfo.value.icon !== props.loginUser.icon) {
           await updateUserGql(userInfo.value)
         }
-        const user = await Auth.currentAuthenticatedUser() 
+        const user = await Auth.currentAuthenticatedUser()
         await Auth.changePassword(
           user,
           passwordInput.value.nowPassword,

@@ -66,9 +66,13 @@
               label="password"
             />
           </v-form>
-          <p class="mb-0 red--text font-weight-bold d-inline-block">
-            <v-icon class="red--text mb-1">mdi-alert-outline</v-icon>
+          <p class="mb-0 font-weight-bold d-inline-block">
+            <v-icon class="mb-1 text-h6">mdi-alert-outline</v-icon>
             パスワードは普段使用していないもので作成してください
+          </p>
+          <p class="mb-0 font-weight-bold d-inline-block">
+            <v-icon class="mb-1 text-h6">mdi-alert-outline</v-icon>
+            メールアドレスに確認コードを送らせていただきます
           </p>
         </v-col>
       </v-row>
@@ -225,8 +229,8 @@ export default defineComponent({
       const findedUser = allUsers.value.find((user: User) => {
         return user.username === userInput.value.username
       })
-      isLoading.value = true
       if (!findedUser) {
+        isLoading.value = true
         try {
           const input = {
             username: userInput.value.username,
@@ -240,9 +244,12 @@ export default defineComponent({
               email: userInput.value.email,
             },
           })
-          await Auth.signIn('admin', 'adminpass')
           await createUserGql(input)
-          emit('snackbar', 'アカウントを作成しました！')
+          emit('comfirm', userInput.value.username)
+          emit(
+            'snackbar',
+            'アカウントを作成しました。アカウントの確認をお願いします。'
+          )
           emit('update:isOpened', false)
         } catch (e) {
           emit('snackbar', '作成できませんでした')
@@ -260,11 +267,15 @@ export default defineComponent({
       async (event) => {
         if (event) {
           try {
+            // 作成のため、adminでログイン
+            await Auth.signIn('admin', 'adminpass')
             allUsers.value = await listUsersGql()
           } catch (e) {
             console.error(e)
           }
         } else {
+          // adminからサインアウト
+          await Auth.signOut()
           previewImg.value = ''
           userInput.value = {
             username: '',

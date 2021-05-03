@@ -9,9 +9,20 @@
           sm="3"
           v-for="(img, index) in previewImgs"
           :key="index"
-          class="img-wrapper"
+          class="text-center"
         >
-          <img :src="img" width="200px" />
+          <div class="img-wrapper">
+            <img :src="img" width="200px" />
+          </div>
+          <v-btn
+            class="white--text font-weight-bold my-2 text-caption"
+            tile
+            height="30px"
+            elevation="0"
+            color="black"
+            @click="deletePreviewImage(index)"
+            >削除する
+          </v-btn>
         </v-col>
         <v-col cols="6" sm="3" class="img-wrapper">
           <v-file-input
@@ -115,6 +126,11 @@ export default defineComponent({
         isLoading.value = false
       }
     }
+    const deletePreviewImage = (index: number) => {
+      console.debug(index)
+      previewImgs.value.splice(index, 1)
+      postImgs.value.splice(index, 1)
+    }
     const createPost = async () => {
       if (!postImgs.value.length) {
         emit('snackbar', '写真は最低一枚は選択してください')
@@ -158,6 +174,7 @@ export default defineComponent({
       /** data */
       isLoading,
       uploadFile,
+      deletePreviewImage,
       previewImgs,
       postImgs,
       postContent,

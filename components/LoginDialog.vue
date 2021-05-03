@@ -147,7 +147,11 @@ export default defineComponent({
           emit('comfirm', userInput.value.username)
         } else {
           console.error(e)
-          emit('snackbar', 'ログインできませんでした')
+          if (e.message === 'Incorrect username or password.') {
+            emit('snackbar', 'ユーザー名またはパスワードが正しくありません')
+          } else {
+            emit('snackbar', 'ログインできませんでした')
+          }
         }
       } finally {
         isLoading.value = false
@@ -157,13 +161,7 @@ export default defineComponent({
     watch(
       () => props.isOpened,
       async (event) => {
-        if (event) {
-          try {
-            console.debug(allUsers.value)
-          } catch (e) {
-            console.error(e)
-          }
-        } else {
+        if (!event){
           userInput.value = {
             username: '',
             password: '',

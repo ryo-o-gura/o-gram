@@ -193,7 +193,7 @@ import {
   deletePostLikeGql,
 } from '~/gql/appsync/mutations'
 import { getPostGql } from '~/gql/appsync/queries'
-import { Storage } from 'aws-amplify'
+import { Auth, Storage } from 'aws-amplify'
 import { getDate } from '~/modules/getDate'
 import {
   CreateCommentInput,
@@ -356,13 +356,26 @@ export default defineComponent({
       async (arg) => {
         if (arg) {
           try {
-            if (userIcon.value) {
-              userIcon.value = (await Storage.get(
-                props.post?.author.icon!
-              )) as string
+            const authUser = await Auth.currentUserInfo()
+            if (authUser) {
+              if (userIcon.value) {
+                userIcon.value = (await Storage.get(
+                  props.post?.author.icon!
+                )) as string
+              }
+              const images = await getPostImage()
+              postImageList.value = images
+            } else {
+              await Auth.signIn('admin', 'adminpass')
+              if (userIcon.value) {
+                userIcon.value = (await Storage.get(
+                  props.post?.author.icon!
+                )) as string
+              }
+              const images = await getPostImage()
+              postImageList.value = images
+              await Auth.signOut()
             }
-            const images = await getPostImage()
-            postImageList.value = images
           } catch (e) {
             console.error(e)
           }

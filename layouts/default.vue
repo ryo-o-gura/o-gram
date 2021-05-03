@@ -9,26 +9,14 @@
 </template>
 
 <script>
-import Amplify, { Auth } from 'aws-amplify'
+import Amplify from 'aws-amplify'
 import awsconfig from '~/src/aws-exports'
-import { defineComponent, useFetch } from 'nuxt-composition-api'
+import { defineComponent } from 'nuxt-composition-api'
 
 Amplify.configure(awsconfig)
 
 export default defineComponent({
-  setup() {
-    /** init */
-    useFetch(async () => {
-      try {
-        // 自動サインイン（仮）
-        // await Auth.signIn('admin0000', 'adminpass')
-        // const a = await Auth.currentAuthenticatedUser()
-        // console.debug('user', a)
-      } catch (e) {
-        console.error(e)
-      }
-    })
-  },
+  setup() {},
 })
 </script>
 <style scoped>

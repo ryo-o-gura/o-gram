@@ -366,9 +366,18 @@ export default defineComponent({
         }
         loginUser.value = await getUserGql(id)
       }
-      allPosts.value = await listPostsGql()
-      await getPostIconList()
-      await getPostImageList()
+      const authUser = await Auth.currentUserInfo()
+      if (authUser) {
+        allPosts.value = await listPostsGql()
+        await getPostIconList()
+        await getPostImageList()
+      } else {
+        await Auth.signIn('admin', 'adminpass')
+        allPosts.value = await listPostsGql()
+        await getPostIconList()
+        await getPostImageList()
+        await Auth.signOut()
+      }
     }
 
     const getPostImageList = async () => {
@@ -495,23 +504,28 @@ export default defineComponent({
     )
     useFetch(async () => {
       try {
-        const authUser = await Auth.currentAuthenticatedUser()
+        const authUser = await Auth.currentUserInfo()
         if (authUser) {
-          console.debug('authUser', authUser)
           const input = {
             username: authUser.username,
           }
           const gotUser = await getUserByUsernameGql(input)
           if (gotUser) {
             loginUser.value = gotUser
-            console.debug('loginUser', loginUser.value)
           } else {
             await Auth.signOut()
           }
+          allPosts.value = await listPostsGql()
+          await getPostImageList()
+          await getPostIconList()
+        } else {
+          // ユーザーがいない場合、一時的に管理者でログインし、投稿を取得
+          await Auth.signIn('admin', 'adminpass')
+          allPosts.value = await listPostsGql()
+          await getPostImageList()
+          await getPostIconList()
+          await Auth.signOut()
         }
-        allPosts.value = await listPostsGql()
-        await getPostImageList()
-        await getPostIconList()
       } catch (e) {
         console.error(e)
       }
