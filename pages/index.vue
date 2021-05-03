@@ -43,50 +43,64 @@
       @update="updateAll"
       @snackbar="updateSnackbar"
     />
-    <v-app-bar fixed dark color="black" height="80px">
+    <v-app-bar fixed dark color="black" elevation="10">
       <v-row class="mx-sm-10">
-        <v-col class="text-sm-h3 text-h4 font-weight-bold title-font">
+        <v-col
+          cols="12"
+          sm="auto"
+          class="text-center text-sm-left text-sm-h3 text-h3 mt-2 mt-sm-0 pa-0 font-weight-bold title-font"
+        >
           O-gram
         </v-col>
-        <v-col v-if="isLogined && loginUser" class="d-flex">
-          <v-spacer />
-          <v-btn
-            class="d-block white--text text-sm-body-1 font-weight-bold mr-2 px-sm-2"
-            text
-            @click="openEditUserDialog"
-          >
-            <v-icon>mdi-account-outline</v-icon>
-            {{ loginUser.username }}
-          </v-btn>
-          <v-btn
-            class="d-block white--text text-sm-body-1 font-weight-bold px-sm-2"
-            text
-            @click="logout"
-          >
-            <v-icon>mdi-logout</v-icon>
-            ログアウト
-          </v-btn>
-          <!-- <p class="mb-0">{{ loginUser.username }}</p> -->
+        <v-col v-if="isLogined && loginUser" class="px-0">
+          <v-spacer class="d-none d-sm-block" />
+          <v-row no-gutters class="justify-center justify-sm-end">
+            <v-col cols="6" sm="auto">
+              <v-btn
+                class="d-block white--text text-sm-body-1 font-weight-bold px-2 mx-auto"
+                text
+                @click="openEditUserDialog"
+              >
+                <v-icon>mdi-account-outline</v-icon>
+                {{ loginUser.username }}
+              </v-btn>
+            </v-col>
+            <v-col cols="6" sm="auto">
+              <v-btn
+                class="d-block white--text text-sm-body-1 font-weight-bold px-2 mx-auto"
+                text
+                @click="logout"
+              >
+                <v-icon>mdi-logout</v-icon>
+                ログアウト
+              </v-btn>
+            </v-col>
+          </v-row>
         </v-col>
-        <v-col v-else class="d-flex">
+        <v-col v-else>
           <v-spacer />
-          <v-btn
-            class="d-block white--text text-sm-body-1 font-weight-bold mr-2 px-sm-2"
-            text
-            @click="isOpenedLoginDialog = true"
-          >
-            <v-icon>mdi-login</v-icon>
-            ログイン
-          </v-btn>
-          <v-btn
-            class="d-block white--text text-sm-body-1 font-weight-bold px-sm-2"
-            text
-            @click="isOpenedCreateUserDialog = true"
-          >
-            <v-icon>mdi-account-multiple-plus-outline</v-icon>
-            新規登録
-          </v-btn>
-          <!-- <p class="mb-0">{{ loginUser.username }}</p> -->
+          <v-row no-gutters class="justify-center justify-sm-right">
+            <v-col>
+              <v-btn
+                class="d-block white--text text-sm-body-1 font-weight-bold px-2 mx-auto"
+                text
+                @click="isOpenedLoginDialog = true"
+              >
+                <v-icon>mdi-login</v-icon>
+                ログイン
+              </v-btn>
+            </v-col>
+            <v-col>
+              <v-btn
+                class="d-block white--text text-sm-body-1 font-weight-bold px-2 mx-auto"
+                text
+                @click="isOpenedCreateUserDialog = true"
+              >
+                <v-icon>mdi-account-multiple-plus-outline</v-icon>
+                新規登録
+              </v-btn>
+            </v-col>
+          </v-row>
         </v-col>
       </v-row>
     </v-app-bar>
@@ -580,7 +594,12 @@ export default defineComponent({
 .v-card--flat {
   border: 1px solid #ddd;
 }
+.v-app-bar {
+  height: 80px !important;
+}
+
 .v-app-bar >>> .v-toolbar__content {
+  height: 80px !important;
   max-width: 1000px;
   margin: 0 auto;
 }
@@ -660,9 +679,20 @@ export default defineComponent({
   }
   .v-snack >>> .v-snack__wrapper {
     width: 100%;
+    max-width: 100%;
+    min-width: 50px;
+    box-sizing: border-box;
+    min-width: none;
     margin: 12px;
     border: 8px solid rgb(158, 113, 72);
     padding: 4px 8px;
+  }
+  .v-app-bar,
+  .v-app-bar >>> .v-toolbar__content {
+    height: 100px !important;
+  }
+  .posts-wrapper {
+    margin-top: 120px;
   }
 }
 </style>
