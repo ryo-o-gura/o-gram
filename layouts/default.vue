@@ -19,7 +19,11 @@ export default defineComponent({
   setup() {},
 })
 </script>
-<style scoped>
+<style>
+html,
+body {
+  overscroll-behavior-y: none;
+}
 .v-main {
   background: url('~/assets/image/bg.jpg');
 }
