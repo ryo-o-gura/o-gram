@@ -108,6 +108,18 @@
     <div class="posts-wrapper">
       <v-btn
         tile
+        class="d-flex mx-auto mb-3 font-weight-bold"
+        width="600px"
+        max-width="100%"
+        elevation="10"
+        height="40px"
+        href= "https://qiita.com/Rmok/items/a39341f37c75256e985d#4%E3%82%A2%E3%83%97%E3%83%AA%E3%81%AE%E4%BD%BF%E3%81%84%E6%96%B9"
+        target="_blank"
+      >
+        <v-icon>mdi-book-open-variant</v-icon> 使い方をみる
+      </v-btn>
+      <v-btn
+        tile
         class="d-block mx-auto font-weight-bold"
         width="600px"
         max-width="100%"
