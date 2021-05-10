@@ -166,6 +166,7 @@ export default defineComponent({
       (arg) => {
         if (!arg) {
           postImgs.value = []
+          previewImgs.value = []
           postContent.value = ''
         }
       }
